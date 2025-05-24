@@ -18,6 +18,11 @@ function UpNav() {
                 alt="icon-facebook"
                 src={imageUrl + "icons/facebook.png"}
                 width={20}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
             <div>
@@ -25,6 +30,11 @@ function UpNav() {
                 alt="icon-instagram"
                 src={imageUrl + "icons/instagram.png"}
                 width={20}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
           </div>
@@ -37,6 +47,11 @@ function UpNav() {
                 alt="notification"
                 src={imageUrl + "icons/notification.png"}
                 width={20}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
             <div className="">Thông báo</div>
@@ -47,6 +62,11 @@ function UpNav() {
                 alt="help"
                 src={imageUrl + "icons/question.png"}
                 width={22}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
             <div className="">Hỗ trợ</div>
@@ -58,6 +78,11 @@ function UpNav() {
                 alt="down-arrow"
                 src={imageUrl + "icons/down-arrow.png"}
                 width={16}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
           </div>

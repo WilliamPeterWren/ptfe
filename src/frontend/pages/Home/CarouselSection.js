@@ -13,7 +13,7 @@ const CarouselSection = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
-    dots: true, 
+    dots: true,
   };
 
   const carouselImages = [
@@ -40,6 +40,11 @@ const CarouselSection = () => {
                 src={`${imageUrl}/slider/${src}`}
                 alt={`Carousel Slide ${index + 1}`}
                 className="w-full h-[300px] object-cover rounded-lg"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
             </div>
           ))}
@@ -53,6 +58,11 @@ const CarouselSection = () => {
               src={`${imageUrl}/slider/${banner.src}`}
               alt={banner.alt}
               className="w-full h-full object-cover rounded-lg"
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
           </div>
         ))}

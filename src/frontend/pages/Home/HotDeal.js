@@ -159,7 +159,7 @@ const HotDealsSection = () => {
           </span>
         </div>
         <a href="/" className="text-sm text-blue-500 hover:underline">
-          Xem Tất Cả 
+          Xem Tất Cả
         </a>
       </div>
 
@@ -181,7 +181,6 @@ const HotDealsSection = () => {
           </div>
         </div>
 
-        {/* Right Deals Slider */}
         <div className="w-full md:w-3/4">
           <Slider {...settings}>
             {deals.map((deal, index) => (
@@ -191,6 +190,11 @@ const HotDealsSection = () => {
                     src={deal.src}
                     alt={deal.brand}
                     className="w-24 h-24 object-contain mb-2"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      // e.target.src = defaultImage(item);
+                    }}
+                    loading="lazy"
                   />
                   <p className="text-sm font-semibold text-gray-800">
                     {deal.brand}

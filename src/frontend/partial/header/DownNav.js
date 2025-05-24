@@ -8,10 +8,28 @@ function DownNav() {
       <a href="/home">
         <div className="flex items-center p-2 mr-20">
           <div>
-            <img alt="logo" src={imageUrl + "logo/logo.png"} width={40} />
+            <img
+              alt="logo"
+              src={imageUrl + "logo/logo.png"}
+              width={40}
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
+            />
           </div>
           <div className="ml-4">
-            <img alt="peter" src={imageUrl + "logo/peter 2.png"} width={130} />
+            <img
+              alt="peter"
+              src={imageUrl + "logo/peter 2.png"}
+              width={130}
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
+            />
           </div>
         </div>
       </a>
@@ -39,6 +57,11 @@ function DownNav() {
               alt="cart"
               src={imageUrl + "icons/cart-white.png"}
               width={40}
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
           </div>
 

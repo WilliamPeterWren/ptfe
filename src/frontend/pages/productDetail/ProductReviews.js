@@ -24,6 +24,11 @@ const ReviewMedia = ({ media }) => (
           src={item.url}
           alt={`Media ${index + 1}`}
           className="w-20 h-20 object-cover rounded"
+          onError={(e) => {
+            e.target.onerror = null;
+            // e.target.src = defaultImage(item);
+          }}
+          loading="lazy"
         />
         {item.duration && (
           <span className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-1 rounded">

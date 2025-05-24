@@ -5,7 +5,7 @@ import UserContext from "../../../context/userContext";
 
 import CarouselSection from "./CarouselSection";
 import DownSlider from "./DownSlider";
-import CategoriesSection from "./Category";
+import CategoriesSection from "./CategorySection";
 import FlashSaleSection from "./FlashSale";
 import HotDealsSection from "./HotDeal";
 import TopSearchesSection from "./TopSearchSection";

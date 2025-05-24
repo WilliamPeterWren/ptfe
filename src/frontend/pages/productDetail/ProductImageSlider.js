@@ -61,6 +61,11 @@ const ProductImageSlider = (props) => {
           src={mainImage}
           alt="Main Product"
           className="w-full h-full object-cover rounded-lg shadow-md"
+          onError={(e) => {
+            e.target.onerror = null;
+            // e.target.src = defaultImage(item);
+          }}
+          loading="lazy"
         />
       </div>
 
@@ -88,6 +93,11 @@ const ProductImageSlider = (props) => {
                   : "border-2 border-transparent"
               } hover:opacity-80`}
               onClick={() => handleImageClick(image)}
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
           ))}
         </div>

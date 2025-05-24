@@ -5,9 +5,8 @@ import "slick-carousel/slick/slick-theme.css";
 
 import { imageUrl } from "../../../api/config";
 
-const CategoriesSection = () => {
-  
-  const categories = [
+const BrandsSection = () => {
+  const brands = [
     {
       src: "thoi-trang-nam.webp",
       label: "Thời Trang Nam",
@@ -123,21 +122,21 @@ const CategoriesSection = () => {
     autoplaySpeed: 3000,
     responsive: [
       {
-        breakpoint: 1024, 
+        breakpoint: 1024,
         settings: {
           slidesToShow: 4,
           slidesToScroll: 4,
         },
       },
       {
-        breakpoint: 768, 
+        breakpoint: 768,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 3,
         },
       },
       {
-        breakpoint: 640, 
+        breakpoint: 640,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
@@ -147,18 +146,23 @@ const CategoriesSection = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h2 className="text-xl font-bold uppercase mb-4">Danh Mục</h2>
+    <div className="container mx-auto px-4 py-6 bg-white mt-10">
+      <h2 className="text-xl font-bold uppercase mb-4">PETER MALL</h2>
 
       <div className="w-full">
         <Slider {...settings}>
-          {categories.map((category, index) => (
-            <div key={index} className="px-2">
-              <div className="flex flex-col items-center">
+          {brands.map((category, index) => (
+            <div key={index} className="px-2 ">
+              <div className="flex flex-col items-center ">
                 <img
-                  src={imageUrl+"category/"+category.src}
+                  src={imageUrl + "category/" + category.src}
                   alt={category.label}
                   className="w-16 h-16 object-contain mb-2"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <p className="text-sm text-gray-600 text-center">
                   {category.label}
@@ -172,4 +176,4 @@ const CategoriesSection = () => {
   );
 };
 
-export default CategoriesSection;
+export default BrandsSection;

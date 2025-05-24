@@ -129,16 +129,24 @@ const FlashSaleSection = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold uppercase flex items-center">
-          <img alt="flash_sale" src={imageUrl+"flashsale/flash_sale.png"} width={100} />
+          <img
+            alt="flash_sale"
+            src={imageUrl + "flashsale/flash_sale.png"}
+            width={100}
+            onError={(e) => {
+              e.target.onerror = null;
+              // e.target.src = defaultImage(item);
+            }}
+            loading="lazy"
+          />
           <span className="ml-2 text-white bg-red-500 px-2 py-1 rounded-lg">
             {timeLeft.hours} {timeLeft.minutes} {timeLeft.seconds}
           </span>
         </h2>
         <a href="/" className="text-sm text-blue-500 hover:underline">
-          Xem tất cả 
+          Xem tất cả
         </a>
       </div>
 
@@ -151,6 +159,11 @@ const FlashSaleSection = () => {
                   src={item.src}
                   alt={item.label}
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <div className="p-2 bg-white">
                   <div className="flex items-center mb-1">

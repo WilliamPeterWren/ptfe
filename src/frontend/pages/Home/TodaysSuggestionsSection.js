@@ -27,6 +27,11 @@ const RecommendationsSection = () => {
               src={product.src}
               alt={product.label}
               className="w-full h-48 object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
             <div className="p-2 bg-white">
               <div className="flex items-center mb-1">

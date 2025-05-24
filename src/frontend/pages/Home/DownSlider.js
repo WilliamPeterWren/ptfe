@@ -39,7 +39,17 @@ function DownSlider() {
     <div className="mx-20 mt-10 flex justify-between">
       {sliderItems.map((item, index) => (
         <div key={item.alt} className="mx-4 flex flex-col items-center">
-          <img alt={item.alt} src={item.src} width={50} className="mb-2" />
+          <img
+            alt={item.alt}
+            src={item.src}
+            width={50}
+            className="mb-2"
+            onError={(e) => {
+              e.target.onerror = null;
+              // e.target.src = defaultImage(item);
+            }}
+            loading="lazy"
+          />
           {Array.isArray(item.label) ? (
             item.label.map((text, i) => (
               <span key={i} className="capitalize">

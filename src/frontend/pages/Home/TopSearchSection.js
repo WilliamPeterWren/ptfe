@@ -74,7 +74,7 @@ const TopSearchesSection = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold uppercase">Tìm Kiếm Hàng Đầu</h2>
         <a href="/" className="text-sm text-blue-500 hover:underline">
-          Xem Tất Cả 
+          Xem Tất Cả
         </a>
       </div>
 
@@ -91,6 +91,11 @@ const TopSearchesSection = () => {
                   src={item.src}
                   alt={item.label}
                   className="w-full h-32 object-contain mb-2"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <p className="text-xs text-gray-600">{item.sales}</p>
                 <p className="text-sm font-semibold text-gray-800">

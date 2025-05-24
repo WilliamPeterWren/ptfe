@@ -121,38 +121,132 @@ function Footer() {
                 <img
                   alt="americanexpress"
                   src={imageUrl + "purchase/americanexpress.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
-                <img alt="jbc" src={imageUrl + "purchase/jbc.png"} />
+                <img
+                  alt="jbc"
+                  src={imageUrl + "purchase/jbc.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
                 <img
                   alt="mastercard"
                   src={imageUrl + "purchase/mastercard.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
-                <img alt="Peterpay" src={imageUrl + "purchase/shopepay.png"} />
-                <img alt="visa" src={imageUrl + "purchase/visa.png"} />
+                <img
+                  alt="Peterpay"
+                  src={imageUrl + "purchase/shopepay.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
+                <img
+                  alt="visa"
+                  src={imageUrl + "purchase/visa.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
               </div>
               <h1 className="font-bold uppercase mt-10">ĐƠN VỊ VẬN CHUYỂN</h1>
               <div className="grid grid-cols-3 gap-4">
-                <img alt="ahamove" src={imageUrl + "shipping/ahamove.png"} />
-                <img alt="be" src={imageUrl + "shipping/be.png"} />
-                <img alt="ghn" src={imageUrl + "shipping/ghn.png"} />
+                <img
+                  alt="ahamove"
+                  src={imageUrl + "shipping/ahamove.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
+                <img
+                  alt="be"
+                  src={imageUrl + "shipping/be.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
+                <img
+                  alt="ghn"
+                  src={imageUrl + "shipping/ghn.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
                 <img
                   alt="grabexpress"
                   src={imageUrl + "shipping/grabexpress.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <img
                   alt="jtexpress"
                   src={imageUrl + "shipping/j&texpress.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
-                <img alt="ninjavan" src={imageUrl + "shipping/ninjavan.png"} />
+                <img
+                  alt="ninjavan"
+                  src={imageUrl + "shipping/ninjavan.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
                 <img
                   alt="shopeeexpress"
                   src={imageUrl + "shipping/shopeeexpress.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <img
                   alt="viettelpost"
                   src={imageUrl + "shipping/viettelpost.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
-                <img alt="vnpost" src={imageUrl + "shipping/vnpost.png"} />
+                <img
+                  alt="vnpost"
+                  src={imageUrl + "shipping/vnpost.png"}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
@@ -163,6 +257,11 @@ function Footer() {
                 alt="facebook"
                 src={imageUrl + "follow/facebook.png"}
                 width={25}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
               <p className="ml-4">Facebook</p>
             </div>
@@ -171,6 +270,11 @@ function Footer() {
                 alt="instagram"
                 width={25}
                 src={imageUrl + "follow/instagram.png"}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
               <p className="ml-4">Instagram</p>
             </div>
@@ -179,6 +283,11 @@ function Footer() {
                 alt="linkdin"
                 width={25}
                 src={imageUrl + "follow/linkedin.png"}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  // e.target.src = defaultImage(item);
+                }}
+                loading="lazy"
               />
               <p className="ml-4">LinkdIn</p>
             </div>
@@ -187,7 +296,16 @@ function Footer() {
             <h1 className="font-bold uppercase">TẢI ỨNG DỤNG Peter</h1>
             <div className="flex justify-between">
               <div>
-                <img alt="qr" src={imageUrl + "peter/qr.jpg"} width={80} />
+                <img
+                  alt="qr"
+                  src={imageUrl + "peter/qr.jpg"}
+                  width={80}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
+                />
               </div>
               <div>
                 <img
@@ -195,18 +313,33 @@ function Footer() {
                   alt="appgallery"
                   src={imageUrl + "peter/appgallery.png"}
                   width={70}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <img
                   className="mt-2"
                   alt="applestore"
                   src={imageUrl + "peter/applestore.png"}
                   width={70}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
                 <img
                   className="mt-2"
                   alt="googleplay"
                   src={imageUrl + "peter/googleplay.png"}
                   width={70}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    // e.target.src = defaultImage(item);
+                  }}
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -232,16 +365,31 @@ function Footer() {
               src={imageUrl + "registed/dangky-blue.webp"}
               alt="Bộ Công Thương Certification 1"
               className="w-45 h-20"
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
             <img
               src={imageUrl + "registed/dangky-red.webp"}
               className="w-45 h-20"
               alt="Bộ Công Thương Certification 2"
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
             <img
               src={imageUrl + "registed/dangky-blue.webp"}
               className="w-45 h-20"
               alt="Bộ Công Thương Certification 3"
+              onError={(e) => {
+                e.target.onerror = null;
+                // e.target.src = defaultImage(item);
+              }}
+              loading="lazy"
             />
           </div>
           <div className="text-center text-sm text-gray-600">
