@@ -1,6 +1,8 @@
 import Home from "../frontend/pages/Home/Home";
 import ProductDetail from "../frontend/pages/productDetail/ProductDetail";
 import ProductByCategory from "../frontend/pages/ProductByCategory/ProductByCategory";
+import MyProfile from "../frontend/pages/MyProfile/MyProfile";
+import FlashSale from "../frontend/pages/FlashSale/FlashSale";
 
 import About from "../frontend/pages/About/About";
 import Contact from "../frontend/pages/Contact/Contact";
@@ -29,7 +31,13 @@ const FrontendRoute = [
   { path: "/product-detail/:slug", component: ProductDetail },
   { path: "/products-by-cat/:category", component: ProductByCategory },
 
+  { path: "/user/account/profile", component: MyProfile },
+
+  { path: "/flashsale", component: FlashSale },
+
+
   { path: "/about", component: About },
+
   { path: "*", component: NotFound },
   { path: "/contact", component: Contact },
   { path: "/help", component: Help },
