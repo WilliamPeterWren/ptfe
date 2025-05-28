@@ -1,19 +1,16 @@
-import React from 'react'
+import Header from "./partial/Header";
+import Footer from "./partial/Footer";
 
-import Header from './partial/Header';
-import Footer from './partial/Footer';
-
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
 
 function Index() {
-  
-    return (
-        <div >
-        <Header />   
-        <Outlet />
-        <Footer />
-        </div>
-    )
+  return (
+    <div className="">
+      <Header />
+      <Outlet />
+      <Footer />
+    </div>
+  );
 }
 
-export default Index
+export default Index;

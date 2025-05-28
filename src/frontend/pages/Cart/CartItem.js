@@ -155,6 +155,11 @@ function CartItem() {
                       src={item.image}
                       alt={item.name}
                       className="w-12 h-12 mr-2"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        // e.target.src = defaultImage(item);
+                      }}
+                      loading="lazy"
                     />
                     <div>
                       <p className="text-sm">{item.name}</p>

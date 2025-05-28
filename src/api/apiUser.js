@@ -1,22 +1,21 @@
 import axiosInstance from "./axios";
 
 const apiUser = {
-    // create user
-    createUser: (data) =>{
-        return axiosInstance.post("/auth/local/register", data);
-    },
+  register: (data) => {
+    return axiosInstance.post("users/register", data);
+  },
 
-    loginUser: (data) =>{
-        return axiosInstance.post("/auth/local", data);
-    },
+  login: (data) => {
+    return axiosInstance.post("users/login", data);
+  },
 
-    getOne: (id) => {
-        return axiosInstance.get(`/users/${id}?populate=*`);
-    },
+  myprofile: (header) => {
+    return axiosInstance.get(`users/myInfo`, header);
+  },
 
-    getAll: () => {
-        return axiosInstance.get("/users?populate=*");
-    },
-}
+  getAll: () => {
+    return axiosInstance.get("users?populate=*");
+  },
+};
 
 export default apiUser;

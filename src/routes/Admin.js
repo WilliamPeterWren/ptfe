@@ -1,75 +1,62 @@
-import Dashboard from "../admin/pages/Dashboard/Dashboard";
+import Login from "../admin/pages/auth/Login";
+import Logout from "../admin/pages/auth/Logout";
 
-import CategoryAdmin from "../admin/pages/Category/CategoryAdmin";
-import AddCategory from "../admin/pages/Category/AddCategory";
-import EditCategory from "../admin/pages/Category/EditCategory";
+import ProductList from "../admin/pages/product/ProductList";
+import ProductDetail from "../admin/pages/product/ProductDetail";
+import CreateProductPage from "../admin/pages/product/CreateProduct";
+import EditProduct from "../admin/pages/product/EditProduct";
 
-import ProductAdmin from "../admin/pages/Product/ProductAdmin";
-import AddProduct from "../admin/pages/Product/AddProduct";
-import EditProductAdmin from "../admin/pages/Product/EditProductAdmin";
-import DetailProductAdmin from "../admin/pages/Product/DetailProductAdmin";
+import CategoryList from "../admin/pages/category/CategoryList";
+import CategoryDetail from "../admin/pages/category/CategoryDetail";
 
-import UserAdmin from "../admin/pages/User/UserAdmin";
-import DetailUserAdmin from "../admin/pages/User/DetailUserAdmin";
+import OrderList from "../admin/pages/order/OrderList";
+import OrderDetail from "../admin/pages/order/OrderDetail";
 
-import OrderAdmin from "../admin/pages/Order/OrderAdmin";
-import DetailOrderAdmin from "../admin/pages/Order/DetailOrderAdmin";
+import SellerDiscount from "../admin/pages/discount/SellerDiscount";
+import ProductDiscount from "../admin/pages/discount/ProductDiscount";
 
-import BrandAdmin from "../admin/pages/Brand/BrandAdmin";
-import AddBrand from "../admin/pages/Brand/AddBrand";
-import EditBrand from "../admin/pages/Brand/EditBrand";
+import Revenue from "../admin/pages/finance/Revenue";
+import Balance from "../admin/pages/finance/Balance";
+import BankingAccount from "../admin/pages/finance/BankingAccount";
+import PaymentSetting from "../admin/pages/finance/PaymentSetting";
 
-import Login from "../admin/pages/Login/Login";
-import LogoutAdmin from "../admin/pages/Login/LogoutAdmin";
+import ManageDelivery from "../admin/pages/delivery/ManageDelivery";
+import ShippingOptions from "../admin/pages/delivery/ShippingMethod";
+
+import Profile from "../admin/pages/Shop/Profile";
+import OrderData from "../admin/pages/order/OrderData";
 
 const BackendRoute = [
-  { path: "/", component: Dashboard },
-  { path: "/admin", component: Dashboard },
-  { path: "/admin/dashboard", component: Dashboard },
+  { path: "", component: Login },
+  { path: "login", component: Login },
+  { path: "logout", component: Logout },
 
-  { path: "/admin/login", component: Login },
-  { path: "/admin/logout", component: LogoutAdmin },
+  { path: "product/product-list", component: ProductList },
+  { path: "product/product-detail/:id", component: ProductDetail },
+  { path: "product/create", component: CreateProductPage },
+  { path: "product/update/:id", component: EditProduct },
 
-  { path: "/admin/dashboard/category-admin", component: CategoryAdmin },
-  { path: "/admin/dashboard/category-admin/:page", component: CategoryAdmin },
-  {
-    path: "/admin/dashboard/category-admin/add-category",
-    component: AddCategory,
-  },
-  {
-    path: "/admin/dashboard/category-admin/edit-category/:id",
-    component: EditCategory,
-  },
+  { path: "category/category-list", component: CategoryList },
+  { path: "category/category-detail", component: CategoryDetail },
 
-  { path: "/admin/dashboard/product-admin/:page", component: ProductAdmin },
-  { path: "/admin/dashboard/product-admin", component: ProductAdmin },
-  { path: "/admin/dashboard/product-admin/add-product", component: AddProduct },
-  {
-    path: "/admin/dashboard/product-admin/edit-product/:id",
-    component: EditProductAdmin,
-  },
-  {
-    path: "/admin/dashboard/product-admin/detail-product/:id",
-    component: DetailProductAdmin,
-  },
+  { path: "order/order-list", component: OrderData },
+  { path: "order/canceled", component: OrderList },
+  { path: "order/returnrefundcancel", component: OrderList },
+  { path: "order/order-detail", component: OrderDetail },
 
-  { path: "/admin/dashboard/user-admin", component: UserAdmin },
-  {
-    path: "/admin/dashboard/user-admin/detail-user/:id",
-    component: DetailUserAdmin,
-  },
+  { path: "discount/product-discount", component: ProductDiscount },
+  { path: "discount/seller-discount", component: SellerDiscount },
 
-  { path: "/admin/dashboard/order-admin/:page", component: OrderAdmin },
-  { path: "/admin/dashboard/order-admin", component: OrderAdmin },
-  {
-    path: "/admin/dashboard/order-admin/detail-order/:id",
-    component: DetailOrderAdmin,
-  },
+  { path: "finance/revenue", component: Revenue },
+  { path: "finance/balance", component: Balance },
+  { path: "finance/banking-account", component: BankingAccount },
+  { path: "finance/payment-setting", component: PaymentSetting },
 
-  { path: "/admin/dashboard/brand-admin", component: BrandAdmin },
-  { path: "/admin/dashboard/brand-admin/:page", component: BrandAdmin },
-  { path: "/admin/dashboard/brand-admin/add-brand", component: AddBrand },
-  { path: "/admin/dashboard/brand-admin/edit-brand/:id", component: EditBrand },
+  { path: "delivery/manage-delivery", component: ManageDelivery },
+  { path: "delivery/shipping-method", component: ShippingOptions },
+  { path: "delivery/shipping-method", component: ShippingOptions },
+
+  { path: "shop/profile", component: Profile },
 ];
 
 export default BackendRoute;

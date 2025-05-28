@@ -1,63 +1,74 @@
 import Home from "../frontend/pages/Home/Home";
-import ProductDetail from "../frontend/pages/productDetail/ProductDetail";
-import ProductByCategory from "../frontend/pages/ProductByCategory/ProductByCategory";
-import MyProfile from "../frontend/pages/MyProfile/MyProfile";
-import FlashSale from "../frontend/pages/FlashSale/FlashSale";
 
-import About from "../frontend/pages/About/About";
-import Contact from "../frontend/pages/Contact/Contact";
-import NotFound from "../frontend/pages/NotFound";
-import Help from "../frontend/pages/Help/Help";
-
-import Product from "../frontend/pages/Product/ProductList";
-
+//auth
 import Register from "../frontend/pages/User/Register";
 import Login from "../frontend/pages/User/Login";
 import Logout from "../frontend/pages/User/Logout";
-
 import ForgotPassword from "../frontend/pages/User/ForgotPassword";
-import Cart from "../frontend/pages/Cart/Cart";
-import Purchase from "../frontend/pages/Purchase/Purchase";
 
+import MyProfile from "../frontend/pages/MyProfile/MyProfile";
+
+// product
+import ProductDetail from "../frontend/pages/productDetail/ProductDetail";
+import ProductByCategory from "../frontend/pages/ProductByCategory/ProductByCategory";
+import FlashSale from "../frontend/pages/FlashSale/FlashSale";
+
+import SuggestToday from "../frontend/pages/SuggestToday/SuggestToday";
+
+// search
 import SearchProducts from "../frontend/pages/Search/SearchProducts";
 
-import UserOrders from "../frontend/pages/Order/UserOrders";
-import UserOrderDetail from "../frontend/pages/Order/UserOrderDetail";
+// cart
+import Cart from "../frontend/pages/Cart/Cart";
+
+// check out
+import CheckOut from "../frontend/pages/Checkout/CheckOut";
+
+// ------------------------ seller section ------------------------
+import SellerPage from "../frontend/pages/Seller/SellerPage";
+
+// ------------------------ nothing ------------------------
+import NotFound from "../frontend/pages/NotFound";
+import About from "../frontend/pages/About/About";
+import Contact from "../frontend/pages/Contact/Contact";
+import Help from "../frontend/pages/Help/Help";
 
 const FrontendRoute = [
+  // ------------ home ------------
   { path: "/", component: Home },
   { path: "/home", component: Home },
 
-  { path: "/product-detail/:slug", component: ProductDetail },
-  { path: "/products-by-cat/:category", component: ProductByCategory },
-
-  { path: "/user/account/profile", component: MyProfile },
-
-  { path: "/flashsale", component: FlashSale },
-
-
-  { path: "/about", component: About },
-
-  { path: "*", component: NotFound },
-  { path: "/contact", component: Contact },
-  { path: "/help", component: Help },
-
-  { path: "/products", component: Product },
-  { path: "/products/:page", component: Product },
-
+  // ------------ auth ------------
   { path: "/register", component: Register },
   { path: "/login", component: Login },
   { path: "/logout", component: Logout },
-
   { path: "/forgot-password", component: ForgotPassword },
+
+  { path: "/user/account/profile", component: MyProfile },
+
+  // ------------ product ------------
+  { path: "/product-detail/:slug", component: ProductDetail },
+  { path: "/products-by-cat/:category", component: ProductByCategory },
+  { path: "/flashsale", component: FlashSale },
+  { path: "/todaysuggest", component: SuggestToday },
+
+  // ------------ search ------------
+  { path: "/search/products", component: SearchProducts },
+
+  // ------------ cart ------------
   { path: "/cart", component: Cart },
 
-  { path: "/make-purchase", component: Purchase },
+  // ------------ checkout ------------
+  { path: "/checkout", component: CheckOut },
 
-  { path: "/search/products/:query", component: SearchProducts },
+  // ------------ seller ------------
+  { path: "/seller/page", component: SellerPage },
 
-  { path: "/orders", component: UserOrders },
-  { path: "/order-detail/:id", component: UserOrderDetail },
+  // ------------ nothing ------------
+  { path: "*", component: NotFound },
+  { path: "/about", component: About },
+  { path: "/contact", component: Contact },
+  { path: "/help", component: Help },
 ];
 
 export default FrontendRoute;

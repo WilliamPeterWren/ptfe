@@ -91,9 +91,9 @@ function Chat() {
               ))}
             </div>
             <div className="p-4 bg-gray-100 text-center text-blue-600">
-              Chào mừng bạn đến với Shopee Chat
+              Chào mừng bạn đến với Peter Chat
               <br />
-              Bắt đầu trả lời người mua!
+      
             </div>
           </div>
         </div>

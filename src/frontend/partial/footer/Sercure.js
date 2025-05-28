@@ -3,7 +3,7 @@ import { imageUrl } from "../../../api/config";
 
 function Sercure() {
   return (
-    <div className=" py-6 px-4">
+    <div className=" py-6 px-4 px-80">
       <nav className="flex justify-center space-x-4 mb-6 text-sm text-gray-600">
         <a href="/" className="hover:underline">
           Chính sách bảo mật

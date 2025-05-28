@@ -1,17 +1,20 @@
 import axiosInstance from "./axios";
 
 const apiCategory = {
-
-  getAll: () => {
-    return axiosInstance.get("/categories").then((res) => res.data);
-  },  
+  getAll: (sellerId) => {
+    return axiosInstance.get(`/categories/get-by-sellerid/${sellerId}`);
+  },
 
   getOne: (id) => {
     return axiosInstance.get(`/categories/${id}`).then((res) => res.data);
   },
 
   getCategoryPagination: (page, limit) => {
-    return axiosInstance.get(`/categories?pagination[page]=${page}&pagination[pageSize]=${limit}&populate=*`).then((res) => res.data);
+    return axiosInstance
+      .get(
+        `/categories?pagination[page]=${page}&pagination[pageSize]=${limit}&populate=*`
+      )
+      .then((res) => res.data);
   },
 
   createCategory: (category) => {
@@ -23,12 +26,14 @@ const apiCategory = {
   },
 
   editCategory: (id, category) => {
-    return axiosInstance.put(`/categories/${id}`, category).then((res) => res.data);
+    return axiosInstance
+      .put(`/categories/${id}`, category)
+      .then((res) => res.data);
   },
 
   deleteCategoryById: (id) => {
     return axiosInstance.delete(`/categories/${id}`).then((res) => res.data);
   },
-}
+};
 
 export default apiCategory;

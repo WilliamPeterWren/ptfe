@@ -140,6 +140,7 @@ const FlashSaleSection = () => {
               // e.target.src = defaultImage(item);
             }}
             loading="lazy"
+            className="mx-3"
           />
           <span className="ml-2 text-white bg-red-500 px-2 py-1 rounded-lg">
             {timeLeft.hours} {timeLeft.minutes} {timeLeft.seconds}

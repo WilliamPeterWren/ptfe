@@ -1,8 +1,10 @@
-
-
-const Sidebar = () => {
+const Sidebar = (props) => {
   const menuItems = [
-    { label: "Thông Báo", icon: "🔔", color: "text-red-500" },
+    {
+      label: "Thông Báo",
+      icon: "🔔",
+      color: "text-red-500",
+    },
     { label: "Tài Khoản Của Tôi", icon: "👤", color: "text-blue-500" },
     { label: "Hồ Sơ", icon: "📝", color: "text-blue-500", active: true },
     { label: "Ngân Hàng", icon: "🏦", color: "text-blue-500" },
@@ -21,8 +23,12 @@ const Sidebar = () => {
     },
   ];
 
+  const { setShowProfile, setShowOrder } = props;
+
+  const handleSection = () => {};
+
   return (
-    <div className="w-64 h-screen bg-white shadow-md">
+    <div className="max-h-[570px] w-64 bg-white shadow-md mt-6 rounded">
       <div className="p-4 flex items-center space-x-3 border-b">
         <img
           src="https://via.placeholder.com/40"
@@ -44,13 +50,15 @@ const Sidebar = () => {
               item.active ? "bg-gray-100 font-semibold" : ""
             }`}
           >
-            <span className={`mr-3 ${item.color}`}>{item.icon}</span>
-            <span className="flex-1">{item.label}</span>
-            {item.badge && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
-                {item.badge}
-              </span>
-            )}
+            <button onClick={handleSection(item)}>
+              <span className={`mr-3 ${item.color}`}>{item.icon}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.badge && (
+                <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
+                  {item.badge}
+                </span>
+              )}
+            </button>
           </li>
         ))}
       </ul>

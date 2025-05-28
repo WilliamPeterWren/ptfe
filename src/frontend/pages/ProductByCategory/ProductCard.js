@@ -2,7 +2,16 @@ import React from 'react'
 
 const ProductCard = ({ name, price, originalPrice, discount, image }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
-    <img src={image} alt={name} className="w-full h-48 object-cover" />
+    <img
+      src={image}
+      alt={name}
+      className="w-full h-48 object-cover"
+      onError={(e) => {
+        e.target.onerror = null;
+        // e.target.src = defaultImage(item);
+      }}
+      loading="lazy"
+    />
     <div className="p-4">
       <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
       <p className="text-red-600 font-bold">{price} VND</p>

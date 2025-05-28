@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { imageUrl } from "../../../api/config";
 
+import Cookies from "js-cookie";
+
+import UserContext from "../../../context/userContext";
+import { useNavigate } from "react-router-dom";
+
 function UpNav() {
+  const { user } = useContext(UserContext);
+
+  const email = Cookies.get("email");
+
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handleRegister = () => {
+    navigate("/register");
+  };
+
   return (
     <div>
-      <div className="UpNav text-customText flex justify-between">
-        <div className="flex justify-between py-2">
+      <div className="text-customText flex justify-between max-h-8">
+        <div className="flex justify-between py-1">
           <div className="mr-2 border-r-2 border-white pr-2">
             Kênh Người Bán
           </div>
@@ -86,7 +105,25 @@ function UpNav() {
               />
             </div>
           </div>
-          <div>Login</div>
+          {email ? (
+            <div> {email} </div>
+          ) : (
+            <div>
+              {" "}
+              <button
+                className="border-r-2 border-white pr-2 hover:text-blue-500"
+                onClick={handleLogin}
+              >
+                Đăng nhập
+              </button>{" "}
+              <button
+                className="pl-1 hover:text-blue-500"
+                onClick={handleRegister}
+              >
+                Đăng ký
+              </button>{" "}
+            </div>
+          )}
         </div>
       </div>
     </div>

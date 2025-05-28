@@ -4,13 +4,14 @@ import { Provider } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Index from "./frontend/Index";
+import Index from "./frontend/Index"; // Frontend layout
 import FrontendRoute from "./routes/FrontEnd";
+
+import IndexAdmin from "./admin/indexBackend"; // Admin layout
+import AdminRoutes from "./routes/Admin";
+
 import { UserProvider } from "./context/userContext";
 import store from "./redux/store";
-
-import IndexAdmin from "./admin/indexBackend";
-import AdminRoutes from "./routes/Admin";
 
 function App() {
   return (
@@ -18,19 +19,33 @@ function App() {
       <UserProvider>
         <ToastContainer />
         <Routes>
-          {/* frontend route */}
+          {/* Frontend Layout */}
           <Route path="/" element={<Index />}>
-            {FrontendRoute.map((root, index) => {
-              const Page = root.component;
-              return <Route key={index} path={root.path} element={<Page />} />;
+            {FrontendRoute.map((route, index) => {
+              const Page = route.component;
+              // Make sure route.path is relative (no starting /)
+              return (
+                <Route
+                  key={index}
+                  path={route.path.replace(/^\//, "")}
+                  element={<Page />}
+                />
+              );
             })}
           </Route>
 
-          {/* backend route */}
-          <Route path="/" element={<IndexAdmin />}>
-            {AdminRoutes.map((root, index) => {
-              const Page = root.component;
-              return <Route key={index} path={root.path} element={<Page />} />;
+          {/* Admin Layout */}
+          <Route path="/admin" element={<IndexAdmin />}>
+            {AdminRoutes.map((route, index) => {
+              const Page = route.component;
+              // Make path relative to "/admin"
+              return (
+                <Route
+                  key={index}
+                  path={route.path.replace(/^\/admin\//, "")}
+                  element={<Page />}
+                />
+              );
             })}
           </Route>
         </Routes>
