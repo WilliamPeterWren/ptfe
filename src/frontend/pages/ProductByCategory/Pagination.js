@@ -1,11 +1,16 @@
 import { useState } from "react";
 
-const Pagination = ({ totalPages = 9 }) => {
+const Pagination = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { pagable } = props;
+  console.log(pagable);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
+  const totalPages = 9;
 
   const renderPageNumbers = () => {
     const pageNumbers = [];

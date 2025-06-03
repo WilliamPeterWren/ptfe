@@ -1,41 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Link } from "react-router-dom";
+
+import apiProduct from "../../../api/apiProduct";
+import { imageUrl } from "../../../api/config";
 
 const TopSearchesSection = () => {
-  const topSearches = [
-    {
-      src: "https://via.placeholder.com/150x150.png?text=QuanDui",
-      label: "Quần Dùi Thể Thao",
-      sales: "Bán 52K+ /tháng",
-    },
-    {
-      src: "https://via.placeholder.com/150x150.png?text=AoKhoac",
-      label: "Áo Khoác Chống Nắng Nữ",
-      sales: "Bán 41K+ /tháng",
-    },
-    {
-      src: "https://via.placeholder.com/150x150.png?text=OpIphone",
-      label: "Ốp IPhone 5",
-      sales: "Bán 59K+ /tháng",
-    },
-    {
-      src: "https://via.placeholder.com/150x150.png?text=BoChan",
-      label: "Bộ Chăn Ga Gối Cotton",
-      sales: "Bán 53K+ /tháng",
-    },
-    {
-      src: "https://via.placeholder.com/150x150.png?text=DauGoi",
-      label: "Dầu Gội L'Oréal",
-      sales: "Bán 48K+ /tháng",
-    },
-    {
-      src: "https://via.placeholder.com/150x150.png?text=BaoCaoSu",
-      label: "Bao Cao Su",
-      sales: "Bán 67K+ /tháng",
-    },
-  ];
+  const [products, setProducts] = useState([]);
+
+  const getProducts = async () => {
+    await apiProduct
+      .getRandomProducts(48)
+      .then((res) => {
+        // console.log(res);
+        setProducts(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    getProducts();
+  }, []);
 
   const settings = {
     infinite: true,
@@ -46,21 +33,21 @@ const TopSearchesSection = () => {
     autoplaySpeed: 3000,
     responsive: [
       {
-        breakpoint: 1024, 
+        breakpoint: 1024,
         settings: {
           slidesToShow: 4,
           slidesToScroll: 1,
         },
       },
       {
-        breakpoint: 768, 
+        breakpoint: 768,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
         },
       },
       {
-        breakpoint: 640, 
+        breakpoint: 640,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
@@ -80,30 +67,52 @@ const TopSearchesSection = () => {
 
       <div className="w-full">
         <Slider {...settings}>
-          {topSearches.map((item, index) => (
-            <div key={index} className="px-2">
-              <div className="relative border rounded-lg p-2">
-                {/* Top Badge */}
-                <span className="absolute top-0 left-0 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-tl-lg rounded-br-lg">
-                  TOP
-                </span>
-                <img
-                  src={item.src}
-                  alt={item.label}
-                  className="w-full h-32 object-contain mb-2"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    // e.target.src = defaultImage(item);
-                  }}
-                  loading="lazy"
-                />
-                <p className="text-xs text-gray-600">{item.sales}</p>
-                <p className="text-sm font-semibold text-gray-800">
-                  {item.label}
-                </p>
+          {products.map((item, index) => {
+            const imgUrl = imageUrl + "product/" + item.productImages[0];
+            return (
+              <div key={index} className="px-2">
+                <Link to={`/product-detail/${item.slug}`}>
+                  <div className="relative border rounded-lg p-2">
+                    {/* Top Badge */}
+                    <span className="absolute top-0 left-0 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-tl-lg rounded-br-lg">
+                      TOP
+                    </span>
+                    <img
+                      src={imgUrl}
+                      alt={item.productname}
+                      className="w-full h-32 object-contain mb-2"
+                      onError={(e) => {
+                        const target = e.target;
+                        target.onerror = null;
+                        const retryInterval = 2000;
+                        let retryCount = 0;
+                        const maxRetries = 5;
+                        const retryLoad = () => {
+                          if (retryCount < maxRetries) {
+                            retryCount++;
+                            target.src =
+                              imageUrl + "product/" + `?retry=${retryCount}`;
+                            target.onerror = () => {
+                              setTimeout(retryLoad, retryInterval);
+                            };
+                          } else {
+                            target.src =
+                              "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                          }
+                        };
+                        setTimeout(retryLoad, retryInterval);
+                      }}
+                      loading="lazy"
+                    />
+                    <p className="text-xs text-gray-600">{item.sales}</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {item.label}
+                    </p>
+                  </div>
+                </Link>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </Slider>
       </div>
     </div>

@@ -1,6 +1,9 @@
 import React from "react";
 
 function Profile() {
+  
+
+
   return (
     <div className="flex-1 p-6">
       <div className="max-w-3xl mx-auto bg-white shadow-md rounded p-6">

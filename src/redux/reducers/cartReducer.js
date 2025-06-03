@@ -1,137 +1,231 @@
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
-const initCart ={
-    carts: [],
-    amountItem: 0,
-    totalAmount: 0
-}
+const initCart = {
+  carts: [],
+  amountItem: 0,
+  totalAmount: 0,
+  totalSale: 0,
+  countCart: 0,
+};
 
 const cartReducer = (state = initCart, action) => {
-    switch (action.type) {
-        case 'ADD_TO_CART':
+  switch (action.type) {
+    case "ADD_TO_CART": {
+      const productToAdd = action.payload.product;
+      const quantityToAdd = action.payload.quantity;
 
-            const existingItemIndex = state.carts.findIndex(item => {                
-                return item[0].id === action.payload[0].id;
-            });
-          
-                
-            if (existingItemIndex !== -1) {
-                // If item already exists, update its quantity
-                const updatedCart = state.carts.map((item, index) => 
-                    index === existingItemIndex ? { ...item, quantity: item.quantity + action.payload.amount } : item
-                );
+      let updatedCarts = [...state.carts];
+      let newAmountItem = state.amountItem;
 
-                toast.info(`Update quantity ${action.payload[0].name}`, {
-                    position: "top-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    style: {
-                        top: "-50%",
-                        transform: "translateY(50%)",
-                        marginRight: "2%",
-                        width: "fit-content",
-                    },
-                });
-                return {
-                    ...state,
-                    carts: updatedCart,
-                    totalAmount: state.totalAmount + action.payload.amount
-                };
-            } else {
-                // Item not found, add it to the cart
-                toast.success(`Add ${action.payload[0].name} to cart`, {
-                    position: "top-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    style: {
-                        top: "-50%",
-                        transform: "translateY(50%)",
-                        marginRight: "2%",
-                        width: "fit-content",
-                    },
-                });
-                
-                return {
-                    ...state,
-                    carts: [...state.carts, { ...action.payload, quantity: action.payload.amount }],
-                    amountItem: state.amountItem + 1,
-                    totalAmount: state.totalAmount + action.payload.amount
-                };
-            }
+      const existingSellerIndex = updatedCarts.findIndex(
+        (seller) => seller.sellerId === productToAdd.sellerId
+      );
 
-        case 'TOTAL_CART':
-            let total = 0;
-            state.carts.forEach(item => {  
+      if (existingSellerIndex !== -1) {
+        const seller = { ...updatedCarts[existingSellerIndex] };
+        const existingProductIndex = seller.itemResponses.findIndex(
+          (item) => item.productId === productToAdd.id
+        );
 
-                if(item){                    
-                    total += item[0].price * item.quantity;
-                }
-            });
+        if (existingProductIndex !== -1) {
+          seller.itemResponses[existingProductIndex].quantity += quantityToAdd;
 
-            const newState = {
-                ...state, 
-                totalAmount: total
-            }
+          toast.info(`Update quantity ${productToAdd.name}`, toastStyle());
+        } else {
+          seller.itemResponses.push({
+            ...productToAdd,
+            quantity: quantityToAdd,
+          });
+          newAmountItem++;
+          toast.success(`Add ${productToAdd.name} to cart`, toastStyle());
+        }
 
-            return newState;
-         
-        case 'REMOVE_FROM_CART':
-            toast.warning(`Warning! Delete ${action.payload[0].name} from cart`, {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                style: {
-                    top: "-50%",
-                    transform: "translateY(50%)",
-                    marginRight: "2%",
-                    width: "fit-content",
-                },
-            });
-            return {
-                ...state,
-                carts: state.carts.filter(item => {
-                    return item[0].id !== action.payload[0].id
-                }),
-                amountItem: state.amountItem - 1,
-                totalAmount: state.totalAmount - action.payload[0].price    
+        updatedCarts[existingSellerIndex] = seller;
+      } else {
+        updatedCarts.push({
+          sellerId: productToAdd.sellerId,
+          sellerName: productToAdd.sellerName || "Unknown Seller",
+          itemResponses: [{ ...productToAdd, quantity: quantityToAdd }],
+        });
+        newAmountItem++;
+        toast.success(`Add ${productToAdd.name} to cart`, toastStyle());
+      }
 
-            }  
-    
-        case 'CLEAR_CART':
-            toast.warning(`Warning! Delete ALL cart`, {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                style: {
-                    top: "-50%",
-                    transform: "translateY(50%)",
-                    marginRight: "2%",
-                    width: "fit-content",
-                },
-            });
-            return {
-                ...state,
-                 carts: [],
-                 amountItem: 0,
-                 totalAmount: 0
-            }
+      const newTotalAmount = calculateTotalAmount(updatedCarts);
+      const finalAmountItem = calculateItemCount(updatedCarts);
 
-        default:
-            return state;
+      return {
+        ...state,
+        carts: updatedCarts,
+        amountItem: finalAmountItem,
+        totalAmount: newTotalAmount,
+      };
     }
+
+    case "TOTAL_CART": {
+      const total = state.carts.reduce((sum, seller) => {
+        return (
+          sum +
+          seller.itemResponses.reduce((subSum, product) => {
+            return subSum + product.price * product.quantity;
+          }, 0)
+        );
+      }, 0);
+
+      return {
+        ...state,
+        totalAmount: total,
+      };
+    }
+
+    case "TOTAL_CART_SALE": {
+      const total = state.carts.reduce((sum, seller) => {
+        return (
+          sum +
+          seller.itemResponses.reduce((subSum, product) => {
+            const price =
+              product.salePrice > 0 ? product.salePrice : product.price;
+
+            return subSum + price * product.quantity;
+          }, 0)
+        );
+      }, 0);
+
+      return {
+        ...state,
+        totalSale: total,
+      };
+    }
+
+    case "COUNT_CART": {
+      const count = state.carts.reduce(
+        (sum, seller) => sum + seller.itemResponses.length,
+        0
+      );
+      return {
+        ...state,
+        countCart: count,
+      };
+    }
+
+    case "REMOVE_FROM_CART": {
+      const { productId, sellerId } = action.payload;
+
+      // toast.warning(`Warning! Delete ${productName} from cart`, toastStyle());
+      // console.log(action.payload);
+
+      const updatedCartsAfterRemoval = state.carts
+        .map((seller) => {
+          if (seller.sellerId === sellerId) {
+            const updatedProducts = seller.itemResponses.filter(
+              (p) => p.id !== productId
+            );
+            if (updatedProducts.length === 0) return null;
+            return { ...seller, itemResponses: updatedProducts };
+          }
+          return seller;
+        })
+        .filter(Boolean);
+
+      return {
+        ...state,
+        carts: updatedCartsAfterRemoval,
+        amountItem: calculateItemCount(updatedCartsAfterRemoval),
+        totalAmount: calculateTotalAmount(updatedCartsAfterRemoval),
+        totalSale: calculateTotalSale(updatedCartsAfterRemoval),
+      };
+    }
+
+    case "CLEAR_CART": {
+      toast.warning("Warning! Delete ALL cart", toastStyle());
+      return {
+        ...state,
+        carts: [],
+        amountItem: 0,
+        totalAmount: 0,
+        totalSale: 0,
+        countCart: 0,
+      };
+    }
+
+    case "SET_CART_FROM_API": {
+      const fetchedCartsTransformed = action.payload;
+
+      // console.log("SET_CART_FROM_API payload:", fetchedCartsTransformed);
+
+      const sortedCarts = fetchedCartsTransformed.map((seller) => ({
+        ...seller,
+        itemResponses: [...seller.itemResponses].sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        ),
+      }));
+
+      const newTotalAmount = calculateTotalAmount(sortedCarts);
+      const newAmountItem = calculateItemCount(sortedCarts);
+      const newCountCart = sortedCarts.reduce(
+        (sum, seller) => sum + seller.itemResponses.length,
+        0
+      );
+
+      return {
+        ...state,
+        carts: sortedCarts,
+        amountItem: newAmountItem,
+        totalAmount: newTotalAmount,
+        totalSale: calculateTotalSale(sortedCarts),
+        countCart: newCountCart,
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
+// Utility: Toast styling
+const toastStyle = () => ({
+  position: "top-right",
+  autoClose: 2000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  style: {
+    top: "-50%",
+    transform: "translateY(50%)",
+    marginRight: "2%",
+    width: "fit-content",
+  },
+});
+
+// Utility: Total price calculation
+const calculateTotalAmount = (carts) => {
+  return carts?.reduce((sum, seller) => {
+    return (
+      sum +
+      seller?.itemResponses?.reduce((subSum, product) => {
+        return subSum + product.price * product.quantity;
+      }, 0)
+    );
+  }, 0);
+};
+
+const calculateTotalSale = (carts) => {
+  return carts?.reduce((sum, seller) => {
+    return (
+      sum +
+      seller?.itemResponses?.reduce((subSum, product) => {
+        const price = product.salePrice > 0 ? product.salePrice : product.price;
+        return subSum + price * product.quantity;
+      }, 0)
+    );
+  }, 0);
+};
+
+// Utility: Count all items (not total quantity)
+const calculateItemCount = (carts) => {
+  return carts.reduce((sum, seller) => sum + seller?.itemResponses?.length, 0);
 };
 
 export default cartReducer;

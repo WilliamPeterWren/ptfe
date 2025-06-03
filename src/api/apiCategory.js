@@ -9,16 +9,8 @@ const apiCategory = {
     return axiosInstance.get(`/categories/${id}`).then((res) => res.data);
   },
 
-  getCategoryPagination: (page, limit) => {
-    return axiosInstance
-      .get(
-        `/categories?pagination[page]=${page}&pagination[pageSize]=${limit}&populate=*`
-      )
-      .then((res) => res.data);
-  },
-
-  createCategory: (category) => {
-    return axiosInstance.post("/categories", category).then((res) => res.data);
+  createCategory: (data, header) => {
+    return axiosInstance.post("/categories", data, header);
   },
 
   getCategoryById: (id) => {

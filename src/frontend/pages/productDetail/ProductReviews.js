@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { imageUrl } from "../../../api/config";
 
 const StarRating = ({ rating, starSize = "w-5 h-5" }) => (
   <div className="flex text-red-500">
@@ -25,8 +26,26 @@ const ReviewMedia = ({ media }) => (
           alt={`Media ${index + 1}`}
           className="w-20 h-20 object-cover rounded"
           onError={(e) => {
-            e.target.onerror = null;
-            // e.target.src = defaultImage(item);
+            const target = e.target;
+            target.onerror = null;
+            const retryInterval = 2000;
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            const retryLoad = () => {
+              if (retryCount < maxRetries) {
+                retryCount++;
+                target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                target.onerror = () => {
+                  setTimeout(retryLoad, retryInterval);
+                };
+              } else {
+                target.src =
+                  "https://placehold.co/32x32/cccccc/333333?text=N/A";
+              }
+            };
+
+            setTimeout(retryLoad, retryInterval);
           }}
           loading="lazy"
         />

@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from "react";
-import ProductImageSlider from "./ProductImageSlider";
+import Cookies from "js-cookie";
+import Swal from "sweetalert2";
+import { useSelector, useDispatch } from "react-redux";
 
-const Detail = () => {
+import ProductImageSlider from "./ProductImageSlider";
+import apiCart from "../../../api/apiCart";
+import {
+  ADD,
+  CLEAR,
+  SET_CART_FROM_API,
+  UPDATE_CART_FROM_API,
+} from "../../../redux/action/cartAction";
+
+const Detail = ({ productData }) => {
+  const [price, setPrice] = useState(productData.variants[0].price);
+  const [salePrice, setSalePrice] = useState(productData.variants[0].salePrice);
+  const [reloadCart, setReloadCart] = useState(false);
+  const [selectVariant, setSelectVariant] = useState(0);
+
   const [timeLeft, setTimeLeft] = useState({
     hours: 6,
     minutes: 22,
     seconds: 46,
   });
 
-  const endTime = new Date("2025-05-24T08:59:46+07:00").getTime();
+  const endTime = new Date("2025-06-29T23:59:59+07:00").getTime();
 
   useEffect(() => {
     const updateTimer = () => {
@@ -67,17 +83,119 @@ const Detail = () => {
     vouchers: ["Giảm đ7K", "Giảm đ5K", "Giảm đ10K", "Giảm đ20K", "Giảm đ50"],
   };
 
+  const handleChangeVariant = (index) => {
+    setSelectVariant(index);
+    setSalePrice(productData.variants[index].salePrice);
+    setPrice(productData.variants[index].price);
+  };
+
+  const accessToken = Cookies.get("accessToken");
+  const dispatch = useDispatch();
+  const countCart = useSelector((state) => state.cart.countCart);
+
+  const handleAddToCart = async () => {
+    // console.log(productData.variants);
+    const data = {
+      sellerId: productData.sellerId,
+      variantId: productData.variants[selectVariant].id,
+      quantity: 1,
+    };
+
+    console.log(data);
+
+    await apiCart
+      .addToCart(data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          // "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        const data = res.data.result;
+
+        console.log(data);
+
+        Swal.fire({
+          title: "Thành công",
+          text: "Sản phẩm đã thêm vào giỏ hàng",
+          icon: "success",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+
+        const sorted1 = [...data].sort(
+          (a, b) =>
+            new Date(b.itemResponses.updatedAt) -
+            new Date(a.itemResponses.updatedAt)
+        );
+
+        console.log(sorted1);
+
+        const sorted2 = [...sorted1].sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+
+        console.log(sorted2);
+
+        dispatch(SET_CART_FROM_API(sorted2));
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          title: "Thêm vào giỏ hàng thất bại!",
+          text: "Sản phẩm chưa được thêm vào giỏ hàng! Kiểm tra API!",
+          icon: "error",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+      });
+  };
+
+  // const getCartFromApi = async () => {
+  //   if (accessToken) {
+  //     await apiCart
+  //       .getCart({
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //           // "Content-Type": "application/json",
+  //         },
+  //       })
+  //       .then((res) => {
+  //         const data = res.data.result;
+  //         // console.log(data);
+
+  //         dispatch(SET_CART_FROM_API(data));
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (accessToken) {
+  //     getCartFromApi();
+  //   }
+  // }, [accessToken]);
+
   return (
     <div className="container mx-auto px-4 py-6 bg-white rounded-lg">
       <div className="flex flex-col md:flex-row gap-6">
-        <ProductImageSlider product={product} />
+        <ProductImageSlider productData={productData} />
 
         <div className="w-full md:w-1/2">
-          <h1 className="text-2xl font-bold mb-2">{product.brand}</h1>
-          <p className="text-lg text-gray-600 mb-4">
-            [Bồi thường 100% khi bị lỗi] VENTAS Gương treo Đàn Tường toàn thân
-            chống vỡ, đảm bảo tuấn áo, hỉnh vuông
-          </p>
+          <h1 className="text-2xl font-bold mb-2">
+            {productData?.productName}
+          </h1>
+          <p className="text-lg text-gray-600 mb-4"></p>
           <div className="flex items-center mb-2">
             <span className="text-yellow-400">★ {product.rating}</span>
             <span className="text-gray-600 ml-2">{product.reviews}</span>
@@ -86,15 +204,26 @@ const Detail = () => {
           <div className="bg-orange-100 text-orange-700 text-sm font-semibold px-2 py-1 rounded mb-4 inline-block">
             FLASH SALE
           </div>
-          <div className="flex items-baseline mb-4">
-            <span className="text-3xl font-bold text-red-600">
-              {product.salePrice}
-            </span>
-            <span className="text-lg text-gray-500 line-through ml-2">
-              {product.originalPrice}
-            </span>
-            <span className="text-red-600 ml-2">{product.discount}</span>
-          </div>
+          {salePrice > 0 ? (
+            <div className="flex items-baseline mb-4">
+              <span className="text-3xl font-bold text-red-600">
+                {salePrice.toLocaleString()}
+              </span>
+              <span className="text-lg text-gray-500 line-through ml-2">
+                {price.toLocaleString()}
+              </span>
+              <span className="text-red-600 ml-2 bg-red-100 px-1 rounded">
+                -{Math.round(((price - salePrice) / price) * 100)}%
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-baseline mb-4">
+              <span className="text-3xl font-bold text-red-600">
+                {price.toLocaleString()}
+              </span>
+            </div>
+          )}
+
           <div className="mb-4">
             <span className="text-sm text-gray-600">Voucher Cửa Shop</span>
             <div className="flex space-x-2 mt-1">
@@ -126,25 +255,29 @@ const Detail = () => {
             </p>
           </div>
           <div className="mb-4">
-            <span className="text-sm text-gray-600">Size</span>
+            <span className="text-sm text-gray-600">Lựa chọn</span>
             <div className="grid grid-cols-4 gap-2 mt-1">
-              {product.sizes.map((size, index) => (
+              {productData.variants.map((v, index) => (
                 <button
                   key={index}
-                  className={`text-xs px-2 py-1 rounded ${
-                    size.stock
-                      ? "bg-gray-200 text-gray-800"
-                      : "bg-gray-400 text-gray-500 cursor-not-allowed"
-                  }`}
-                  disabled={!size.stock}
+                  className={`text-md px-2 py-1 rounded border border-gray-400 text-gray-800 hover:bg-blue-500 hover:border-none hover:text-white capitalize ${
+                    index === selectVariant &&
+                    "font-bold bg-blue-500 text-white"
+                  }
+                    `}
+                  disabled={v.stock <= 0}
+                  onClick={() => handleChangeVariant(index)}
                 >
-                  {size.label}
+                  {v.variantName}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex space-x-4">
-            <button className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors duration-300">
+            <button
+              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors duration-300"
+              onClick={handleAddToCart}
+            >
               Thêm Vào Giỏ Hàng
             </button>
             <button className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors duration-300">

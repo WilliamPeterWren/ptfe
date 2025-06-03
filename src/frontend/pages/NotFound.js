@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function NotFound() {
+  const pageTitle = "Không tìm thấy trang";
+
+  useEffect(() => {
+    document.title = pageTitle;
+
+    return () => {
+      document.title = "Peter Microservice";
+    };
+  }, [pageTitle]);
   return (
     <div className="max-w-xl flex justify-center">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300">

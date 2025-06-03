@@ -5,7 +5,7 @@ import { imageUrl } from "../../../api/config";
 import Cookies from "js-cookie";
 
 import UserContext from "../../../context/userContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function UpNav() {
   const { user } = useContext(UserContext);
@@ -27,7 +27,7 @@ function UpNav() {
       <div className="text-customText flex justify-between max-h-8">
         <div className="flex justify-between py-1">
           <div className="mr-2 border-r-2 border-white pr-2">
-            Kênh Người Bán
+            <Link to={`/seller/login`}>Kênh Người Bán</Link>
           </div>
           <div className="mr-2 border-r-2 border-white pr-2">Tải ứng dụng</div>
           <div className="flex justify-items-center">
@@ -38,8 +38,25 @@ function UpNav() {
                 src={imageUrl + "icons/facebook.png"}
                 width={20}
                 onError={(e) => {
-                  e.target.onerror = null;
-                  // e.target.src = defaultImage(item);
+                  const target = e.target;
+                  target.onerror = null;
+                  const retryInterval = 2000;
+                  let retryCount = 0;
+                  const maxRetries = 5;
+                  const retryLoad = () => {
+                    if (retryCount < maxRetries) {
+                      retryCount++;
+                      target.src =
+                        imageUrl + `icons/facebook.png?retry=${retryCount}`;
+                      target.onerror = () => {
+                        setTimeout(retryLoad, retryInterval);
+                      };
+                    } else {
+                      target.src =
+                        "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                    }
+                  };
+                  setTimeout(retryLoad, retryInterval);
                 }}
                 loading="lazy"
               />
@@ -50,8 +67,25 @@ function UpNav() {
                 src={imageUrl + "icons/instagram.png"}
                 width={20}
                 onError={(e) => {
-                  e.target.onerror = null;
-                  // e.target.src = defaultImage(item);
+                  const target = e.target;
+                  target.onerror = null;
+                  const retryInterval = 2000;
+                  let retryCount = 0;
+                  const maxRetries = 5;
+                  const retryLoad = () => {
+                    if (retryCount < maxRetries) {
+                      retryCount++;
+                      target.src =
+                        imageUrl + `icons/instagram.png?retry=${retryCount}`;
+                      target.onerror = () => {
+                        setTimeout(retryLoad, retryInterval);
+                      };
+                    } else {
+                      target.src =
+                        "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                    }
+                  };
+                  setTimeout(retryLoad, retryInterval);
                 }}
                 loading="lazy"
               />
@@ -67,8 +101,25 @@ function UpNav() {
                 src={imageUrl + "icons/notification.png"}
                 width={20}
                 onError={(e) => {
-                  e.target.onerror = null;
-                  // e.target.src = defaultImage(item);
+                  const target = e.target;
+                  target.onerror = null;
+                  const retryInterval = 2000;
+                  let retryCount = 0;
+                  const maxRetries = 5;
+                  const retryLoad = () => {
+                    if (retryCount < maxRetries) {
+                      retryCount++;
+                      target.src =
+                        imageUrl + `icons/notification.png?retry=${retryCount}`;
+                      target.onerror = () => {
+                        setTimeout(retryLoad, retryInterval);
+                      };
+                    } else {
+                      target.src =
+                        "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                    }
+                  };
+                  setTimeout(retryLoad, retryInterval);
                 }}
                 loading="lazy"
               />
@@ -82,8 +133,25 @@ function UpNav() {
                 src={imageUrl + "icons/question.png"}
                 width={22}
                 onError={(e) => {
-                  e.target.onerror = null;
-                  // e.target.src = defaultImage(item);
+                  const target = e.target;
+                  target.onerror = null;
+                  const retryInterval = 2000;
+                  let retryCount = 0;
+                  const maxRetries = 5;
+                  const retryLoad = () => {
+                    if (retryCount < maxRetries) {
+                      retryCount++;
+                      target.src =
+                        imageUrl + `icons/question.png?retry=${retryCount}`;
+                      target.onerror = () => {
+                        setTimeout(retryLoad, retryInterval);
+                      };
+                    } else {
+                      target.src =
+                        "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                    }
+                  };
+                  setTimeout(retryLoad, retryInterval);
                 }}
                 loading="lazy"
               />
@@ -106,7 +174,10 @@ function UpNav() {
             </div>
           </div>
           {email ? (
-            <div> {email} </div>
+            <div>
+              {" "}
+              <Link to={`user/account/profile`}>{email}</Link>{" "}
+            </div>
           ) : (
             <div>
               {" "}

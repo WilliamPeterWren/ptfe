@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Link } from "react-router-dom";
 
 import { imageUrl } from "../../../api/config";
 import apiPeterCategory from "../../../api/apiPeterCategory";
@@ -13,7 +14,7 @@ const CategoriesSection = () => {
     await apiPeterCategory
       .getAll()
       .then((res) => {
-        console.log(res.data.result);
+        // console.log(res.data.result);
         setCategories(res.data.result);
       })
       .catch((err) => {
@@ -65,21 +66,44 @@ const CategoriesSection = () => {
         <Slider {...settings}>
           {categories.map((category, index) => (
             <div key={index} className="px-2 ">
-              <div className="flex flex-col items-center ">
-                <img
-                  src={imageUrl + "category/" + category.images}
-                  alt={category.name}
-                  className="w-16 h-16 object-contain mb-2"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    // e.target.src = defaultImage(item);
-                  }}
-                  loading="lazy"
-                />
-                <p className="text-sm text-gray-600 text-center">
-                  {category.name}
-                </p>
-              </div>
+              <Link to={`/products-by-cat/${category.id}`}>
+                <div className="flex flex-col items-center ">
+                  <img
+                    src={imageUrl + "category/" + category.images}
+                    alt={category.name}
+                    className="w-16 h-16 object-contain mb-2"
+                    onError={(e) => {
+                      const target = e.target;
+                      target.onerror = null;
+                      const retryInterval = 2000;
+                      let retryCount = 0;
+                      const maxRetries = 5;
+
+                      const retryLoad = () => {
+                        if (retryCount < maxRetries) {
+                          retryCount++;
+                          target.src =
+                            imageUrl +
+                            "product/" +
+                            `${category.images}?retry=${retryCount}`;
+                          target.onerror = () => {
+                            setTimeout(retryLoad, retryInterval);
+                          };
+                        } else {
+                          target.src =
+                            "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                        }
+                      };
+
+                      setTimeout(retryLoad, retryInterval);
+                    }}
+                    loading="lazy"
+                  />
+                  <p className="text-sm text-gray-600 text-center">
+                    {category.name}
+                  </p>
+                </div>
+              </Link>
             </div>
           ))}
         </Slider>

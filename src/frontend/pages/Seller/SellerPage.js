@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SellerInfo from "./SellerInfo";
 import GridProduct from "./GridProduct";
 import Sidebar from "./SideBar";
 import FilterBar from "./FilterBar";
 import Pagination from "./Pagination";
 import ProductCard from "./ProductCard";
+import { useParams } from "react-router-dom";
 
 function SellerPage() {
+  const { sellerId } = useParams();
+  console.log(sellerId);
+
   const products = [
     {
       name: "Men's Belt",
@@ -353,20 +357,30 @@ function SellerPage() {
     },
   ];
 
+  const pageTitle = "Trang người bán";
+
+  useEffect(() => {
+    document.title = pageTitle;
+
+    return () => {
+      document.title = "Peter Microservice";
+    };
+  }, [pageTitle]);
+
   return (
     <div className="mt-4 bg-gray-200">
-      <div className="pl-80 pr-96 bg-white my-4">
+      <div className=" bg-white my-4">
         <SellerInfo />
       </div>
-      <div className="ml-80 mr-96 bg-white my-4">
+      <div className=" bg-white my-4">
         <GridProduct name={"gợi ý cho bạn"} />
       </div>
 
-      <div className="ml-80 mr-96 bg-white my-4">
+      <div className=" bg-white my-4">
         <GridProduct name={"sản phẩm bán chạy"} />
       </div>
 
-      <div className="ml-80 mr-96 bg-white my-4">
+      <div className=" bg-white my-4">
         <div className="container mx-auto p-4 flex justify-center">
           <div className="w-1/5  mr-2">
             <Sidebar />

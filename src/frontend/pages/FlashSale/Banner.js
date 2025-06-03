@@ -14,15 +14,15 @@ function Banner() {
 
   const handleCurrentFlashSale = () => {};
   return (
-    <div className="bg-red-100 mt-4 mx-auto mx-80">
+    <div className=" mt-4 mx-auto mx-80">
       <img
         alt="flash_sale"
-        src={imageUrl + "/flashsale/flashsale.jpg"}
+        src={imageUrl + "flashsale/flashsale banner.jpg"}
         onError={(e) => {
           e.target.onerror = null;
           // e.target.src = defaultImage(item);
         }}
-        className="w-full h-48 object-cover"
+        className="mx-auto h-48 object-cover"
       />
 
       <div className="flex justify-center space-x-2 pt-2 bg-gray-100">

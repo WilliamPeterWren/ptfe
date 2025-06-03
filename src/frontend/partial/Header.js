@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Cookies from "js-cookie";
 
 import UserContext from "../../context/userContext";
@@ -17,6 +17,10 @@ function Header() {
   if (authFirstname) {
     username = authFirstname + " " + authLastname;
   }
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <header className="pl-80 bg-customeBg pr-96">

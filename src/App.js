@@ -1,14 +1,13 @@
 import "./App.css";
-import React from "react";
 import { Provider } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Index from "./frontend/Index"; // Frontend layout
-import FrontendRoute from "./routes/FrontEnd";
+import Index from "./frontend/Index";
+import FrontendRoute from "./routes/FrontEndRoute";
 
-import IndexAdmin from "./admin/indexBackend"; // Admin layout
-import AdminRoutes from "./routes/Admin";
+import IndexSeller from "./seller/indexSeller";
+import SellerRoute from "./routes/SellerRoute";
 
 import { UserProvider } from "./context/userContext";
 import store from "./redux/store";
@@ -19,11 +18,9 @@ function App() {
       <UserProvider>
         <ToastContainer />
         <Routes>
-          {/* Frontend Layout */}
           <Route path="/" element={<Index />}>
             {FrontendRoute.map((route, index) => {
               const Page = route.component;
-              // Make sure route.path is relative (no starting /)
               return (
                 <Route
                   key={index}
@@ -34,15 +31,14 @@ function App() {
             })}
           </Route>
 
-          {/* Admin Layout */}
-          <Route path="/admin" element={<IndexAdmin />}>
-            {AdminRoutes.map((route, index) => {
+          <Route path="/seller" element={<IndexSeller />}>
+            {SellerRoute.map((route, index) => {
               const Page = route.component;
               // Make path relative to "/admin"
               return (
                 <Route
                   key={index}
-                  path={route.path.replace(/^\/admin\//, "")}
+                  path={route.path.replace(/^\/seller\//, "")}
                   element={<Page />}
                 />
               );

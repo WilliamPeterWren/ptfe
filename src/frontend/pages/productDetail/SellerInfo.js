@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const SellerInfo = () => {
+const SellerInfo = ({ sellerId }) => {
   return (
     <div className="max-w-[1540px] mt-4 mx-auto bg-white rounded-lg shadow-md p-4 flex items-start space-x-4">
       <div className="flex-shrink-0">
@@ -14,14 +15,16 @@ const SellerInfo = () => {
         </h1>
 
         <div className="flex space-x-2 mb-3">
-          <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-            SHOPEE MALL
+          <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded uppercase">
+            PETER MALL
           </span>
           <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
             <span className="mr-1">💬</span> Chat Ngay
           </button>
           <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
-            <span className="mr-1">🏪</span> Xem Shop
+            <Link to={`/seller/page/${sellerId}`}>
+              <span className="mr-1">🏪</span> Xem Shop
+            </Link>
           </button>
         </div>
 

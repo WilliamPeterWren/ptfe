@@ -1,145 +1,371 @@
-import React, {useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
-import { TOTAL, CLEAR } from "../../../redux/action/cartAction";
+import { imageUrl } from "../../../api/config";
+import userContext from "../../../context/userContext";
+import apiCart from "../../../api/apiCart";
+import {
+  TOTAL,
+  TOTAL_SALE,
+  SET_CART_FROM_API,
+} from "../../../redux/action/cartAction";
+
+import { ADD_CHECKOUT } from "../../../redux/action/checkoutAction";
 
 function CartItem() {
-  const id = Cookies.get("authId");
-  console.log(id);
+  const { user } = useContext(userContext);
+
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (!id) {
-  //     navigate("/login");
-  //   }
-  // }, [id]);
-
-  var totalSalePrice = 0;
-  const getDataCart = useSelector((state) => state.cart.carts);
-
   const dispatch = useDispatch();
-  dispatch(TOTAL());
+  const accessToken = Cookies.get("accessToken");
+
+  const cartItems = useSelector((state) => state.cart.carts);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
+  const totalSale = useSelector((state) => state.cart.totalSale);
 
-  const clearCart = () => {
-    dispatch(CLEAR());
-  };
-
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Mock fetch function to simulate fetching products by seller
-  const fetchProductsBySeller = async () => {
-    const mockData = [
-      {
-        seller: "Metoo Plush Toys Store",
-        products: [
-          {
-            id: 1,
-            name: "Mũ Ô Tô Lốp Máy Bơm Hội Hải Đầu áu Bơm Hơi Nhanh Vói Phun L...",
-            variant: "Single Head",
-            originalPrice: 461620,
-            discountedPrice: 34320,
-            quantity: 1,
-            badge: "25.5 VOUCHER",
-            image: "https://via.placeholder.com/50?text=Metoo",
-          },
-        ],
-      },
-      {
-        seller: "Hoco.Shop",
-        products: [
-          {
-            id: 2,
-            name: "Dây sạc 3 trong 1 HOCO DU02, dây sạc IP sạc nhanh 2.4A chu...",
-            variant: "Xám",
-            originalPrice: 154400,
-            discountedPrice: 106000,
-            quantity: 1,
-            badge: "25.5 VOUCHER",
-            image: "https://via.placeholder.com/50?text=Hoco",
-          },
-          {
-            id: 3,
-            name: "Dây sạc nhanh HOCO X89, sạc nhanh 2.4A, dây sạc type-c, ni...",
-            variant: "MICRO (Đỏ)",
-            originalPrice: 442000,
-            discountedPrice: 41580,
-            quantity: 1,
-            badge: "25.5 VOUCHER",
-            image: "https://via.placeholder.com/50?text=Hoco",
-          },
-        ],
-      },
-    ];
-    return mockData;
-  };
+  console.log(cartItems);
 
   useEffect(() => {
-    const loadCartItems = async () => {
-      setLoading(true);
-      const data = await fetchProductsBySeller();
-      setCartItems(data);
-      setLoading(false);
-    };
-    loadCartItems();
-  }, []);
+    if (accessToken) {
+      dispatch(TOTAL());
+      dispatch(TOTAL_SALE());
+    }
+  }, [accessToken, cartItems, dispatch]);
 
-  const updateQuantity = (sellerIndex, productId, change) => {
-    setCartItems(
-      cartItems.map((seller, idx) =>
-        idx === sellerIndex
-          ? {
-              ...seller,
-              products: seller.products.map((product) =>
-                product.id === productId
-                  ? {
-                      ...product,
-                      quantity: Math.max(1, product.quantity + change),
-                    }
-                  : product
-              ),
-            }
-          : seller
-      )
-    );
+  const updateItemIncreaseQuantity = async (item, sellerId) => {
+    const data = {
+      sellerId: sellerId,
+      variantId: item.variantId,
+      quantity: 1,
+    };
+
+    // console.log(data);
+
+    await apiCart
+      .addToCart(data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          // "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        const data = res.data.result;
+
+        // console.log(data);
+
+        Swal.fire({
+          title: "Cập nhật thành công",
+          text: "Sản phẩm đã được cập nhật",
+          icon: "success",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+
+        const sorted1 = [...data].sort(
+          (a, b) =>
+            new Date(b.itemResponses.updatedAt) -
+            new Date(a.itemResponses.updatedAt)
+        );
+
+        console.log(sorted1);
+
+        const sorted2 = [...sorted1].sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+
+        console.log(sorted2);
+
+        dispatch(SET_CART_FROM_API(sorted2));
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          title: "Cập nhật giỏ hàng thất bại!",
+          text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
+          icon: "error",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+      });
   };
 
-  const calculateSellerTotal = (products) =>
-    products.reduce(
-      (sum, item) => sum + item.discountedPrice * item.quantity,
-      0
-    );
+  const updateItemDecreaseQuantity = async (item, sellerId) => {
+    if (item.quantity > 1) {
+      const data = {
+        sellerId: sellerId,
+        variantId: item.variantId,
+        quantity: -1,
+      };
 
-  const total = cartItems.reduce(
-    (sum, seller) => sum + calculateSellerTotal(seller.products),
-    0
-  );
+      // console.log(data);
 
-  if (loading) {
-    return <div className="text-center p-4">Đang tải...</div>;
-  }
+      await apiCart
+        .addToCart(data, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            // "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          const data = res.data.result;
+
+          // console.log(data);
+
+          Swal.fire({
+            title: "Xóa thành công",
+            text: "Sản phẩm đã được xóa khỏi giỏ hàng của bạn",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              console.log("I was closed by the timer");
+            }
+          });
+
+          const sorted1 = [...data].sort(
+            (a, b) =>
+              new Date(b.itemResponses.updatedAt) -
+              new Date(a.itemResponses.updatedAt)
+          );
+
+          console.log(sorted1);
+
+          const sorted2 = [...sorted1].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          console.log(sorted2);
+
+          dispatch(SET_CART_FROM_API(sorted2));
+        })
+        .catch((err) => {
+          console.log(err);
+          Swal.fire({
+            title: "Cập nhật giỏ hàng thất bại!",
+            text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
+            icon: "error",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              console.log("I was closed by the timer");
+            }
+          });
+        });
+    } else {
+      await apiCart
+        .deleteItem(item.variantId, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          const data = res.data.result;
+
+          // console.log(data);
+
+          Swal.fire({
+            title: "Cập nhật thành công",
+            text: "Sản phẩm đã được cập nhật",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              console.log("I was closed by the timer");
+            }
+          });
+
+          const sorted1 = [...data].sort(
+            (a, b) =>
+              new Date(b.itemResponses.updatedAt) -
+              new Date(a.itemResponses.updatedAt)
+          );
+
+          console.log(sorted1);
+
+          const sorted2 = [...sorted1].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          console.log(sorted2);
+
+          dispatch(SET_CART_FROM_API(sorted2));
+        })
+        .catch((err) => {
+          console.log(err);
+          Swal.fire({
+            title: "Xóa thất bại!",
+            text: "Xóa sản phẩm khỏi giỏ hàng thất bại!",
+            icon: "error",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              console.log("I was closed by the timer");
+            }
+          });
+        });
+    }
+  };
+
+  const handleDeleteItem = async (variantId) => {
+    await apiCart
+      .deleteItem(variantId, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          // "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        const data = res.data.result;
+
+        // console.log(data);
+
+        Swal.fire({
+          title: "Cập nhật thành công",
+          text: "Sản phẩm đã được cập nhật",
+          icon: "success",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+
+        const sorted1 = [...data].sort(
+          (a, b) =>
+            new Date(b.itemResponses.updatedAt) -
+            new Date(a.itemResponses.updatedAt)
+        );
+
+        console.log(sorted1);
+
+        const sorted2 = [...sorted1].sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+
+        console.log(sorted2);
+
+        dispatch(SET_CART_FROM_API(sorted2));
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          title: "Xóa thất bại!",
+          text: "Xóa sản phẩm khỏi giỏ hàng thất bại!",
+          icon: "error",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+      });
+
+    // await apiCart
+    //   .deleteSeller(sellerId, {
+    //     headers: {
+    //       Authorization: `Bearer ${accessToken}`,
+    //       // "Content-Type": "application/json",
+    //     },
+    //   })
+    //   .then((res) => {
+    //     const data = res.data.result;
+
+    //     // console.log(data);
+
+    //     Swal.fire({
+    //       title: "Cập nhật thành công",
+    //       text: "Sản phẩm đã được cập nhật",
+    //       icon: "success",
+    //       timer: 1500,
+    //       timerProgressBar: true,
+    //       showConfirmButton: false,
+    //     }).then((result) => {
+    //       if (result.dismiss === Swal.DismissReason.timer) {
+    //         console.log("I was closed by the timer");
+    //       }
+    //     });
+
+    //     const sorted1 = [...data].sort(
+    //       (a, b) =>
+    //         new Date(b.itemResponses.updatedAt) -
+    //         new Date(a.itemResponses.updatedAt)
+    //     );
+
+    //     console.log(sorted1);
+
+    //     const sorted2 = [...sorted1].sort(
+    //       (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+    //     );
+
+    //     console.log(sorted2);
+
+    //     dispatch(SET_CART_FROM_API(sorted2));
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     Swal.fire({
+    //       title: "Xóa thất bại!",
+    //       text: "Xóa sản phẩm khỏi giỏ hàng thất bại!",
+    //       icon: "error",
+    //       timer: 1500,
+    //       timerProgressBar: true,
+    //       showConfirmButton: false,
+    //     }).then((result) => {
+    //       if (result.dismiss === Swal.DismissReason.timer) {
+    //         console.log("I was closed by the timer");
+    //       }
+    //     });
+    //   });
+  };
+
+  const handleAddToCheckOut = (seller, item) => {
+    dispatch(ADD_CHECKOUT({ seller, item }));
+  };
 
   const handleCheckout = () => {
-    // alert("Proceeding to checkout!");
-    // Add your checkout logic here
-
     console.log("checkout");
+    navigate("/checkout");
   };
+
   return (
     <div className="ontainer mx-auto p-4 bg-white rounded-lg">
       {cartItems.map((seller, sellerIndex) => (
         <div key={sellerIndex} className="mb-6">
-          <div className="bg-gray-100 p-2 flex items-center">
-            <input type="checkbox" className="mr-2" />
-            <span className="text-orange-500 font-bold">{seller.seller}</span>
-          </div>
-          <table className="w-full bg-white shadow-md rounded">
+          <table className="w-full bg-white shadow-md ">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">Sản Phẩm</th>
+              <tr className="bg-gray-200">
+                <th className="p-2 text-left">
+                  <span className="font-normal">Shop</span>{" "}
+                  <span className="text-orange-500">
+                    {seller.sellerUsername}
+                  </span>
+                </th>
                 <th className="p-2 text-left">Đơn Giá</th>
                 <th className="p-2 text-left">Số Lượng</th>
                 <th className="p-2 text-left">Số Tiền</th>
@@ -147,43 +373,91 @@ function CartItem() {
               </tr>
             </thead>
             <tbody>
-              {seller.products.map((item) => (
-                <tr key={item.id} className="border-b">
-                  <td className="p-2 flex items-center">
-                    <input type="checkbox" className="mr-2" />
+              {seller.itemResponses.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2 flex items-center w-[600px]">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      onClick={() => handleAddToCheckOut(seller, item)}
+                    />
                     <img
-                      src={item.image}
+                      src={imageUrl + "product/" + item.image}
                       alt={item.name}
-                      className="w-12 h-12 mr-2"
+                      className="w-24 h-24 mr-2"
                       onError={(e) => {
-                        e.target.onerror = null;
-                        // e.target.src = defaultImage(item);
+                        const target = e.target;
+                        target.onerror = null;
+                        const retryInterval = 2000;
+                        let retryCount = 0;
+                        const maxRetries = 5;
+                        const retryLoad = () => {
+                          if (retryCount < maxRetries) {
+                            retryCount++;
+                            target.src =
+                              imageUrl +
+                              "product/" +
+                              `${item.image}?retry=${retryCount}`;
+                            target.onerror = () => {
+                              setTimeout(retryLoad, retryInterval);
+                            };
+                          } else {
+                            target.src =
+                              "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                          }
+                        };
+                        setTimeout(retryLoad, retryInterval);
                       }}
                       loading="lazy"
                     />
-                    <div>
-                      <p className="text-sm">{item.name}</p>
-                      <p className="text-xs text-gray-500">{item.variant}</p>
+                    <button
+                      className="hover:text-blue-700 text-left"
+                      onClick={() => navigate(`/product-detail/${item.slug}`)}
+                    >
+                      <p className="text-sm">
+                        {item.productName.length > 100
+                          ? item.productName.slice(0, 100) + "..."
+                          : item.productName}
+                      </p>
+                      <p>
+                        <span className="text-xs">Phân loại: </span>
+                        <span className="text-left text-xs text-gray-500 p-0.5 rounded border border-red-500">
+                          {item.variantName.length > 80
+                            ? item.variantName.slice(0, 80) + "..."
+                            : item.variantName}
+                        </span>
+                      </p>
                       {item.badge && (
                         <span className="text-xs bg-orange-500 text-white px-1 rounded">
                           {item.badge}
                         </span>
                       )}
-                    </div>
+                    </button>
                   </td>
-                  <td className="p-2">
-                    <span className="text-gray-500 line-through">
-                      {item.originalPrice.toLocaleString()}đ
-                    </span>
-                    <br />
-                    <span className="text-red-600 font-bold">
-                      {item.discountedPrice.toLocaleString()}đ
-                    </span>
-                  </td>
+                  {item.salePrice > 0 ? (
+                    <td className="p-2">
+                      <span className="text-gray-500 line-through">
+                        {item.price.toLocaleString("de-DE")}đ
+                      </span>
+                      <br />
+                      <span className="text-red-600 font-bold">
+                        {item.salePrice.toLocaleString("de-DE")}đ
+                      </span>
+                    </td>
+                  ) : (
+                    <td className="p-2">
+                      <span className="text-red-600 font-bold">
+                        {item.price.toLocaleString("de-DE")}đ
+                      </span>
+                    </td>
+                  )}
+
                   <td className="p-2">
                     <div className="flex items-center">
                       <button
-                        onClick={() => updateQuantity(sellerIndex, item.id, -1)}
+                        onClick={() =>
+                          updateItemDecreaseQuantity(item, seller.sellerId)
+                        }
                         className="bg-gray-200 px-2 py-1 rounded-l"
                       >
                         -
@@ -192,7 +466,9 @@ function CartItem() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(sellerIndex, item.id, 1)}
+                        onClick={() =>
+                          updateItemIncreaseQuantity(item, seller.sellerId)
+                        }
                         className="bg-gray-200 px-2 py-1 rounded-r"
                       >
                         +
@@ -200,10 +476,17 @@ function CartItem() {
                     </div>
                   </td>
                   <td className="p-2">
-                    {(item.discountedPrice * item.quantity).toLocaleString()}đ
+                    {(item.salePrice > 0
+                      ? item.salePrice
+                      : item.price * item.quantity
+                    ).toLocaleString("de-DE")}
+                    đ
                   </td>
                   <td className="p-2">
-                    <button className="text-red-500 hover:underline">
+                    <button
+                      className="text-red-500 hover:underline"
+                      onClick={() => handleDeleteItem(item.variantId)}
+                    >
                       Xóa
                     </button>
                   </td>
@@ -214,10 +497,12 @@ function CartItem() {
         </div>
       ))}
       <div className="mt-4 text-right">
-        <p className="text-lg font-bold">
-          Tổng cộng: {total.toLocaleString()}đ
+        <p className="text-lg font-bold text-red-500">
+          Tổng cộng: {totalSale.toLocaleString("de-DE")}đ
         </p>
-        <p className="text-sm text-gray-500">Tiết kiệm: 0đ</p>
+        <p className="text-sm text-gray-500">
+          Tiết kiệm: {(totalAmount - totalSale).toLocaleString("de-DE")}đ
+        </p>
       </div>
       <div className="mt-2 text-left">
         <p className="text-blue-500">

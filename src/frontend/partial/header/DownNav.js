@@ -1,20 +1,68 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { useSelector, useDispatch } from "react-redux";
+
 import { imageUrl } from "../../../api/config";
-import { useNavigate } from "react-router-dom";
+import userContext from "../../../context/userContext";
+import apiCart from "../../../api/apiCart";
+import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 
 function DownNav() {
   const [searchData, setSearchData] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("searchData updated:", searchData);
+    // console.log("searchData updated:", searchData);
   }, [searchData]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Search button clicked, searchData:", searchData);
-    navigate(`/search/products?query=${searchData}`);
+    // console.log("Search button clicked, searchData:", searchData);
+    navigate(`/search/products/${searchData}`);
   };
+  const { user } = useContext(userContext);
+  const dispatch = useDispatch();
+  const accessToken = Cookies.get("accessToken");
+  // console.log(accessToken)
+  const getCartFromApi = async () => {
+    if (accessToken) {
+      await apiCart
+        .getCart({
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            // "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          const data = res.data.result;
+          // console.log(data);
+
+          const sorted1 = [...data].sort(
+            (a, b) =>
+              new Date(b.itemResponses.updatedAt) -
+              new Date(a.itemResponses.updatedAt)
+          );
+
+          const sorted2 = [...sorted1].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          dispatch(SET_CART_FROM_API(sorted2));
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      getCartFromApi();
+    }
+  }, [accessToken]);
+
+  const countCart = useSelector((state) => state.cart.countCart);
+  // console.log(cartItem);
+  // console.log("count " + countCart);
 
   return (
     <div className="flex justify-between items-center py-5 pr-10">
@@ -26,8 +74,26 @@ function DownNav() {
               src={imageUrl + "logo/logo.png"}
               width={40}
               onError={(e) => {
-                e.target.onerror = null;
-                // e.target.src = defaultImage(item); // Ensure defaultImage is defined
+                const target = e.target;
+                target.onerror = null;
+                const retryInterval = 2000;
+                let retryCount = 0;
+                const maxRetries = 5;
+
+                const retryLoad = () => {
+                  if (retryCount < maxRetries) {
+                    retryCount++;
+                    target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                    target.onerror = () => {
+                      setTimeout(retryLoad, retryInterval);
+                    };
+                  } else {
+                    target.src =
+                      "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                  }
+                };
+
+                setTimeout(retryLoad, retryInterval);
               }}
               loading="lazy"
             />
@@ -38,8 +104,26 @@ function DownNav() {
               src={imageUrl + "logo/peter 2.png"}
               width={130}
               onError={(e) => {
-                e.target.onerror = null;
-                // e.target.src = defaultImage(item); // Ensure defaultImage is defined
+                const target = e.target;
+                target.onerror = null;
+                const retryInterval = 2000;
+                let retryCount = 0;
+                const maxRetries = 5;
+
+                const retryLoad = () => {
+                  if (retryCount < maxRetries) {
+                    retryCount++;
+                    target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                    target.onerror = () => {
+                      setTimeout(retryLoad, retryInterval);
+                    };
+                  } else {
+                    target.src =
+                      "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                  }
+                };
+
+                setTimeout(retryLoad, retryInterval);
               }}
               loading="lazy"
             />
@@ -54,37 +138,58 @@ function DownNav() {
           >
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Tìm kiếm..."
               className="bg-white text-gray-900 rounded-md px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#fad550] w-full"
-              value={searchData} // Bind input value to state
+              value={searchData}
               onChange={(e) => setSearchData(e.target.value)}
             />
             <button
               type="submit"
-              className="bg-[#fad550] text-blue-500 font-bold rounded-md px-4 py-2 text-sm hover:bg-red-300 hover:text-gray-600 transition"
+              className="min-w-[100px] bg-blue-600 text-white font-bold rounded-md px-4 py-2 text-sm hover:bg-orange-600 transition"
               disabled={searchData.length === 0}
             >
-              Search
+              Tìm kiếm
             </button>
           </form>
         </div>
       </div>
       <div className="">
-        <div className="relative">
-          <div className="absolute">
-            <img
-              alt="cart"
-              src={imageUrl + "icons/cart-white.png"}
-              width={40}
-              onError={(e) => {
-                e.target.onerror = null;
-                // e.target.src = defaultImage(item); // Ensure defaultImage is defined
-              }}
-              loading="lazy"
-            />
+        <Link to={`/cart`}>
+          <div className="relative">
+            <div className="absolute">
+              <img
+                alt="cart"
+                src={imageUrl + "icons/cart-white.png"}
+                width={40}
+                onError={(e) => {
+                  const target = e.target;
+                  target.onerror = null;
+                  const retryInterval = 2000;
+                  let retryCount = 0;
+                  const maxRetries = 5;
+                  const retryLoad = () => {
+                    if (retryCount < maxRetries) {
+                      retryCount++;
+                      target.src =
+                        imageUrl + "product/" + `?retry=${retryCount}`;
+                      target.onerror = () => {
+                        setTimeout(retryLoad, retryInterval);
+                      };
+                    } else {
+                      target.src =
+                        "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                    }
+                  };
+                  setTimeout(retryLoad, retryInterval);
+                }}
+                loading="lazy"
+              />
+            </div>
+            <span className="ml-10 p-0.5 bg-blue-100 rounded-lg">
+              {countCart}
+            </span>
           </div>
-          <span className="ml-10 p-0.5 bg-blue-100 rounded-lg">30</span>
-        </div>
+        </Link>
       </div>
     </div>
   );

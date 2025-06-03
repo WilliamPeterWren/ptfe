@@ -1,22 +1,34 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import UserContext from "../../../context/userContext";
 import apiUser from "../../../api/apiUser";
 import { imageUrl } from "../../../api/config";
 
 function Login() {
+  const email = Cookies.get("email");
+  const password = Cookies.get("password");
+
+  const pageTitle = "Đăng nhập";
+
+  useEffect(() => {
+    document.title = pageTitle;
+
+    return () => {
+      document.title = "Peter Microservice";
+    };
+  }, [pageTitle]);
+
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: email,
+    password: password,
   });
 
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
-
-  const authEmail = Cookies.get("authEmail");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,19 +40,20 @@ function Login() {
     await apiUser
       .login(formData)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         if (res.status === 200) {
           const data = res.data.result;
           Cookies.set("accessToken", data.accessToken, {
-            expires: 7,
+            expires: 1,
           });
           Cookies.set("refreshToken", data.refreshToken, {
             expires: 7,
           });
-          Cookies.set("id", data.id, { expires: 7 });
-          Cookies.set("email", data.email, { expires: 7 });
+          Cookies.set("id", data.id, { expires: 1 });
+          Cookies.set("email", data.email, { expires: 1 });
+          Cookies.set("username", data.username, { expires: 1 });
 
-          setUser(data.email);
+          setUser(data.username);
 
           navigate("/home");
         }
@@ -59,7 +72,7 @@ function Login() {
     <section className="">
       <div className="h-[4px] bg-red-700 my-4"></div>
 
-      <div className="px-80 flex justify-items items-center">
+      <div className=" flex justify-items items-center">
         <div className="w-1/2 p-4 flex flex-col items-center">
           <img
             alt="logo"

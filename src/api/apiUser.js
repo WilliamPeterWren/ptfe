@@ -13,8 +13,8 @@ const apiUser = {
     return axiosInstance.get(`users/myInfo`, header);
   },
 
-  getAll: () => {
-    return axiosInstance.get("users?populate=*");
+  updateUser: (data, header) => {
+    return axiosInstance.put(`users`, data, header);
   },
 };
 

@@ -1,58 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import apiPeterCategory from "../../../api/apiPeterCategory";
 
 const Sidebar = () => {
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    { name: "Tất Cả Danh Mục", slug: "all" },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-  ];
+  const getCategories = async () => {
+    await apiPeterCategory
+      .getAll()
+      .then((res) => {
+        // console.log(res.data.result);
+        setCategories(res.data.result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   return (
     <div className="max-w-120 bg-white shadow-md p-4">

@@ -1,35 +1,27 @@
 import React, { useState, useRef, useEffect } from "react";
 
+import { imageUrl } from "../../../api/config";
+
 const ProductImageSlider = (props) => {
-  const [mainImage, setMainImage] = useState(
-    "https://via.placeholder.com/600x400?text=Main+Product+Image+1"
-  );
+  const { productData } = props;
+
+  const [mainImage, setMainImage] = useState(productData?.productImages[0]);
   const scrollContainerRef = useRef(null);
 
-  const images = [
-    "https://via.placeholder.com/600x400?text=Product+Image+1",
-    "https://via.placeholder.com/600x400?text=Product+Image+2",
-    "https://via.placeholder.com/600x400?text=Product+Image+3",
-    "https://via.placeholder.com/600x400?text=Product+Image+4",
-    "https://via.placeholder.com/600x400?text=Product+Image+5",
-    "https://via.placeholder.com/600x400?text=Product+Image+6",
-    "https://via.placeholder.com/600x400?text=Product+Image+7",
-    "https://via.placeholder.com/600x400?text=Product+Image+8",
-    "https://via.placeholder.com/600x400?text=Product+Image+9",
-    "https://via.placeholder.com/600x400?text=Product+Image+10",
-  ];
+  const images = productData?.productImages;
 
-  // Auto-slide to next image every 1 second
+
+
   useEffect(() => {
     const interval = setInterval(() => {
       setMainImage((prevImage) => {
         const currentIndex = images.indexOf(prevImage);
-        const nextIndex = (currentIndex + 1) % images.length; // Loop back to first image
+        const nextIndex = (currentIndex + 1) % images.length; 
         return images[nextIndex];
       });
-    }, 1000); // 1 second interval
+    }, 2000); 
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval); 
   }, [images]);
 
   const handleImageClick = (image) => {
@@ -58,12 +50,30 @@ const ProductImageSlider = (props) => {
     <div className="max-w-2xl mx-auto">
       <div className="w-full h-96 mb-4">
         <img
-          src={mainImage}
+          src={imageUrl + "product/" + mainImage}
           alt="Main Product"
           className="w-full h-full object-cover rounded-lg shadow-md"
           onError={(e) => {
-            e.target.onerror = null;
-            // e.target.src = defaultImage(item);
+            const target = e.target;
+            target.onerror = null;
+            const retryInterval = 2000;
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            const retryLoad = () => {
+              if (retryCount < maxRetries) {
+                retryCount++;
+                target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                target.onerror = () => {
+                  setTimeout(retryLoad, retryInterval);
+                };
+              } else {
+                target.src =
+                  "https://placehold.co/32x32/cccccc/333333?text=N/A";
+              }
+            };
+
+            setTimeout(retryLoad, retryInterval);
           }}
           loading="lazy"
         />
@@ -85,7 +95,7 @@ const ProductImageSlider = (props) => {
           {images.map((image, index) => (
             <img
               key={index}
-              src={image}
+              src={imageUrl + "product/" + image}
               alt={`Product ${index + 1}`}
               className={`w-24 h-24 object-cover rounded-md cursor-pointer transition-all duration-300 flex-shrink-0 ${
                 mainImage === image
@@ -94,8 +104,26 @@ const ProductImageSlider = (props) => {
               } hover:opacity-80`}
               onClick={() => handleImageClick(image)}
               onError={(e) => {
-                e.target.onerror = null;
-                // e.target.src = defaultImage(item);
+                const target = e.target;
+                target.onerror = null;
+                const retryInterval = 2000;
+                let retryCount = 0;
+                const maxRetries = 5;
+
+                const retryLoad = () => {
+                  if (retryCount < maxRetries) {
+                    retryCount++;
+                    target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                    target.onerror = () => {
+                      setTimeout(retryLoad, retryInterval);
+                    };
+                  } else {
+                    target.src =
+                      "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                  }
+                };
+
+                setTimeout(retryLoad, retryInterval);
               }}
               loading="lazy"
             />
