@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 import { imageUrl } from "../../../api/config";
 import apiOrder from "../../../api/apiOrder";
+
+import Review from "./components/Review";
 
 const statusPriority = [
   "PENDING",
@@ -21,23 +24,62 @@ const statusPriority = [
   "REFUND",
 ];
 
+const statusTranslations = {
+  PENDING: "Chờ thanh toán",
+  SELLER_CANCELLED: "Người bán đã hủy",
+  SELLER_CHECKING: "Người bán đang kiểm tra",
+  SELLER_PREPAIRING: "Người bán đang chuẩn bị hàng",
+  SELLER_PREPAIRED: "Người bán đã chuẩn bị xong",
+  SHIPPER_TAKING: "Shipper đang lấy hàng",
+  SHIPPER_TAKEN: "Shipper đã lấy hàng",
+  DISPATCHED: "Đang vận chuyển",
+  DELIVERING: "Đang giao hàng",
+  DELIVERD: "Đã giao hàng",
+  CANCELLED: "Đã hủy",
+  RETURN: "Trả hàng",
+  REFUND: "Hoàn tiền",
+};
+
 const getLatestStatus = (orderStatusList) => {
   if (!orderStatusList || orderStatusList.length === 0)
-    return { status: "PENDING", createdAt: new Date() };
+    return {
+      status: "PENDING",
+      createdAt: new Date(),
+      translatedStatus: statusTranslations["PENDING"],
+    };
 
   const sortedByTime = [...orderStatusList].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
 
-  return sortedByTime.reduce((latest, current) => {
+  const latestStatusObject = sortedByTime.reduce((latest, current) => {
     const currentPriority = statusPriority.indexOf(current.status);
     const latestPriority = statusPriority.indexOf(latest.status);
     return currentPriority > latestPriority ? current : latest;
   });
+
+  return {
+    ...latestStatusObject,
+    translatedStatus:
+      statusTranslations[latestStatusObject.status] ||
+      latestStatusObject.status,
+  };
 };
 
 const UserOrders = () => {
+  const pageTitle = "Đơn hàng";
+
+  useEffect(() => {
+    document.title = pageTitle;
+
+    return () => {
+      document.title = "Peter Microservice";
+    };
+  }, [pageTitle]);
+
   const accessToken = Cookies.get("accessToken");
+
+  const [orderToReview, setOrderToReview] = useState(null);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("Tất cả");
 
@@ -59,8 +101,13 @@ const UserOrders = () => {
           "Content-Type": "application/json",
         },
       });
+
       console.log(res.data.content);
-      setOrders(res.data.content || []);
+      const data = res.data.content;
+      const sorted1 = [...data].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      setOrders(sorted1 || []);
     } catch (err) {
       console.error(err);
       Swal.fire({
@@ -96,9 +143,12 @@ const UserOrders = () => {
           "Content-Type": "application/json",
         },
       });
-      const data = res.data;
-      console.log("Filtered Orders:", data);
-      setOrders(data.content || []);
+
+      const data = res.data.content;
+      const sorted1 = [...data].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      setOrders(sorted1 || []);
     } catch (err) {
       console.error("Error fetching orders by status:", err);
       Swal.fire({
@@ -146,6 +196,16 @@ const UserOrders = () => {
     }
   }, [activeTab, accessToken]);
 
+  const handleReviewing = (order) => {
+    setOrderToReview(order);
+  };
+
+  const handleCloseReviewModal = () => {
+    setOrderToReview(null);
+  };
+
+  useEffect(() => {}, []);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto p-4 bg-white shadow-md">
@@ -166,20 +226,9 @@ const UserOrders = () => {
           ))}
         </div>
 
-        {/* Search input */}
-        {/* <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Bạn có thể tìm kiếm theo tên Shop, ID đơn hàng hoặc Tên Sản phẩm"
-            className="w-full p-2 border rounded"
-          />
-        </div> */}
-
-        {/* Orders list */}
         {orders.map((order, index) => {
           const latestStatus = getLatestStatus(order.orderStatus);
 
-          // Total price logic
           let totalSalePrice = 0;
           let totalOriginalPrice = 0;
 
@@ -188,12 +237,19 @@ const UserOrders = () => {
               item.salePrice > 0
                 ? item.salePrice * item.quantity
                 : item.price * item.quantity;
+
             totalOriginalPrice += item.price * item.quantity;
           });
 
+          let tot =
+            order.peterVoucher +
+            (order.shippingVoucherPrice - order.shippingPrice > 0
+              ? 0
+              : order.shippingPrice - order.shippingVoucherPrice);
+
           return (
             <div
-              key={index}
+              key={order.id || index}
               className="mb-6 border rounded-lg p-4 bg-white shadow-sm"
             >
               <div className="flex justify-between items-center mb-2">
@@ -201,11 +257,18 @@ const UserOrders = () => {
                   <span className="text-orange-500 font-bold">
                     {order.sellerUsername}
                   </span>
-                  <button className="ml-2 text-blue-500">Chat</button>
-                  <button className="ml-2 text-blue-500">Xem Shop</button>
+                  <button className="ml-2 text-blue-500 hover:underline">
+                    Chat
+                  </button>
+                  <Link
+                    to={`/seller/page/${order.sellerId}`}
+                    className="ml-2 text-blue-500 hover:underline"
+                  >
+                    Xem Shop
+                  </Link>
                 </div>
                 <div className="text-green-500 flex items-center">
-                  <span>ⓘ {latestStatus.status}</span>
+                  <span>ⓘ {latestStatus.translatedStatus}</span>
                   {latestStatus.status === "DELIVERD" && (
                     <span className="ml-2 text-red-500">HOÀN THÀNH</span>
                   )}
@@ -214,16 +277,19 @@ const UserOrders = () => {
 
               {order.items.map((item, itemIndex) => (
                 <div
-                  key={itemIndex}
+                  key={item.id || itemIndex}
                   className="flex items-center justify-between mb-2"
                 >
-                  <div className="flex items-center">
+                  <Link
+                    to={`/product-detail/productid/${item.productId}`}
+                    className="flex items-center"
+                  >
                     <img
                       src={imageUrl + "product/" + item.image}
                       alt={item.productName}
-                      className="w-12 h-12 mr-2"
+                      className="w-12 h-12 mr-2 object-cover rounded"
                     />
-                    <div>
+                    <div className="hover:text-blue-600">
                       <p className="text-sm">
                         {item.productName.length > 90
                           ? item.productName.slice(0, 90) + "..."
@@ -233,18 +299,18 @@ const UserOrders = () => {
                         {item.variantName}
                       </p>
                     </div>
-                  </div>
+                  </Link>
 
                   <div className="text-right">
                     {item.salePrice > 0 ? (
-                      <>
+                      <div>
                         <p className="text-gray-500 line-through">
                           {item.price.toLocaleString()}đ
                         </p>
                         <p className="text-red-500">
                           {item.salePrice.toLocaleString()}đ
                         </p>
-                      </>
+                      </div>
                     ) : (
                       <p className="text-red-500">
                         {item.price.toLocaleString()}đ
@@ -254,6 +320,27 @@ const UserOrders = () => {
                   </div>
                 </div>
               ))}
+
+              <div className="flex justify-between items-center mt-2 border-t pt-2">
+                <p>Khuyến mãi sàn</p>
+                <p className="text-red-500">
+                  {order.peterVoucher.toLocaleString()} đ
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center mt-2 border-t pt-2">
+                <p>Cước vận chuyển</p>
+                <p className="text-red-500">
+                  {order.shippingPrice.toLocaleString()} đ
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center mt-2 border-t pt-2">
+                <p>Khuyến mãi vận chuyển</p>
+                <p className="text-red-500">
+                  {order.shippingVoucherPrice.toLocaleString()} đ
+                </p>
+              </div>
 
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <span>Thành tiền: </span>
@@ -268,17 +355,31 @@ const UserOrders = () => {
                   </p>
                 </div>
               </div>
+              <div className="flex justify-between items-center border-t mt-2 pt-2">
+                <p>Tổng khuyến mãi</p>
+                <p className="text-red-500 font-bold">
+                  {" "}
+                  {tot.toLocaleString()}{" "}
+                </p>
+              </div>
+              <div className="flex justify-between items-center border-t mt-2 pt-2">
+                <p>Tổng thanh toán</p>
+                <p className="text-red-500 font-bold">
+                  {" "}
+                  {(totalSalePrice - tot).toLocaleString()}{" "}
+                </p>
+              </div>
 
               <div className="flex justify-end mt-2 space-x-2">
                 <button
                   onClick={() => handleBuyAgain(order)}
-                  className="bg-orange-500 text-white py-1 px-2 rounded hover:bg-orange-600"
+                  className="bg-orange-500 text-white py-1 px-2 rounded hover:bg-orange-600 transition-colors duration-200"
                 >
                   Mua Lại
                 </button>
                 <button
                   onClick={() => handleContactSeller(order)}
-                  className="text-blue-500 hover:underline"
+                  className="text-blue-500 hover:underline py-1 px-2"
                 >
                   Liên Hệ Người Bán
                 </button>
@@ -288,9 +389,22 @@ const UserOrders = () => {
                 <div className="text-green-500 flex items-center mt-2">
                   <span>ⓘ Giao hàng thành công</span>
                   <span className="ml-2 text-blue-500 cursor-pointer">
-                    ĐÁNH GIÁ
+                    <button
+                      onClick={() => handleReviewing(order)}
+                      className="text-blue-500 hover:underline font-semibold"
+                    >
+                      ĐÁNH GIÁ
+                    </button>
                   </span>
                 </div>
+              )}
+
+              {orderToReview && orderToReview.id === order.id && (
+                <Review
+                  setOpenModal={handleCloseReviewModal}
+                  openModal={true}
+                  order={orderToReview}
+                />
               )}
             </div>
           );

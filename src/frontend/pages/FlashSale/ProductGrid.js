@@ -39,32 +39,37 @@ const ProductGrid = () => {
             </Link>
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
-                {product.stock && (
-                  <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded">
-                    {product.stock}
+                {product.discount && (
+                  <span>
+                    <span className="text-sm px-2 py-1 font-bold border border-red-500 rounded mr-2">
+                      Giảm thêm
+                    </span>
+                    <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded">
+                      {product.discount.toLocaleString("de-DE")} đ
+                    </span>
                   </span>
                 )}
               </div>
-              <h3 className="text-sm font-semibold line-clamp-2">
+              <h3 className="h-16 text-sm font-semibold line-clamp-2">
                 {product.productName}
               </h3>
-              {product.discount && (
+              {product.stock && (
                 <span className="text-red-500 text-xs border border-red-400 p-0.5 rounded">
-                  -{product.discount.toLocaleString()}
+                  Còn lại: {product.stock.toLocaleString("de-DE")}
                 </span>
               )}
               {product.salePrice > 0 ? (
                 <p>
-                  <p className="text-md font-bold text-gray-500 mt-1 line-through">
-                    {product.price.toLocaleString()} đ
+                  <p className="h-8 text-md font-bold text-gray-500 mt-1 line-through">
+                    {product.price.toLocaleString("de-DE")} đ
                   </p>
-                  <p className="text-lg font-bold text-red-600 mt-1">
-                    {product.salePrice.toLocaleString()} đ
+                  <p className="h-8 text-lg font-bold text-red-600 mt-1">
+                    {product.salePrice.toLocaleString("de-DE")} đ
                   </p>
                 </p>
               ) : (
-                <p className="text-lg font-bold text-red-600 mt-1">
-                  {product.price.toLocaleString()} đ
+                <p className="h-16 text-lg font-bold text-red-600 mt-1">
+                  {product.price.toLocaleString("de-DE")} đ
                 </p>
               )}
 
@@ -72,7 +77,6 @@ const ProductGrid = () => {
                 Mua Ngay
               </button>
             </div>
-            img
           </div>
         );
       })}

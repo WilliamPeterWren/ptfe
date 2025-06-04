@@ -14,7 +14,7 @@ const FromSeller = ({ sellerId }) => {
   const getProduct = useCallback(async () => {
     try {
       const res = await apiProduct.getProductBySellerId(sellerId);
-      console.log(res.data.result);
+      // console.log(res.data.result);
       setProducts(res.data.result.content);
       // setOnload(!onload);
     } catch (err) {
@@ -70,7 +70,7 @@ const FromSeller = ({ sellerId }) => {
           CÁC SẢN PHẨM KHÁC CỦA SHOP
         </h2>
         <Link
-          to={`/seller/page`}
+          to={`/seller/page/${products[0]?.sellerId}`}
           className="text-sm text-blue-500 hover:underline"
         >
           Xem Tất Cả

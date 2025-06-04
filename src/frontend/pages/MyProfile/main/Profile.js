@@ -1,9 +1,9 @@
 import React from "react";
+import Cookies from "js-cookie";
 
 function Profile() {
-  
-
-
+  const username = Cookies.get("username");
+  const email = Cookies.get("email");
   return (
     <div className="flex-1 p-6">
       <div className="max-w-3xl mx-auto bg-white shadow-md rounded p-6">
@@ -16,21 +16,11 @@ function Profile() {
           <div className="space-y-4 flex-1">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Tên đăng nhập
+                Tên hiển thị
               </label>
               <input
                 type="text"
-                placeholder="pykenhamster"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tên
-              </label>
-              <input
-                type="text"
-                placeholder="william"
+                placeholder={username}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -39,10 +29,9 @@ function Profile() {
                 Email
               </label>
               <input
-                type="email"
-                placeholder="py******@gmail.com"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100"
-                disabled
+                type="text"
+                placeholder={email}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -73,11 +62,7 @@ function Profile() {
                 <label className="flex items-center">
                   <input type="radio" name="gender" className="mr-2" />
                   Nữ
-                </label>
-                <label className="flex items-center">
-                  <input type="radio" name="gender" className="mr-2" />
-                  Khác
-                </label>
+                </label>              
               </div>
             </div>
             <div>

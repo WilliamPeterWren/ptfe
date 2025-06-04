@@ -15,7 +15,7 @@ import {
 const Detail = ({ productData }) => {
   const [price, setPrice] = useState(productData.variants[0].price);
   const [salePrice, setSalePrice] = useState(productData.variants[0].salePrice);
-  const [reloadCart, setReloadCart] = useState(false);
+  const [rating, setRating] = useState(0);
   const [selectVariant, setSelectVariant] = useState(0);
 
   const [timeLeft, setTimeLeft] = useState({
@@ -91,7 +91,6 @@ const Detail = ({ productData }) => {
 
   const accessToken = Cookies.get("accessToken");
   const dispatch = useDispatch();
-  const countCart = useSelector((state) => state.cart.countCart);
 
   const handleAddToCart = async () => {
     // console.log(productData.variants);
@@ -161,30 +160,10 @@ const Detail = ({ productData }) => {
       });
   };
 
-  // const getCartFromApi = async () => {
-  //   if (accessToken) {
-  //     await apiCart
-  //       .getCart({
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`,
-  //           // "Content-Type": "application/json",
-  //         },
-  //       })
-  //       .then((res) => {
-  //         const data = res.data.result;
-  //         // console.log(data);
-
-  //         dispatch(SET_CART_FROM_API(data));
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (accessToken) {
-  //     getCartFromApi();
-  //   }
-  // }, [accessToken]);
+  if (productData.rating?.length > 0) {
+    var sum = 0;
+    productData.rating.map((item) => {});
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 bg-white rounded-lg">
@@ -197,9 +176,12 @@ const Detail = ({ productData }) => {
           </h1>
           <p className="text-lg text-gray-600 mb-4"></p>
           <div className="flex items-center mb-2">
-            <span className="text-yellow-400">★ {product.rating}</span>
+            <span className="text-yellow-400">★ {rating}</span>
             <span className="text-gray-600 ml-2">{product.reviews}</span>
-            <span className="text-gray-600 ml-2">| {product.sales}</span>
+            <span className="text-gray-600 ml-2">
+              {" "}
+              | Đã bán: {productData.sold}
+            </span>
           </div>
           <div className="bg-orange-100 text-orange-700 text-sm font-semibold px-2 py-1 rounded mb-4 inline-block">
             FLASH SALE

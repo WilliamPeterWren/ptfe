@@ -92,28 +92,28 @@ const RecommendationsSection = () => {
                         })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-800 line-clamp-2">
+                  <p className="h-16 text-sm text-gray-800 line-clamp-2">
                     {product.productName}
                   </p>
                   {product.variants[0].salePrice > 0 ? (
                     <div>
-                      <p className="text-lg font-bold text-gray-400 line-through">
+                      <p className="h-8 text-lg font-bold text-gray-400 line-through">
                         {product.variants[0].price.toLocaleString("de-DE")} đ
                       </p>
-                      <p className="text-lg font-bold text-red-600">
+                      <p className="h-8 text-lg font-bold text-red-600">
                         {product.variants[0].salePrice.toLocaleString("de-DE")}{" "}
                         đ
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-lg font-bold text-red-600">
-                        {product.variants[0].price}
+                      <p className="h-16 text-lg font-bold text-red-600">
+                        {product.variants[0].price.toLocaleString("de-DE")}
                       </p>
                     </div>
                   )}
                   <p className="text-xs text-gray-600">
-                    Kho: {product.variants[0].stock}
+                    Kho: {product.variants[0].stock.toLocaleString("de-DE")}
                   </p>
                 </div>
               </Link>

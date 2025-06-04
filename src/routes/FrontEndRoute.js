@@ -32,6 +32,7 @@ import NotFound from "../frontend/pages/NotFound";
 import About from "../frontend/pages/About/About";
 import Contact from "../frontend/pages/Contact/Contact";
 import Help from "../frontend/pages/Help/Help";
+import ProductID from "../frontend/pages/productId/ProductID";
 
 const FrontendRoute = [
   // ------------ home ------------
@@ -48,6 +49,7 @@ const FrontendRoute = [
 
   // ------------ product ------------
   { path: "/product-detail/:slug", component: ProductDetail },
+  { path: "/product-detail/productid/:productId", component: ProductID },
   { path: "/products-by-cat/:category", component: ProductByCategory },
   { path: "/todaysuggest", component: SuggestToday },
 

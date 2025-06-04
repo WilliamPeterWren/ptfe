@@ -170,17 +170,31 @@ const FlashSaleSection = () => {
                     />
                     <div className="p-2 bg-white">
                       <div className="flex items-center mb-1">
-                        <span className="text-xs bg-gray-200 text-gray-700 px-1 rounded"></span>
-                        <span className="text-xs text-red-500 ml-1">
-                          {item.discount}
+                        <span className="text-xs bg-gray-200 text-gray-700 px-1 rounded">
+                          Giảm thêm
+                        </span>
+                        <span className="text-xs text-red-500 ml-1 border border-red-500 p-0.5 rounded">
+                          {item.discount.toLocaleString("de-DE")} đ
                         </span>
                       </div>
-                      <p className="text-sm text-gray-800 line-clamp-2">
+                      <p className="h-16 text-sm text-gray-800 line-clamp-2">
                         {item.productName}
                       </p>
-                      <p className="text-lg font-bold text-red-600">
-                        {item.price}
-                      </p>
+                      {item.salePrice > 0 ? (
+                        <div className="">
+                          <p className="h-8 text-lg font-bold text-gray-400 line-through">
+                            {item.price.toLocaleString("de-DE")}
+                          </p>
+                          <p className="h-8 text-lg font-bold text-red-600">
+                            {item.salePrice.toLocaleString("de-DE")}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="h-16 text-lg font-bold text-red-600">
+                          {item.price.toLocaleString("de-DE")}
+                        </p>
+                      )}
+
                       <p className="text-xs text-orange-500">
                         {item?.status || ""}
                       </p>

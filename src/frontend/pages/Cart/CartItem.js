@@ -26,7 +26,7 @@ function CartItem() {
   const totalAmount = useSelector((state) => state.cart.totalAmount);
   const totalSale = useSelector((state) => state.cart.totalSale);
 
-  console.log(cartItems);
+  // console.log(cartItems);
 
   useEffect(() => {
     if (accessToken) {
@@ -179,7 +179,7 @@ function CartItem() {
         .then((res) => {
           const data = res.data.result;
 
-          // console.log(data);
+          console.log(data);
 
           Swal.fire({
             title: "Cập nhật thành công",
@@ -349,7 +349,7 @@ function CartItem() {
   };
 
   const handleCheckout = () => {
-    console.log("checkout");
+    // console.log("checkout");
     navigate("/checkout");
   };
 

@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 import {
   FaMapMarkerAlt,
   FaQuestionCircle,
@@ -8,7 +10,15 @@ import { MdOutlineLocalShipping } from "react-icons/md";
 import ProductItem from "./ProductItem";
 import { formatCurrency } from "../utils/FormatCurrency";
 
-const SellerSection = ({ seller }) => {
+const SellerSection = (props) => {
+  const {
+    seller,
+    peterVouchers,
+    setPeterVoucher,
+    peterVoucher,
+    setPeterVoucherId,
+    peterVoucherId,
+  } = props;
   const sellerTotal = seller.items.reduce((sum, item) => {
     return (
       sum +
@@ -17,6 +27,11 @@ const SellerSection = ({ seller }) => {
         : item.price * item.quantity)
     );
   }, 0);
+
+  const setPeterVoucherChange = (selected) => {
+    setPeterVoucher(selected.value);
+    setPeterVoucherId(selected.id);
+  };
 
   return (
     <div className="bg-white p-6 mt-4 shadow-sm">
@@ -42,18 +57,38 @@ const SellerSection = ({ seller }) => {
             Tổng số tiền ({seller.items.length} sản phẩm):
           </p>
           <p className="text-lg text-orange-500 font-semibold">
-            {formatCurrency(sellerTotal)}
+            {formatCurrency(sellerTotal - peterVoucher)}
           </p>
         </div>
       </div>
       <div className="mt-4 text-sm text-gray-600">
-        <p className="flex justify-between items-center">
-          Peter Voucher <button className="text-blue-500">Chọn Voucher</button>
-        </p>
+        <div className="flex justify-between items-center">
+          <p>Peter Voucher</p>
+          <select
+            className="w-80 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base appearance-none bg-white pr-10"
+            onChange={(e) => {
+              const selected = JSON.parse(e.target.value);
+              setPeterVoucherChange(selected);
+            }}
+          >
+            {peterVouchers.length > 0 &&
+              peterVouchers.map((item, index) => (
+                <option
+                  key={index}
+                  value={JSON.stringify({ id: item.id, value: item.value })}
+                >
+                  {item.name}{" "}
+                  <span className="text-blue-500">
+                    {item.value.toLocaleString()}
+                  </span>
+                </option>
+              ))}
+          </select>
+        </div>
         <p className="flex justify-between items-center mt-2">
           Tổng số tiền thanh toán{" "}
           <span className="font-semibold text-orange-500">
-            {formatCurrency(sellerTotal)}
+            {formatCurrency(sellerTotal - peterVoucher)}
           </span>
         </p>
       </div>

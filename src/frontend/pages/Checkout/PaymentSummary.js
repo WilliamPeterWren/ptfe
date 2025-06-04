@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +8,20 @@ import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 import apiOrder from "../../../api/apiOrder";
 import apiCart from "../../../api/apiCart";
 import { formatCurrency } from "../utils/FormatCurrency";
+import apiShippingFee from "../../../api/apiShipping";
+import apiShippingVoucher from "../../../api/apiShippingVoucher";
+import apiPeterVoucher from "../../../api/apiPeterVoucher";
 
-const PaymentSummary = ({ data }) => {
+const PaymentSummary = (props) => {
+  const {
+    data,
+    peterVouchers,
+    setPeterVoucher,
+    peterVoucher,
+    setPeterVoucherId,
+    peterVoucherId,
+  } = props;
+
   console.log(data);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,9 +40,60 @@ const PaymentSummary = ({ data }) => {
     );
   }, 0);
 
-  const shippingFee = 15000;
-  const totalPayment = totalProductPrice + shippingFee;
+  const [shippingFees, setShippingFees] = useState([]);
+  const [shippingFee, setShippingFee] = useState(15000);
+  const [shippingId, setShippingId] = useState("683b529e2a9cfc41ae6f134b");
+
+  const [shippingVouchers, setShippingVouchers] = useState([]);
+  const [shippingVoucher, setShippingVoucher] = useState(15000);
+  const [shippingVoucherId, setShippingVoucherId] = useState("");
+
+  const totalPayment =
+    totalProductPrice +
+    (shippingVoucher - shippingFee > 0 ? 0 : shippingFee - shippingVoucher) -
+    peterVoucher;
   const accessToken = Cookies.get("accessToken");
+
+  const getShippingFees = async () => {
+    await apiShippingFee
+      .getAll()
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setShippingFees(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getShippingVouchers = async () => {
+    await apiShippingVoucher
+      .getAll()
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setShippingVouchers(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getShippingFees();
+    getShippingVouchers();
+  }, []);
+
+  const setShippingChange = (selected) => {
+    setShippingFee(selected.value);
+    setShippingId(selected.id);
+  };
+
+  const setShippingVoucherChange = (selected) => {
+    setShippingVoucher(selected.value);
+    setShippingVoucherId(selected.id);
+  };
 
   const handlePlaceTheOrder = async () => {
     for (const seller of data) {
@@ -44,12 +108,15 @@ const PaymentSummary = ({ data }) => {
       const dataOrder = {
         sellerId: seller.sellerId,
         orderItems,
-        shippingVoucherId: "",
+        shippingVoucherId: shippingVoucherId,
         addressId: "",
         paymentType: "COD",
         sellerVoucherId: "",
-        shippingId: "683b529e2a9cfc41ae6f134b",
+        shippingId: shippingId,
+        peterVoucher: peterVoucherId,
       };
+
+      console.log(dataOrder);
 
       try {
         const res = await apiOrder.createOrder(dataOrder, {
@@ -120,10 +187,56 @@ const PaymentSummary = ({ data }) => {
           <span>Tổng tiền hàng</span>
           <span>{formatCurrency(totalProductPrice)}</span>
         </div>
+
         <div className="flex justify-between items-center border-b pb-2 border-gray-200">
           <span>Phí vận chuyển</span>
-          <span>{formatCurrency(shippingFee)}</span>
+          <select
+            id="category"
+            className="w-80 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base appearance-none bg-white pr-10"
+            onChange={(e) => {
+              const selected = JSON.parse(e.target.value);
+              setShippingChange(selected);
+            }}
+          >
+            {shippingFees.map((item, index) => {
+              return (
+                <option
+                  key={index}
+                  value={JSON.stringify({ id: item.id, value: item.value })}
+                  id={item.id}
+                >
+                  {item.name}{" "}
+                  <span className="">{item.value.toLocaleString()} đ</span>
+                </option>
+              );
+            })}
+          </select>
         </div>
+
+        <div className="flex justify-between items-center border-b pb-2 border-gray-200">
+          <span>Khuyến mãi vận chuyển</span>
+          <select
+            id="category"
+            className="w-80 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base appearance-none bg-white pr-10"
+            onChange={(e) => {
+              const selected = JSON.parse(e.target.value);
+              setShippingVoucherChange(selected);
+            }}
+          >
+            {shippingVouchers.map((item, index) => {
+              return (
+                <option
+                  key={index}
+                  value={JSON.stringify({ id: item.id, value: item.price })}
+                  id={item.id}
+                >
+                  {item.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
         <div className="flex justify-between items-center pt-2">
           <span className="text-xl font-bold text-orange-500">
             Tổng thanh toán

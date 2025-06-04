@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 
 import Sidebar from "./SideBar";
-import Profile from "./Profile";
+import Profile from "./main/Profile";
 import UserOrder from "./UserOrder";
-import Notification from "./Notification";
-import Account from "./Account";
-import Bank from "./Bank";
-import Address from "./Address";
-import ChangePassword from "./ChangePassword";
-import Library from "./Library";
+import Notification from "./main/Notification";
+import Account from "./main/Account";
+import Bank from "./main/Bank";
+import Address from "./main/Address";
+import ChangePassword from "./main/ChangePassword";
+import Library from "./main/Library";
 import Voucher from "./Voucher";
-import PeterXu from "./PeterXu";
-import Sale from "./Sale";
+import PeterXu from "./main/PeterXu";
+import Sale from "./main/Sale";
 
 function MyProfile() {
   const [activeSection, setActiveSection] = useState("profile");

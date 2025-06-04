@@ -21,6 +21,8 @@ const checkoutReducer = (state = initCart, action) => {
         price,
         salePrice,
         quantity,
+        // sellerVoucherId,
+        // shippingId,
       } = action.payload.item;
 
       const { sellerId, sellerUsername } = action.payload.seller;
@@ -35,6 +37,8 @@ const checkoutReducer = (state = initCart, action) => {
         price,
         salePrice,
         quantity,
+        // sellerVoucherId,
+        // shippingId,
       };
 
       let updatedCheckouts = [...state.checkouts];

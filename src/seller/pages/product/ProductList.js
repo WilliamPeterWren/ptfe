@@ -29,7 +29,7 @@ const ProductList = () => {
   const [petercategories, setPeterCategories] = useState([]);
   const [totalProduct, setTotalProduct] = useState(0);
   const [flashSaleProductId, setFlashSaleProductId] = useState("");
-
+  const [status, setStatus] = useState(true);
   const [flashSale, setFlashSale] = useState([]);
   const [flashSaleId, setFlashSaleId] = useState("");
   const [flashSaleProductName, setFlashSaleProductName] = useState("");
@@ -98,21 +98,16 @@ const ProductList = () => {
   }, [reload]);
 
   const [searchId, setSearchId] = useState("");
-  const [status, setStatus] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(null);
 
   const handleSearchChange = (e) => {
     setSearchId(e.target.value);
   };
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value);
-  };
-
   const filteredProducts = products?.filter(
     (product) =>
       product.id.toLowerCase().includes(searchId.toLowerCase()) &&
-      (status === "" || product.status === status)
+      (status === "" || product.active === status)
   );
 
   const toggleDropdown = (index) => {
@@ -196,6 +191,10 @@ const ProductList = () => {
     });
   };
 
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+  };
+
   const handleOpenFlashSaleModal = (index) => {
     setOpenModal(!openModal);
 
@@ -235,15 +234,18 @@ const ProductList = () => {
               />
             </svg>
           </div>
-          <select
-            className="border rounded px-2 py-1"
-            value={status}
-            onChange={handleStatusChange}
-          >
-            <option value="">Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+
+          <div>
+            <select
+              className="border rounded px-2 py-1"
+              value={status}
+              onChange={handleStatusChange}
+            >
+              <option value={true}>Active</option>
+              <option value={false}>Inactive</option>
+            </select>
+          </div>
+
           <button
             className="bg-indigo-500 text-white px-4 py-2 rounded flex items-center"
             onClick={handleAddProduct}
@@ -328,10 +330,10 @@ const ProductList = () => {
                             className="bg-gray-100 p-3 rounded-md shadow-sm border border-gray-200"
                           >
                             <div className="font-semibold text-gray-800 text-sm">
-                              {v.variantName}
+                              Tên loại: {v.variantName}
                             </div>
                             <div className="text-sm text-gray-600">
-                              Price:{" "}
+                              Đơn giá:{" "}
                               <span className="font-medium text-indigo-600">
                                 {new Intl.NumberFormat("vi-VN", {
                                   style: "currency",
@@ -340,7 +342,7 @@ const ProductList = () => {
                               </span>
                             </div>
                             <div className="text-sm text-gray-600">
-                              Sale Price:{" "}
+                              Khuyến mãi:{" "}
                               <span className="font-medium text-indigo-600">
                                 {new Intl.NumberFormat("vi-VN", {
                                   style: "currency",
@@ -349,7 +351,7 @@ const ProductList = () => {
                               </span>
                             </div>
                             <div className="text-sm text-gray-600">
-                              Stock:{" "}
+                              Kho hàng:{" "}
                               <span className="font-medium text-green-600">
                                 {v.stock}
                               </span>

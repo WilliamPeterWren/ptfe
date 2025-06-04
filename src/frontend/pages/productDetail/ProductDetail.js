@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import Detail from "./Detail";
 import SellerInfo from "./SellerInfo";
 import ProductInfo from "./ProductInfo";
-import ProductReviews from "./ProductReviews";
+import ProductReviews from "./reviews/ProductReviews";
 import FromSeller from "./FromSeller";
 import Perhap from "./Perhap";
 
@@ -19,7 +19,7 @@ function ProductDetail() {
   const getProduct = useCallback(async () => {
     try {
       const res = await apiProduct.getBySlug(slug);
-      // console.log(res.data.result);
+      console.log(res.data.result);
       setProduct(res.data.result);
       setOnload(!onload);
     } catch (err) {
@@ -54,7 +54,11 @@ function ProductDetail() {
       <Detail productData={product} />
       <SellerInfo sellerId={product.sellerId} />
       <ProductInfo product={product} />
-      {/* <ProductReviews /> */}
+      <ProductReviews
+        productId={product.id}
+        variants={product.variants}
+        rating={product.rating}
+      />
       <FromSeller sellerId={product.sellerId} />
       <Perhap />
     </div>

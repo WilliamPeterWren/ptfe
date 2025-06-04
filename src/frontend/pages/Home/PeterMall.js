@@ -159,7 +159,7 @@ const PeterMall = () => {
                         {deal.productName.slice(0, 30) + "..."}
                       </p>
                       <p className="text-xs text-red-500">
-                        {deal.variants[0].price} VND
+                        {deal.variants[0].price.toLocaleString("de-DE")} VND
                       </p>
                     </div>
                   </Link>
