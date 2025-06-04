@@ -1,6 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import apiUser from "../../../api/apiUser";
+import { useParams } from "react-router-dom";
+
+import { calculateDuration } from "../../../utils/CountDate";
+import apiCategory from "../../../api/apiCategory";
 
 const SellerInfo = () => {
+  const { sellerId } = useParams();
+
+  const [sellerInfo, setSellerInfo] = useState();
+
+  const getSellerInfo = async () => {
+    await apiUser
+      .getSellerInfo(sellerId)
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setSellerInfo(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getSellerInfo();
+  }, [sellerId]);
+
+  const [categories, setCategories] = useState([]);
+  const getSellerCategories = async () => {
+    await apiCategory
+      .getAll(sellerId)
+      .then((res) => {
+        const data = res.data.result;
+        console.log(data);
+        setCategories(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getSellerCategories();
+  }, [sellerId]);
+
   return (
     <div className="bg-gray-900 text-white p-4 flex flex-col">
       <div className="flex items-center space-x-4">
@@ -8,16 +52,18 @@ const SellerInfo = () => {
           <span className="text-pink-400">🐰</span>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Housecleaning 24/24</h2>
+          <h2 className="text-lg font-bold"> {sellerInfo?.sellerUsername} </h2>
           <p className="text-sm text-gray-400">Online 18 phút trước</p>
         </div>
       </div>
 
       <div className="flex space-x-4 mt-2 text-sm">
-        <div>📦 Sản Phẩm: 66</div>
-        <div>👥 Người Theo Dõi: 528</div>
-        <div>📈 Đánh Giá: 4.8 (2.4k Đánh Giá)</div>
-        <div>⏰ Đang Theo: 117</div>
+        <div>📦 Sản Phẩm: {sellerInfo?.countProduct} </div>
+        <div>👥 Người Theo Dõi: {sellerInfo?.follower} </div>
+        <div>
+          📈 Đánh Giá: {sellerInfo?.star} ({sellerInfo?.rating} Đánh Giá)
+        </div>
+        <div>⏰ Đang Theo: {sellerInfo?.following} </div>
       </div>
 
       <div className="flex space-x-2 mt-2">
@@ -31,18 +77,20 @@ const SellerInfo = () => {
 
       <div className="flex space-x-4 mt-2 text-sm">
         <div>💬 Tỷ Lệ Phản Hồi Chat: 93% (Trong Vài Giờ)</div>
-        <div>👤 Tham Gia: 8 Năm Trước</div>
+        <div>
+          👤 Tham Gia:{" "}
+          {sellerInfo?.createdAt && calculateDuration(sellerInfo?.createdAt)}{" "}
+        </div>
       </div>
 
-      {/* seller category  */}
       <div className="flex space-x-4 mt-4 border-t border-gray-700 pt-2 text-sm">
-        <button className="text-gray-400">Dạo</button>
-        <button className="text-gray-400">TẤT CẢ SẢN PHẨM</button>
-        <button className="text-gray-400">Nhà Cửa & Đời Sống</button>
-        <button className="text-gray-400">Thời Trang & Du Lịch</button>
-        <button className="text-gray-400">Thiết Bị Điện Gia Dụng</button>
-        <button className="text-gray-400">Sức Khỏe</button>
-        <button className="text-gray-400">Thêm ▼</button>
+        {categories.map((item, index) => {
+          return (
+            <button key={index} className="text-gray-400 uppercase">
+              {item.categoryName}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

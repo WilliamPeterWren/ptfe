@@ -1,11 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { calculateDuration } from "../../../utils/CountDate";
 
-const SellerInfo = ({ sellerId }) => {
+const SellerInfo = ({ sellerInfo }) => {
   return (
     <div className="max-w-[1540px] mt-4 mx-auto bg-white rounded-lg shadow-md p-4 flex items-start space-x-4">
       <div className="flex-shrink-0">
-        <div className="text-2xl font-bold text-black">VENTAS</div>
+        <div className="text-2xl font-bold text-black">
+          {sellerInfo.sellerUsername}{" "}
+        </div>
         <div className="text-sm text-gray-600">Ventas Home Life</div>
       </div>
 
@@ -22,7 +25,7 @@ const SellerInfo = ({ sellerId }) => {
             <span className="mr-1">💬</span> Chat Ngay
           </button>
           <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
-            <Link to={`/seller/page/${sellerId}`}>
+            <Link to={`/seller/page/${sellerInfo.sellerId}`}>
               <span className="mr-1">🏪</span> Xem Shop
             </Link>
           </button>
@@ -32,11 +35,15 @@ const SellerInfo = ({ sellerId }) => {
           <div>
             <div className="flex justify-between mb-1">
               <span className="text-gray-600">Đánh Giá</span>
-              <span className="text-gray-800 font-semibold">34,7K</span>
+              <span className="text-gray-800 font-semibold">
+                {sellerInfo.rating}{" "}
+              </span>
             </div>
             <div className="flex justify-between mb-1">
               <span className="text-gray-600">Sản Phẩm</span>
-              <span className="text-gray-800 font-semibold">49</span>
+              <span className="text-gray-800 font-semibold">
+                {sellerInfo.countProduct}
+              </span>
             </div>
           </div>
           <div>
@@ -56,11 +63,14 @@ const SellerInfo = ({ sellerId }) => {
         <div className="grid grid-cols-2 gap-4 text-sm mt-3">
           <div className="flex justify-between">
             <span className="text-gray-600">Tham Gia</span>
-            <span className="text-gray-800 font-semibold">18 tháng trước</span>
+            <span className="text-gray-800 font-semibold">
+              {sellerInfo?.createdAt &&
+                calculateDuration(sellerInfo?.createdAt)}{" "}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Nguời Theo Dõi</span>
-            <span className="text-gray-800 font-semibold">9,3K</span>
+            <span className="text-gray-800 font-semibold">{sellerInfo.follower} </span>
           </div>
         </div>
       </div>

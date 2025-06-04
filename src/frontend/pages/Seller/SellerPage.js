@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import SellerInfo from "./SellerInfo";
 import GridProduct from "./GridProduct";
 import Sidebar from "./SideBar";
@@ -6,356 +6,11 @@ import FilterBar from "./FilterBar";
 import Pagination from "./Pagination";
 import ProductCard from "./ProductCard";
 import { useParams } from "react-router-dom";
+import apiProduct from "../../../api/apiProduct";
 
 function SellerPage() {
   const { sellerId } = useParams();
   console.log(sellerId);
-
-  const products = [
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Belt",
-      price: "25,500",
-      originalPrice: "69,000",
-      discount: "63",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Socks",
-      price: "14,000",
-      originalPrice: "32,500",
-      discount: "57",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Men's Shirt",
-      price: "79,000",
-      originalPrice: "88,000",
-      discount: "10",
-      image: "https://via.placeholder.com/150",
-    },
-  ];
 
   const pageTitle = "Trang người bán";
 
@@ -367,17 +22,47 @@ function SellerPage() {
     };
   }, [pageTitle]);
 
+  const [products1, setProducts1] = useState([]);
+  const [products2, setProducts2] = useState([]);
+  const getProduct = useCallback(async () => {
+    try {
+      const res = await apiProduct.getRandomProductBySellerIdLimit(
+        sellerId,
+        10
+      );
+
+      const data = res.data.result;
+
+      console.log(data);
+
+      const sorted1 = [...data].sort(
+        (a, b) => b.sold - a.sold
+      );
+
+      setProducts2(sorted1);
+
+      setProducts1(data);
+      // setOnload(!onload);
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    getProduct();
+  }, []);
+
   return (
     <div className="mt-4 bg-gray-200">
       <div className=" bg-white my-4">
         <SellerInfo />
       </div>
       <div className=" bg-white my-4">
-        <GridProduct name={"gợi ý cho bạn"} />
+        <GridProduct name={"gợi ý cho bạn"} products={products1} />
       </div>
 
       <div className=" bg-white my-4">
-        <GridProduct name={"sản phẩm bán chạy"} />
+        <GridProduct name={"sản phẩm bán chạy"} products={products2} />
       </div>
 
       <div className=" bg-white my-4">
@@ -388,9 +73,9 @@ function SellerPage() {
           <div className="w-4/5 ml-2">
             <FilterBar />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {products.map((product, index) => (
+              {/* {products.map((product, index) => (
                 <ProductCard key={index} {...product} />
-              ))}
+              ))} */}
             </div>
             <Pagination />
           </div>

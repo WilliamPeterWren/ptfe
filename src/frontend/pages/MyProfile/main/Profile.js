@@ -72,6 +72,7 @@ function Profile() {
               <input
                 type="date"
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                // defaultValue={"1996-04-24"}
               />
             </div>
             <div className="flex justify-start">

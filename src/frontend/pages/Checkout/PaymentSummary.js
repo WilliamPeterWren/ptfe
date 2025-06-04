@@ -3,8 +3,10 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
+import { MdOutlineLocalShipping } from "react-icons/md";
 
+
+import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 import apiOrder from "../../../api/apiOrder";
 import apiCart from "../../../api/apiCart";
 import { formatCurrency } from "../utils/FormatCurrency";
@@ -189,6 +191,8 @@ const PaymentSummary = (props) => {
         </div>
 
         <div className="flex justify-between items-center border-b pb-2 border-gray-200">
+          <MdOutlineLocalShipping className="mr-1 text-orange-500 text-lg" />
+
           <span>Phí vận chuyển</span>
           <select
             id="category"
@@ -214,6 +218,8 @@ const PaymentSummary = (props) => {
         </div>
 
         <div className="flex justify-between items-center border-b pb-2 border-gray-200">
+          <MdOutlineLocalShipping className="mr-1 text-orange-500 text-lg" />
+
           <span>Khuyến mãi vận chuyển</span>
           <select
             id="category"

@@ -27,6 +27,8 @@ const Perhap = () => {
     window.location.reload();
   };
 
+
+
   return (
     <div className="container mx-auto px-4 py-6 bg-white mt-4 rounded-lg">
       <div className="flex justify-between items-center mb-4 w-full">
@@ -75,22 +77,25 @@ const Perhap = () => {
                       {product.variants[0].stock.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-800 line-clamp-2">
+                  <p className="h-16 text-sm text-gray-800 line-clamp-2 text-left">
                     {product.productName}
                   </p>
                   {product.variants[0]?.salePrice > 0 ? (
-                    <p className="text-left">
+                    <div className="h-16 text-left">
                       <p className="text-lg font-bold text-gray-400 line-through">
                         {product.variants[0].price.toLocaleString()}
                       </p>
                       <p className="text-lg font-bold text-red-600">
                         {product.variants[0].salePrice.toLocaleString()}
                       </p>
-                    </p>
+                    </div>
                   ) : (
-                    <p className="text-lg font-bold text-red-600 text-left">
-                      {product.variants[0].price.toLocaleString()}
-                    </p>
+                    <div>
+                      <p className="h-8"></p>
+                      <p className="h-8 text-lg font-bold text-red-600 text-left">
+                        {product.variants[0].price.toLocaleString()}
+                      </p>
+                    </div>
                   )}
 
                   <p className="text-xs text-gray-600">{product.sales}</p>

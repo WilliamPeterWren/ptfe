@@ -16,6 +16,10 @@ const apiUser = {
   updateUser: (data, header) => {
     return axiosInstance.put(`users`, data, header);
   },
+
+  getSellerInfo: (sellerId) => {
+    return axiosInstance.get(`users/get/seller/info/id/${sellerId}`);
+  },
 };
 
 export default apiUser;

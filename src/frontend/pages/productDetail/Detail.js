@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,11 +12,27 @@ import {
   UPDATE_CART_FROM_API,
 } from "../../../redux/action/cartAction";
 
-const Detail = ({ productData }) => {
+const Detail = ({ productData, reviewsLength }) => {
   const [price, setPrice] = useState(productData.variants[0].price);
   const [salePrice, setSalePrice] = useState(productData.variants[0].salePrice);
   const [rating, setRating] = useState(0);
   const [selectVariant, setSelectVariant] = useState(0);
+
+  const star = useMemo(() => {
+    let sum1 = 0;
+    let sum2 = 0;
+    const entries = Object.entries(productData.rating || {});
+    entries.forEach(([key, value]) => {
+      sum1 += Number.parseInt(key) * value;
+      sum2 += value;
+    });
+    return sum2 === 0 ? 0 : sum1 / sum2;
+  }, [productData.rating]);
+
+  useEffect(() => {
+    console.log(star);
+  }, [star]);
+
 
   const [timeLeft, setTimeLeft] = useState({
     hours: 6,
@@ -160,10 +176,6 @@ const Detail = ({ productData }) => {
       });
   };
 
-  if (productData.rating?.length > 0) {
-    var sum = 0;
-    productData.rating.map((item) => {});
-  }
 
   return (
     <div className="container mx-auto px-4 py-6 bg-white rounded-lg">
@@ -176,8 +188,8 @@ const Detail = ({ productData }) => {
           </h1>
           <p className="text-lg text-gray-600 mb-4"></p>
           <div className="flex items-center mb-2">
-            <span className="text-yellow-400">★ {rating}</span>
-            <span className="text-gray-600 ml-2">{product.reviews}</span>
+            <span className="text-yellow-400">★ {Number(star.toFixed(1))}</span>
+            <span className="text-gray-600 ml-2">{reviewsLength} Đánh giá</span>
             <span className="text-gray-600 ml-2">
               {" "}
               | Đã bán: {productData.sold}

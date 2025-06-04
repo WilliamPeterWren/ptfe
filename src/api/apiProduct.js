@@ -38,6 +38,16 @@ const apiProduct = {
       `/products/search/product/productname/${productName}`
     );
   },
+
+  updateProductViews: (slug) =>{
+    return axiosInstance.post(`/products/update/views/slug/${slug}`);
+  },
+
+  getRandomProductBySellerIdLimit: (sellerId, limit) =>{
+    return axiosInstance.get(
+      `products/rand/seller/id/${sellerId}/limit/${limit}`
+    );
+  }
 };
 
 export default apiProduct;

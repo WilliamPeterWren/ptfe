@@ -3,26 +3,8 @@ import React, { useState, useEffect } from "react";
 import StarRating from "./StarRating";
 import ReviewCard from "./ReviewCard";
 import FilterButton from "./FilterButton";
-import apiReview from "../../../../api/apiReview";
 
-const ProductReviews = ({ productId, variants, rating }) => {
-  const [reviews, setReviews] = useState([]);
-  const getReviewsByProductId = async () => {
-    await apiReview
-      .getReview(productId)
-      .then((res) => {
-        console.log(res.data.content);
-        setReviews(res.data.content);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    getReviewsByProductId();
-  }, []);
-
+const ProductReviews = ({ variants, rating, reviews }) => {
   return (
     <div className="max-w-[1540px] mx-auto bg-white rounded-lg shadow-md p-6 mt-4">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -38,14 +20,14 @@ const ProductReviews = ({ productId, variants, rating }) => {
 
         <div className="flex flex-wrap gap-2">
           <FilterButton label="Tất Cả" />
-          {/* {rating?.map((item, index)=>{
-            return <FilterButton key={index} label="1 Sao" count="286" />;
-          })} */}
+          {rating.length > 0 &&
+            rating?.map((item, index) => {
+              return <FilterButton key={index} label="1 Sao" count="286" />;
+            })}
           <FilterButton label="5 Sao" count="6,7K" />
           <FilterButton label="4 Sao" count="560" />
           <FilterButton label="3 Sao" count="289" />
           <FilterButton label="2 Sao" count="122" />
-              
         </div>
       </div>
 

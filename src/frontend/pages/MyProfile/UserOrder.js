@@ -102,8 +102,8 @@ const UserOrders = () => {
         },
       });
 
-      console.log(res.data.content);
       const data = res.data.content;
+      // console.log(res.data.content);
       const sorted1 = [...data].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
@@ -148,6 +148,7 @@ const UserOrders = () => {
       const sorted1 = [...data].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
+      console.log(sorted1);
       setOrders(sorted1 || []);
     } catch (err) {
       console.error("Error fetching orders by status:", err);
@@ -275,51 +276,54 @@ const UserOrders = () => {
                 </div>
               </div>
 
-              {order.items.map((item, itemIndex) => (
-                <div
-                  key={item.id || itemIndex}
-                  className="flex items-center justify-between mb-2"
-                >
-                  <Link
-                    to={`/product-detail/productid/${item.productId}`}
-                    className="flex items-center"
+              {order.items.map((item, itemIndex) => {
+                // item.productId; // check productId has review with this ID
+                return (
+                  <div
+                    key={item.id || itemIndex}
+                    className="flex items-center justify-between mb-2"
                   >
-                    <img
-                      src={imageUrl + "product/" + item.image}
-                      alt={item.productName}
-                      className="w-12 h-12 mr-2 object-cover rounded"
-                    />
-                    <div className="hover:text-blue-600">
-                      <p className="text-sm">
-                        {item.productName.length > 90
-                          ? item.productName.slice(0, 90) + "..."
-                          : item.productName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {item.variantName}
-                      </p>
-                    </div>
-                  </Link>
-
-                  <div className="text-right">
-                    {item.salePrice > 0 ? (
-                      <div>
-                        <p className="text-gray-500 line-through">
-                          {item.price.toLocaleString()}đ
+                    <Link
+                      to={`/product-detail/productid/${item.productId}`}
+                      className="flex items-center"
+                    >
+                      <img
+                        src={imageUrl + "product/" + item.image}
+                        alt={item.productName}
+                        className="w-20 h-20 mr-2 object-cover rounded"
+                      />
+                      <div className="hover:text-blue-600">
+                        <p className="text-sm">
+                          {item.productName.length > 90
+                            ? item.productName.slice(0, 90) + "..."
+                            : item.productName}
                         </p>
-                        <p className="text-red-500">
-                          {item.salePrice.toLocaleString()}đ
+                        <p className="text-xs text-gray-500">
+                          {item.variantName}
                         </p>
                       </div>
-                    ) : (
-                      <p className="text-red-500">
-                        {item.price.toLocaleString()}đ
-                      </p>
-                    )}
-                    <p>x{item.quantity.toLocaleString()}</p>
+                    </Link>
+
+                    <div className="text-right">
+                      {item.salePrice > 0 ? (
+                        <div>
+                          <p className="text-gray-500 line-through">
+                            {item.price.toLocaleString()}đ
+                          </p>
+                          <p className="text-red-500">
+                            {item.salePrice.toLocaleString()}đ
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-red-500">
+                          {item.price.toLocaleString()}đ
+                        </p>
+                      )}
+                      <p>x{item.quantity.toLocaleString()}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <p>Khuyến mãi sàn</p>

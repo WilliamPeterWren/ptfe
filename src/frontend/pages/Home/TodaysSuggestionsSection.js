@@ -112,9 +112,14 @@ const RecommendationsSection = () => {
                       </p>
                     </div>
                   )}
-                  <p className="text-xs text-gray-600">
-                    Kho: {product.variants[0].stock.toLocaleString("de-DE")}
-                  </p>
+                  <div>
+                    <p className="text-xs text-gray-600">
+                      Kho: {product.variants[0].stock.toLocaleString("de-DE")}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Đã bán: {product.sold.toLocaleString("de-DE")}
+                    </p>
+                  </div>
                 </div>
               </Link>
             </div>
