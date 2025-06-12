@@ -3,14 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { imageUrl } from "../../../api/config";
 
 const GridProduct = (props) => {
-  // const products = Array.from({ length: 6 }, (_, index) => ({
-  //   src: `https://via.placeholder.com/150x150.png?text=Product${index + 1}`,
-  //   label: `Sản Phẩm ${index + 1}`,
-  //   price: `đ${Math.floor(Math.random() * 1000000) + 10000}`,
-  //   discount: `-${Math.floor(Math.random() * 50) + 1}%`,
-  //   sales: `Bán ${Math.floor(Math.random() * 1000) + 1}K+ /tháng`,
-  //   badge: index % 2 === 0 ? "Shopee Mall" : "Yêu Thích",
-  // }));
 
   const { sellerId } = useParams();
 
@@ -22,9 +14,6 @@ const GridProduct = (props) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold uppercase">{name}</h2>
         </div>
-        <a href="/" className="text-sm text-blue-500 hover:underline">
-          Xem tất cả
-        </a>
       </div>
 
       <div>

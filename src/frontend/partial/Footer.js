@@ -2,7 +2,7 @@ import React from "react";
 
 import AboutPeter from "./footer/AboutPeter";
 import ServiceCustomer from "./footer/ServiceCustomer";
-import Chat from "./footer/Chat";
+// import Chat from "./footer/Chat";
 import Sercure from "./footer/Sercure";
 
 function Footer() {
@@ -14,7 +14,7 @@ function Footer() {
       <ServiceCustomer />
       <div className="bg-red-500 h-[4px] my-2"></div>
       <Sercure />
-      <Chat />
+      {/* <Chat /> */}
     </footer>
   );
 }

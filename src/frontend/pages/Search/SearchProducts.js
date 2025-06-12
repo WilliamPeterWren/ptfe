@@ -48,6 +48,14 @@ function SearchProducts() {
     };
   }, [pageTitle]);
 
+  if (products.length === 0) {
+    return (
+      <div className="flex justify-center items-center">
+        <img alt="not found" src={imageUrl + "icons/notfound.png"} />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4 flex justify-center">
       <div className="w-1/5  mr-2">

@@ -17,3 +17,22 @@ export const calculateDuration = (dateString) => {
     return `${totalDays} ngày`;
   }
 };
+
+export const calculateDurationReverse = (dateString) => {
+  const fromDate = parseISO(dateString);
+  const toDate = new Date();
+  const totalMonths = differenceInMonths(fromDate, toDate);
+  const totalDays = differenceInDays(fromDate, toDate);
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const days = totalDays % 30;
+
+  if (years > 0) {
+    return `${years} năm, ${months} tháng`;
+  } else if (months > 0) {
+    return `${months} tháng ${days} ngày`;
+  } else {
+    return `${days} ngày`;
+  }
+};

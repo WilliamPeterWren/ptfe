@@ -1,8 +1,10 @@
 import axiosInstance from "./axios";
 
 const apiProduct = {
-  getProductBySellerId: (sellerId) => {
-    return axiosInstance.get(`/products/get-products/seller/${sellerId}`);
+  getProductBySellerId: (sellerId, page) => {
+    return axiosInstance.get(
+      `/products/get-products/seller/${sellerId}?page=${page}`
+    );
   },
 
   getProductById: (id) => {
@@ -10,15 +12,15 @@ const apiProduct = {
   },
 
   createProduct: (data, header) => {
-    return axiosInstance.post(`/products`, data, header);
+    return axiosInstance.post(`/products/seller`, data, header);
   },
 
   deleteProduct: (id, header) => {
-    return axiosInstance.delete(`/products/${id}`, header);
+    return axiosInstance.delete(`/products/seller/${id}`, header);
   },
 
   updateProduct: (id, data, header) => {
-    return axiosInstance.put(`/products/${id}`, data, header);
+    return axiosInstance.put(`/products/seller/${id}`, data, header);
   },
 
   getRandomProducts: (limit) => {
@@ -27,6 +29,12 @@ const apiProduct = {
 
   getBySlug: (slug) => {
     return axiosInstance.get(`/products/slug/${slug}`);
+  },
+
+  getBySlugAndFlashsaleId: (slug, flashsaleId) => {
+    return axiosInstance.get(
+      `/products/slug/${slug}?flashsaleId=${flashsaleId}`
+    );
   },
 
   getProductByPeterCategory: (peterCategoryId) => {
@@ -39,15 +47,28 @@ const apiProduct = {
     );
   },
 
-  updateProductViews: (slug) =>{
+  updateProductViews: (slug) => {
     return axiosInstance.post(`/products/update/views/slug/${slug}`);
   },
 
-  getRandomProductBySellerIdLimit: (sellerId, limit) =>{
+  getRandomProductBySellerIdLimit: (sellerId, limit) => {
     return axiosInstance.get(
       `products/rand/seller/id/${sellerId}/limit/${limit}`
     );
-  }
+  },
+
+  getProductBySellerIdAndCategoryId: (sellerId, categoryId) => {
+    return axiosInstance.get(
+      `products/seller/id/${sellerId}/category/id/${categoryId}`
+    );
+  },
+
+  updateRatingByProductId: (rating, productId, header) => {
+    return axiosInstance.get(
+      `products/rating/${rating}/product/id/${productId}`,
+      header
+    );
+  },
 };
 
 export default apiProduct;

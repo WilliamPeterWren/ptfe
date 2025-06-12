@@ -73,7 +73,6 @@ const TopSearchesSection = () => {
               <div key={index} className="px-2">
                 <Link to={`/product-detail/${item.slug}`}>
                   <div className="relative border rounded-lg p-2">
-                    {/* Top Badge */}
                     <span className="absolute top-0 left-0 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-tl-lg rounded-br-lg">
                       TOP
                     </span>

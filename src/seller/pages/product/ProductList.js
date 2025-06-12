@@ -34,11 +34,16 @@ const ProductList = () => {
   const [flashSaleId, setFlashSaleId] = useState("");
   const [flashSaleProductName, setFlashSaleProductName] = useState("");
 
+  const [isFirst, setIsFirst] = useState(false);
+  const [isLast, setIsLast] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   const getAllAvailableFlashSale = async () => {
     await apiFlashSale
       .getAll()
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         const data = res.data.result;
         setFlashSale(data);
       })
@@ -51,11 +56,17 @@ const ProductList = () => {
 
   const getProducts = async () => {
     await apiProduct
-      .getProductBySellerId(sellerId)
+      .getProductBySellerId(sellerId, currentPage)
       .then((res) => {
         if (res.status === 200) {
           const data = res.data.result;
           console.log(data);
+
+          setIsFirst(data.first);
+          setIsLast(data.last);
+          setTotalPages(data.totalPages);
+          setCurrentPage(data.number);
+
           setProducts(data.content);
           setTotalProduct(data.totalElements);
         }
@@ -107,7 +118,7 @@ const ProductList = () => {
   const filteredProducts = products?.filter(
     (product) =>
       product.id.toLowerCase().includes(searchId.toLowerCase()) &&
-      (status === "" || product.active === status)
+      product.isActive === status
   );
 
   const toggleDropdown = (index) => {
@@ -202,9 +213,43 @@ const ProductList = () => {
     setFlashSaleProductName(products[index].productName);
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && searchId.length > 5) {
+      setProducts([]);
+      performSearch();
+    }
+  };
+
+  const performSearch = async () => {
+    await apiProduct
+      .getProductById(searchId)
+      .then((res) => {
+        const data = res.data.result;
+        console.log(data);
+        setProducts((prevArray) => [...prevArray, data]);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleGetProductData = async (index) => {
+    setCurrentPage(index);
+    console.log(index);
+    setReload(!reload);
+  };
+
+  const handleNextProduct = async () => {
+    setCurrentPage(currentPage + 1);
+    setReload(!reload);
+  };
+
+  const handlePrevProduct = async () => {
+    setCurrentPage(currentPage - 1);
+    setReload(!reload);
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="w-4/5 mx-auto p-4">
+      <div className="w-full flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-700">Sản phẩm</h2>
           <p className="text-gray-600">
@@ -215,10 +260,11 @@ const ProductList = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Quick search by id"
+              placeholder="Tìm sản phẩm theo ID"
               className="border rounded px-2 py-1 pl-8"
               value={searchId}
               onChange={handleSearchChange}
+              onKeyPress={handleKeyPress}
             />
             <svg
               className="w-4 h-4 absolute left-2 top-2.5 text-gray-400"
@@ -235,7 +281,7 @@ const ProductList = () => {
             </svg>
           </div>
 
-          <div>
+          {/* <div>
             <select
               className="border rounded px-2 py-1"
               value={status}
@@ -244,7 +290,7 @@ const ProductList = () => {
               <option value={true}>Active</option>
               <option value={false}>Inactive</option>
             </select>
-          </div>
+          </div> */}
 
           <button
             className="bg-indigo-500 text-white px-4 py-2 rounded flex items-center"
@@ -271,19 +317,18 @@ const ProductList = () => {
         <table className="min-w-full bg-white border">
           <thead>
             <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b text-left max-w-[300px]">
+              <th className="py-2 px-4 border-b text-left max-w-[500px]">
                 Tên
               </th>
               <th className="py-2 px-4 border-b text-left">Phân loại</th>
-              <th className="py-2 px-4 border-b text-left">Danh mục</th>
-              <th className="py-2 px-4 border-b text-left">Ngành hàng</th>
+              <th className="py-2 px-4 border-b text-left">Giá / Giảm giá</th>
+              <th className="py-2 px-4 border-b text-left">Khuyến mãi</th>
               <th className="py-2 px-4 border-b text-left">•••</th>
             </tr>
           </thead>
           <tbody>
             {filteredProducts?.map((product, index) => {
               const imgUrl = imageUrl + "product/" + product.productImages[0];
-              console.log(imgUrl);
               return (
                 <tr key={product.id} className="hover:bg-red-50">
                   <td className="py-2 px-4 border-b align-middle max-w-[300px]">
@@ -333,24 +378,6 @@ const ProductList = () => {
                               Tên loại: {v.variantName}
                             </div>
                             <div className="text-sm text-gray-600">
-                              Đơn giá:{" "}
-                              <span className="font-medium text-indigo-600">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(v.price)}
-                              </span>
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              Khuyến mãi:{" "}
-                              <span className="font-medium text-indigo-600">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(v?.salePrice)}
-                              </span>
-                            </div>
-                            <div className="text-sm text-gray-600">
                               Kho hàng:{" "}
                               <span className="font-medium text-green-600">
                                 {v.stock}
@@ -363,20 +390,42 @@ const ProductList = () => {
                       <span className="text-gray-500 text-sm">No variants</span>
                     )}
                   </td>
-                  <td className="py-2 px-4 border-b align-middle">
-                    {categories.find((c) => c.id === product.categoryId)
-                      ?.categoryName || (
-                      <span className="text-gray-500 text-sm">
-                        Không có danh mục
-                      </span>
+                  <td className="py-2 px-4 border-b align-middle capitalize ">
+                    {product.variants && product.variants.length > 0 && (
+                      <div className="flex flex-col space-y-2">
+                        {product.variants.map((v, i) => (
+                          <div
+                            key={i}
+                            className="bg-gray-100 p-3 rounded-md shadow-sm border border-gray-200"
+                          >
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-600">
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(v.price)}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium text-indigo-600">
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(v?.salePrice)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                   <td className="py-2 px-4 border-b align-middle">
-                    {petercategories.find((c) => c.id === product.peterCategory)
-                      ?.name || (
-                      <span className="text-gray-500 text-sm">
-                        Không có ngành hàng
+                    {product?.discount > 0 ? (
+                      <span className="text-orange-500">
+                        {product?.discount.toLocaleString()} đ
                       </span>
+                    ) : (
+                      <span className="text-gray-500">Không có </span>
                     )}
                   </td>
                   <td className="py-2 px-4 border-b align-middle relative">
@@ -500,6 +549,99 @@ const ProductList = () => {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-end items-center mt-6 space-x-2 text-sm">
+        {!isFirst && (
+          <button
+            className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            onClick={handlePrevProduct}
+          >
+            &lt;
+          </button>
+        )}
+
+        {(() => {
+          const pageButtons = [];
+          const maxButtons = 5;
+          const sideCount = 1;
+
+          const startPage = Math.max(0, currentPage - sideCount);
+          const endPage = Math.min(totalPages - 1, currentPage + sideCount);
+
+          if (startPage > 0) {
+            pageButtons.push(
+              <button
+                key={0}
+                className={`px-3 py-1 ${
+                  currentPage === 0
+                    ? "bg-blue-500 text-white"
+                    : "border border-blue-500"
+                } rounded-md`}
+                onClick={() => handleGetProductData(0)}
+              >
+                1
+              </button>
+            );
+            if (startPage > 1) {
+              pageButtons.push(
+                <span key="start-ellipsis" className="px-2">
+                  ...
+                </span>
+              );
+            }
+          }
+
+          for (let i = startPage; i <= endPage; i++) {
+            pageButtons.push(
+              <button
+                key={i}
+                className={`px-3 py-1 ${
+                  currentPage === i
+                    ? "bg-blue-500 text-white"
+                    : "border border-blue-500"
+                } rounded-md`}
+                onClick={() => handleGetProductData(i)}
+              >
+                {i + 1}
+              </button>
+            );
+          }
+
+          if (endPage < totalPages - 1) {
+            if (endPage < totalPages - 2) {
+              pageButtons.push(
+                <span key="end-ellipsis" className="px-2">
+                  ...
+                </span>
+              );
+            }
+            pageButtons.push(
+              <button
+                key={totalPages - 1}
+                className={`px-3 py-1 ${
+                  currentPage === totalPages - 1
+                    ? "bg-blue-500 text-white"
+                    : "border border-blue-500"
+                } rounded-md`}
+                onClick={() => handleGetProductData(totalPages - 1)}
+              >
+                {totalPages}
+              </button>
+            );
+          }
+
+          return pageButtons;
+        })()}
+
+        {!isLast && (
+          <button
+            className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            onClick={handleNextProduct}
+          >
+            &gt;
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,19 +1,24 @@
 import Cookies from "js-cookie";
+import { imageUrl } from "../../../api/config";
 
 const Sidebar = (props) => {
+  const avatar =
+    imageUrl + "avatar/" + Cookies.get("avatar") ||
+    "https://via.placeholder.com/40";
+
   const menuItems = [
-    {
-      label: "Thông Báo",
-      icon: "🔔",
-      color: "text-red-500",
-      section: "notification",
-    },
-    {
-      label: "Tài Khoản Của Tôi",
-      icon: "👤",
-      color: "text-blue-500",
-      section: "account",
-    },
+    // {
+    //   label: "Thông Báo",
+    //   icon: "🔔",
+    //   color: "text-red-500",
+    //   section: "notification",
+    // },
+    // {
+    //   label: "Tài Khoản Của Tôi",
+    //   icon: "👤",
+    //   color: "text-blue-500",
+    //   section: "account",
+    // },
     {
       label: "Hồ Sơ",
       icon: "📝",
@@ -21,31 +26,31 @@ const Sidebar = (props) => {
       active: true,
       section: "profile",
     },
-    { label: "Ngân Hàng", icon: "🏦", color: "text-blue-500", section: "bank" },
+    // { label: "Ngân Hàng", icon: "🏦", color: "text-blue-500", section: "bank" },
     {
       label: "Địa Chỉ",
       icon: "📍",
       color: "text-blue-500",
       section: "address",
     },
-    {
-      label: "Đổi Mật Khẩu",
-      icon: "🔒",
-      color: "text-blue-500",
-      section: "changePassword",
-    },
+    // {
+    //   label: "Đổi Mật Khẩu",
+    //   icon: "🔒",
+    //   color: "text-blue-500",
+    //   section: "changePassword",
+    // },
     // {
     //   label: "Cài Đặt Thông Báo",
     //   icon: "⚙️",
     //   color: "text-blue-500",
     //   section: "notificationSettings",
     // },
-    {
-      label: "Thư Viện Thành Lập Riêng",
-      icon: "📚",
-      color: "text-blue-500",
-      section: "library",
-    },
+    // {
+    //   label: "Thư Viện Thành Lập Riêng",
+    //   icon: "📚",
+    //   color: "text-blue-500",
+    //   section: "library",
+    // },
     {
       label: "Đơn Mua",
       icon: "📦",
@@ -58,14 +63,14 @@ const Sidebar = (props) => {
       color: "text-blue-500",
       section: "voucher",
     },
+    // {
+    //   label: "Peter Xu",
+    //   icon: "💰",
+    //   color: "text-yellow-500",
+    //   section: "peterXu",
+    // },
     {
-      label: "Peter Xu",
-      icon: "💰",
-      color: "text-yellow-500",
-      section: "peterXu",
-    },
-    {
-      label: "30.6 Sale Cuối Tháng",
+      label: "Sale hôm nay",
       icon: "🔥",
       color: "text-blue-500",
       badge: "New",
@@ -82,12 +87,12 @@ const Sidebar = (props) => {
   const username = Cookies.get("username");
 
   return (
-    <div className="max-h-[530px] w-64 bg-white shadow-md mt-6 rounded">
+    <div className="max-h-full min-h-96 min-w-64 bg-white shadow-md mt-6 rounded">
       <div className="p-4 flex items-center space-x-3 border-b">
         <img
-          src="https://via.placeholder.com/40"
+          src={avatar}
           alt="Profile"
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full object-cover"
         />
         <div>
           <p className="font-semibold">{username}</p>

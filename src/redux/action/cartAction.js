@@ -13,6 +13,11 @@ export const TOTAL_SALE = () => ({
   payload: "",
 });
 
+export const TOTAL_DISCOUNT = () => ({
+  type: "TOTAL_CART_DISCOUNT",
+  payload: "",
+});
+
 export const REMOVE = (item) => ({
   type: "REMOVE_FROM_CART",
   payload: item,

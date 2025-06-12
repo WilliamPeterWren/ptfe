@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Swal from "sweetalert2";
 
 import apiProduct from "../../../api/apiProduct";
 import apiCategory from "../../../api/apiCategory";
@@ -61,23 +62,25 @@ export default function CreateProduct() {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
 
-    const fileData = files.map((file) => {
-      const uuid = uuidv4();
-      const extension = file.name.split(".").pop();
-      const newFileName = `${uuid}.${extension}`;
-      return {
-        originalFile: file,
-        newFileName,
-        previewUrl: URL.createObjectURL(file),
-      };
-    });
+    const fileData = files
+      .filter((file) => file.size <= 1 * 512 * 1024)
+      .map((file) => {
+        const uuid = uuidv4();
+        const extension = file.name.split(".").pop();
+        const newFileName = `${uuid}.${extension}`;
+        return {
+          originalFile: file,
+          newFileName,
+          previewUrl: URL.createObjectURL(file),
+        };
+      });
 
     setImages((prevImages) => [
       ...prevImages,
       ...fileData.map((data) => data.previewUrl),
     ]);
   };
-
+  
   const handleDeleteImage = (indexToDelete) => {
     setImages((prevImages) => [
       prevImages.filter((_, index) => index !== indexToDelete),
@@ -176,7 +179,18 @@ export default function CreateProduct() {
           "Content-Type": "application/json",
         },
       });
-
+      Swal.fire({
+        title: "Tạo sản phẩm thành công",
+        text: "Sản phẩm đã được tạo",
+        icon: "success",
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.timer) {
+          console.log("I was closed by the timer");
+        }
+      });
       console.log("Product added successfully:", response.data);
       navigate("/seller/product/product-list");
     } catch (error) {
@@ -417,6 +431,9 @@ export default function CreateProduct() {
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">
                   - Phân loại sản phẩm (Tối thiểu 1 phân loại)
                 </h3>
+                <p className="text-md font-semibold text-red-700 mb-3">
+                  Lưu ý: Không thể xóa sau khi thêm
+                </p>
                 {variants.map((variant, index) => (
                   <div
                     key={index}

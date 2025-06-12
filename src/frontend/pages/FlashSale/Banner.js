@@ -1,18 +1,11 @@
 import React from "react";
 import { imageUrl } from "../../../api/config";
+import getTimeDetails from "../../../utils/getTimeDetails";
 
-function Banner() {
-  const times = [
-    { time: "12:00", label: "Đang Diễn Ra", hour: 12 },
-    { time: "15:00", label: "Sắp Diễn Ra", hour: 15 },
-    { time: "17:00", label: "Sắp Diễn Ra", hour: 17 },
-    { time: "19:00", label: "Sắp Diễn Ra", hour: 19 },
-    { time: "21:00", label: "Sắp Diễn Ra", hour: 21 },
-  ];
-
-  const currentHour = 14;
-
-  const handleCurrentFlashSale = () => {};
+function Banner({ flashsales, setCurrentFlashsale }) {
+  const handleCurrentFlashSale = (id) => {
+    setCurrentFlashsale(id);
+  };
   return (
     <div className=" mt-4 mx-auto mx-80">
       <img
@@ -26,10 +19,9 @@ function Banner() {
       />
 
       <div className="flex justify-center space-x-2 pt-2 bg-gray-100">
-        {times.map((item, index) => {
-          const isActive =
-            currentHour >= item.hour &&
-            (index === times.length - 1 || currentHour < times[index + 1].hour);
+        {flashsales.map((item, index) => {
+          const isActive = item.startedAt > Date.now();
+
           return (
             <button
               key={index}
@@ -38,10 +30,22 @@ function Banner() {
                   ? "bg-orange-500 text-white"
                   : "bg-gray-700 text-white hover:bg-gray-600"
               }`}
-              onClick={() => handleCurrentFlashSale}
+              onClick={() => handleCurrentFlashSale(item.id)}
             >
-              <span className="block">{item.time}</span>
-              <span className="block text-xs">{item.label}</span>
+              <span className="block">
+                {new Date(item.startedAt).toLocaleString("vi-VN", {
+                  // day: "2-digit",
+                  // month: "2-digit",
+                  // year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
+              </span>
+              <span className="block text-xs capitalize">
+                {isActive ? "Đang diễn ra" : "Sắp diễn ra"}
+              </span>
             </button>
           );
         })}

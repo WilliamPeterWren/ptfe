@@ -1,14 +1,6 @@
-import { useState, useEffect } from "react";
-
-import {
-  FaMapMarkerAlt,
-  FaQuestionCircle,
-  FaChevronDown,
-  FaStore,
-} from "react-icons/fa";
-import { MdOutlineLocalShipping } from "react-icons/md";
+import { FaStore } from "react-icons/fa";
 import ProductItem from "./ProductItem";
-import { formatCurrency } from "../utils/FormatCurrency";
+import { formatCurrency } from "../../../utils/FormatCurrency";
 
 const SellerSection = (props) => {
   const {
@@ -17,7 +9,6 @@ const SellerSection = (props) => {
     setPeterVoucher,
     peterVoucher,
     setPeterVoucherId,
-    peterVoucherId,
   } = props;
   const sellerTotal = seller.items.reduce((sum, item) => {
     return (
@@ -33,6 +24,14 @@ const SellerSection = (props) => {
     setPeterVoucherId(selected.id);
   };
 
+  const totalDiscount = seller.items.reduce((sum, item) => {
+    return sum + item.discount * item.quantity;
+  }, 0);
+
+  const totalProduct = seller.items.reduce((sum, item) => {
+    return sum + item.quantity;
+  }, 0);
+
   return (
     <div className="bg-white p-6 mt-4 shadow-sm">
       <div className="flex items-center mb-4">
@@ -41,17 +40,19 @@ const SellerSection = (props) => {
           {seller.sellerUsername}
         </span>
       </div>
-      {seller.items.map((item) => (
-        <ProductItem key={item.productId + item.variantId} item={item} />
-      ))}
+      {seller.items.map((item) => {
+        return (
+          <ProductItem key={item.productId + item.variantId} item={item} />
+        );
+      })}
       <div className="flex items-center justify-between mt-4 border-t border-gray-200 pt-4">
         <div></div>
         <div className="text-right">
           <p className="text-sm text-gray-500">
-            Tổng số tiền ({seller.items.length} sản phẩm):
+            Tổng số tiền ({totalProduct} sản phẩm):
           </p>
           <p className="text-lg text-orange-500 font-semibold">
-            {formatCurrency(sellerTotal - peterVoucher)}
+            {formatCurrency(sellerTotal - peterVoucher - totalDiscount)}
           </p>
         </div>
       </div>
@@ -64,25 +65,28 @@ const SellerSection = (props) => {
               const selected = JSON.parse(e.target.value);
               setPeterVoucherChange(selected);
             }}
-          >           
+          >
             {peterVouchers.length > 0 &&
-              peterVouchers.map((item, index) => (
-                <option
-                  key={index}
-                  value={JSON.stringify({ id: item.id, value: item.value })}
-                >
-                  {item.name}{" "}
-                  <span className="text-blue-500">
-                    {item.value.toLocaleString()}
-                  </span>
-                </option>
-              ))}
+              peterVouchers.map((item, index) => {
+                if (item.value * 8 < sellerTotal)
+                  return (
+                    <option
+                      key={index}
+                      value={JSON.stringify({ id: item.id, value: item.value })}
+                    >
+                      {item.name}{" "}
+                      <span className="text-blue-500">
+                        {item.value.toLocaleString()}
+                      </span>
+                    </option>
+                  );
+              })}
           </select>
         </div>
         <p className="flex justify-between items-center mt-2">
           Tổng số tiền thanh toán{" "}
           <span className="font-semibold text-orange-500">
-            {formatCurrency(sellerTotal - peterVoucher)}
+            {formatCurrency(sellerTotal - peterVoucher - totalDiscount)}
           </span>
         </p>
       </div>

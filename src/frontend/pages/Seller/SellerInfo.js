@@ -3,9 +3,8 @@ import apiUser from "../../../api/apiUser";
 import { useParams } from "react-router-dom";
 
 import { calculateDuration } from "../../../utils/CountDate";
-import apiCategory from "../../../api/apiCategory";
 
-const SellerInfo = () => {
+const SellerInfo = ({ categories }) => {
   const { sellerId } = useParams();
 
   const [sellerInfo, setSellerInfo] = useState();
@@ -15,7 +14,7 @@ const SellerInfo = () => {
       .getSellerInfo(sellerId)
       .then((res) => {
         const data = res.data;
-        console.log(data);
+        // console.log(data);
         setSellerInfo(data);
       })
       .catch((err) => {
@@ -25,24 +24,6 @@ const SellerInfo = () => {
 
   useEffect(() => {
     getSellerInfo();
-  }, [sellerId]);
-
-  const [categories, setCategories] = useState([]);
-  const getSellerCategories = async () => {
-    await apiCategory
-      .getAll(sellerId)
-      .then((res) => {
-        const data = res.data.result;
-        console.log(data);
-        setCategories(data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    getSellerCategories();
   }, [sellerId]);
 
   return (

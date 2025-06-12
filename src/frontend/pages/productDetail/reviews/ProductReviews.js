@@ -1,10 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React from "react"; 
 
 import StarRating from "./StarRating";
 import ReviewCard from "./ReviewCard";
 import FilterButton from "./FilterButton";
 
 const ProductReviews = ({ variants, rating, reviews }) => {
+  const calculateAverageRating = () => {
+    let totalStars = 0;
+    let totalReviews = 0;
+
+    for (const star in rating) {
+      const count = rating[star];
+      totalStars += parseInt(star) * count; 
+      totalReviews += count; 
+    }
+
+    if (totalReviews === 0) {
+      return { average: 0, roundedAverage: 0 }; 
+    }
+
+    const average = totalStars / totalReviews;
+    const roundedAverage = Math.round(average);
+    const displayAverage = average.toFixed(1); 
+
+    return { average: displayAverage, roundedAverage: roundedAverage };
+  };
+
+  const { average: displayAverage, roundedAverage } = calculateAverageRating();
+
   return (
     <div className="max-w-[1540px] mx-auto bg-white rounded-lg shadow-md p-6 mt-4">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -13,21 +36,21 @@ const ProductReviews = ({ variants, rating, reviews }) => {
 
       <div className="flex items-center space-x-4 mb-6">
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-red-600">4.7</span>
+          <span className="text-2xl font-bold text-red-600">
+            {displayAverage}
+          </span>
           <span className="text-sm text-gray-600">trên 5</span>
-          <StarRating rating={5} />
+          <StarRating rating={roundedAverage} />
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <FilterButton label="Tất Cả" />
-          {rating.length > 0 &&
-            rating?.map((item, index) => {
-              return <FilterButton key={index} label="1 Sao" count="286" />;
-            })}
-          <FilterButton label="5 Sao" count="6,7K" />
-          <FilterButton label="4 Sao" count="560" />
-          <FilterButton label="3 Sao" count="289" />
-          <FilterButton label="2 Sao" count="122" />
+          {Object.entries(rating).map(([starRating, count]) => (
+            <FilterButton
+              key={starRating}
+              label={`${starRating} Sao`}
+              count={count}
+            />
+          ))}
         </div>
       </div>
 

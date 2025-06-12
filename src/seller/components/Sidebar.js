@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import Cookies from "js-cookie";
+import UserContext from "../../context/userContext";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { setUser, user } = useContext(UserContext);
+
   const [openSections, setOpenSections] = useState({
     taiChinh: false,
     vanChuyen: false,
@@ -29,9 +33,18 @@ export default function Sidebar() {
     return paths.some((path) => location.pathname.startsWith(path));
   };
 
+  const handleLogOut = async () => {
+    setUser(null);
+    Cookies.remove("id");
+    Cookies.remove("email");
+    Cookies.remove("username");
+    Cookies.remove("accessToken");
+    Cookies.remove("avatar");
+  };
+
   return (
-    <div className="w-64 border-r p-4 bg-white">
-      <h1 className="text-xl font-bold mb-8">Nhà bán hàng</h1>
+    <div className="w-1/5 min-w-1/5 border-r p-4 bg-white">
+      <h1 className="text-xl font-bold mb-8">Nhà bán hàng {user}</h1>
       <hr className="flex-1 border-t border-red-300 mb-4" />
       <nav className="flex flex-col space-y-2">
         <div>
@@ -78,16 +91,6 @@ export default function Sidebar() {
               </Link>
 
               {/* <Link
-                to="/seller/order/shipping-method"
-                className={`block p-2 rounded hover:bg-gray-200 ${
-                  location.pathname === "/seller/delivery/shipping-method"
-                    ? "bg-gray-200 font-semibold border-b border-purple-400"
-                    : ""
-                }`}
-              >
-                Bàn giao đơn hàng
-              </Link> */}
-              <Link
                 to="/seller/delivery/shipping-method"
                 className={`block p-2 rounded hover:bg-gray-200 ${
                   location.pathname === "/seller/delivery/shipping-method"
@@ -106,7 +109,7 @@ export default function Sidebar() {
                 }`}
               >
                 Trả hàng/Hoàn tiền/Hủy
-              </Link>
+              </Link> */}
             </div>
           )}
         </div>
@@ -182,9 +185,9 @@ export default function Sidebar() {
             className={`w-full text-left p-2 rounded hover:bg-gray-200 ${
               isSectionActive([
                 "/seller/finance/revenue",
-                "/seller/finance/balance",
-                "/seller/finance/banking-account",
-                "/seller/finance/payment-setting",
+                // "/seller/finance/balance",
+                // "/seller/finance/banking-account",
+                // "/seller/finance/payment-setting",
               ])
                 ? "bg-gray-200 font-semibold"
                 : ""
@@ -219,7 +222,7 @@ export default function Sidebar() {
               >
                 Doanh thu
               </Link>
-              <Link
+              {/* <Link
                 to="/seller/finance/balance"
                 className={`block p-2 rounded hover:bg-gray-200 ${
                   location.pathname === "/seller/finance/balance"
@@ -228,8 +231,8 @@ export default function Sidebar() {
                 }`}
               >
                 Số dư TK Peter
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 to="/seller/finance/banking-account"
                 className={`block p-2 rounded hover:bg-gray-200 ${
                   location.pathname === "/seller/finance/banking-account"
@@ -238,8 +241,8 @@ export default function Sidebar() {
                 }`}
               >
                 Tài khoản ngân hàng
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 to="/seller/finance/payment-setting"
                 className={`block p-2 rounded hover:bg-gray-200 ${
                   location.pathname === "/seller/finance/payment-setting"
@@ -248,7 +251,7 @@ export default function Sidebar() {
                 }`}
               >
                 Cài đặt thanh toán
-              </Link>
+              </Link> */}
             </div>
           )}
         </div>
@@ -295,7 +298,7 @@ export default function Sidebar() {
               >
                 Hồ sơ shop
               </Link>
-              <Link
+              {/* <Link
                 to="/seller/discount/seller-discount"
                 className={`block p-2 rounded hover:bg-gray-200 ${
                   location.pathname === "/seller/discount/seller-discount"
@@ -304,17 +307,8 @@ export default function Sidebar() {
                 }`}
               >
                 Khuyến mãi của shop
-              </Link>
-              <Link
-                to="/seller/discount/product-discount"
-                className={`block p-2 rounded hover:bg-gray-200 ${
-                  location.pathname === "/seller/discount/product-discount"
-                    ? "bg-gray-200 font-semibold"
-                    : ""
-                }`}
-              >
-                Khuyến mãi sản phẩm
-              </Link>
+              </Link> */}
+
               <Link
                 to="/seller/category/category-list"
                 className={`block p-2 rounded hover:bg-gray-200 ${
@@ -329,6 +323,10 @@ export default function Sidebar() {
           )}
         </div>
       </nav>
+
+      <div className="mt-16 border border-red-500 p-2 rounded hover:border-blue-500 hover:bg-blue-500 hover:text-white">
+        <button onClick={handleLogOut}>Đăng xuất</button>
+      </div>
     </div>
   );
 }

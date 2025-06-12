@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+
 import { imageUrl } from "../../../api/config";
 import apiProduct from "../../../api/apiProduct";
 import ProductCard from "./ProductCard";
@@ -6,13 +8,14 @@ import FilterBar from "./FilterBar";
 import Pagination from "./Pagination";
 import Sidebar from "./SideBar";
 
-function ProductList({ category }) {
+function ProductList({ categories, setCategoryId, categoryId }) {
+
   const [products, setProducts] = useState([]);
   const [pagable, setPagable] = useState();
 
   const getProducts = async () => {
     await apiProduct
-      .getProductByPeterCategory(category)
+      .getProductByPeterCategory(categoryId)
       .then((res) => {
         const data = res.data;
         console.log(data);
@@ -24,12 +27,14 @@ function ProductList({ category }) {
 
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [categoryId]);
+
+
 
   return (
     <div className="container mx-auto p-4 flex justify-center">
       <div className="w-1/5  mr-2">
-        <Sidebar />
+        <Sidebar categories={categories} setCategoryId={setCategoryId} />
       </div>
       <div className="w-4/5 ml-2">
         <FilterBar />

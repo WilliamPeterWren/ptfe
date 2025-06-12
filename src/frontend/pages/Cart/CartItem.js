@@ -10,10 +10,14 @@ import apiCart from "../../../api/apiCart";
 import {
   TOTAL,
   TOTAL_SALE,
+  TOTAL_DISCOUNT,
   SET_CART_FROM_API,
 } from "../../../redux/action/cartAction";
 
-import { ADD_CHECKOUT } from "../../../redux/action/checkoutAction";
+import {
+  ADD_CHECKOUT,
+  REMOVE_CHECKOUT,
+} from "../../../redux/action/checkoutAction";
 
 function CartItem() {
   const { user } = useContext(userContext);
@@ -25,13 +29,14 @@ function CartItem() {
   const cartItems = useSelector((state) => state.cart.carts);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
   const totalSale = useSelector((state) => state.cart.totalSale);
-
-  // console.log(cartItems);
+  const totalDiscount = useSelector((state) => state.cart.totalDiscount);
+  const checkouts = useSelector((state) => state.checkout.checkouts);
 
   useEffect(() => {
     if (accessToken) {
       dispatch(TOTAL());
       dispatch(TOTAL_SALE());
+      dispatch(TOTAL_DISCOUNT());
     }
   }, [accessToken, cartItems, dispatch]);
 
@@ -344,8 +349,12 @@ function CartItem() {
     //   });
   };
 
-  const handleAddToCheckOut = (seller, item) => {
-    dispatch(ADD_CHECKOUT({ seller, item }));
+  const handleAddToCheckOut = (checked, seller, item) => {
+    console.log(checked);
+    if (checked) dispatch(ADD_CHECKOUT({ seller, item }));
+    else dispatch(REMOVE_CHECKOUT({ seller, item }));
+
+    console.log(checkouts);
   };
 
   const handleCheckout = () => {
@@ -373,135 +382,150 @@ function CartItem() {
               </tr>
             </thead>
             <tbody>
-              {seller.itemResponses.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-2 flex items-center w-[600px]">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      onClick={() => handleAddToCheckOut(seller, item)}
-                    />
-                    <img
-                      src={imageUrl + "product/" + item.image}
-                      alt={item.name}
-                      className="w-24 h-24 mr-2"
-                      onError={(e) => {
-                        const target = e.target;
-                        target.onerror = null;
-                        const retryInterval = 2000;
-                        let retryCount = 0;
-                        const maxRetries = 5;
-                        const retryLoad = () => {
-                          if (retryCount < maxRetries) {
-                            retryCount++;
-                            target.src =
-                              imageUrl +
-                              "product/" +
-                              `${item.image}?retry=${retryCount}`;
-                            target.onerror = () => {
-                              setTimeout(retryLoad, retryInterval);
-                            };
-                          } else {
-                            target.src =
-                              "https://placehold.co/32x32/cccccc/333333?text=N/A";
-                          }
-                        };
-                        setTimeout(retryLoad, retryInterval);
-                      }}
-                      loading="lazy"
-                    />
-                    <button
-                      className="hover:text-blue-700 text-left"
-                      onClick={() => navigate(`/product-detail/${item.slug}`)}
-                    >
-                      <p className="text-sm">
-                        {item.productName.length > 100
-                          ? item.productName.slice(0, 100) + "..."
-                          : item.productName}
-                      </p>
-                      <p>
-                        <span className="text-xs">Phân loại: </span>
-                        <span className="text-left text-xs text-gray-500 p-0.5 rounded border border-red-500">
-                          {item.variantName.length > 80
-                            ? item.variantName.slice(0, 80) + "..."
-                            : item.variantName}
-                        </span>
-                      </p>
-                      {item.badge && (
-                        <span className="text-xs bg-orange-500 text-white px-1 rounded">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </td>
-                  {item.salePrice > 0 ? (
-                    <td className="p-2">
-                      <span className="text-gray-500 line-through">
-                        {item.price.toLocaleString("de-DE")}đ
-                      </span>
-                      <br />
-                      <span className="text-red-600 font-bold">
-                        {item.salePrice.toLocaleString("de-DE")}đ
-                      </span>
+              {seller.itemResponses.map((item, index) => {
+                const total =
+                  ((item.salePrice > 0 ? item.salePrice : item.price) -
+                    item.discount) *
+                  item.quantity;
+                return (
+                  <tr key={index} className="border-b">
+                    <td className="p-2 flex items-center w-[600px]">
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        onClick={(e) =>
+                          handleAddToCheckOut(e.target.checked, seller, item)
+                        }
+                      />
+                      <img
+                        src={imageUrl + "product/" + item.image}
+                        alt={item.name}
+                        className="w-24 h-24 mr-2"
+                        onError={(e) => {
+                          const target = e.target;
+                          target.onerror = null;
+                          const retryInterval = 2000;
+                          let retryCount = 0;
+                          const maxRetries = 5;
+                          const retryLoad = () => {
+                            if (retryCount < maxRetries) {
+                              retryCount++;
+                              target.src =
+                                imageUrl +
+                                "product/" +
+                                `${item.image}?retry=${retryCount}`;
+                              target.onerror = () => {
+                                setTimeout(retryLoad, retryInterval);
+                              };
+                            } else {
+                              target.src =
+                                "https://placehold.co/32x32/cccccc/333333?text=N/A";
+                            }
+                          };
+                          setTimeout(retryLoad, retryInterval);
+                        }}
+                        loading="lazy"
+                      />
+                      <button
+                        className="hover:text-blue-700 text-left"
+                        onClick={() => navigate(`/product-detail/${item.slug}`)}
+                      >
+                        <p className="text-sm">
+                          {item.productName.length > 100
+                            ? item.productName.slice(0, 100) + "..."
+                            : item.productName}
+                        </p>
+                        <p>
+                          <span className="text-xs">Phân loại: </span>
+                          <span className="text-left text-xs text-gray-500 p-0.5 rounded border border-red-500">
+                            {item.variantName.length > 80
+                              ? item.variantName.slice(0, 80) + "..."
+                              : item.variantName}
+                          </span>
+                        </p>
+                      </button>
                     </td>
-                  ) : (
-                    <td className="p-2">
-                      <span className="text-red-600 font-bold">
-                        {item.price.toLocaleString("de-DE")}đ
-                      </span>
-                    </td>
-                  )}
+                    {item.salePrice > 0 ? (
+                      <td className="p-2">
+                        <span className="text-gray-500 line-through">
+                          {item.price.toLocaleString("de-DE")} đ
+                        </span>
+                        <br />
+                        {item.discount > 0 && (
+                          <span className="text-orange-500 font-semibold">
+                            - {item.discount.toLocaleString("de-DE")} đ
+                          </span>
+                        )}
+                        <br />
+                        <span className="text-red-600 font-bold">
+                          {item.salePrice.toLocaleString("de-DE")} đ
+                        </span>
+                      </td>
+                    ) : (
+                      <td className="p-2">
+                        {item.discount > 0 && (
+                          <span className="text-orange-500 font-semibold">
+                            - {item.discount.toLocaleString("de-DE")} đ
+                          </span>
+                        )}
+                        <br />
+                        <span className="text-red-600 font-bold">
+                          {item.price.toLocaleString("de-DE")} đ
+                        </span>
+                      </td>
+                    )}
 
-                  <td className="p-2">
-                    <div className="flex items-center">
+                    <td className="p-2">
+                      <div className="flex items-center">
+                        <button
+                          onClick={() =>
+                            updateItemDecreaseQuantity(item, seller.sellerId)
+                          }
+                          className="bg-gray-200 px-2 py-1 rounded-l"
+                        >
+                          -
+                        </button>
+                        <span className="px-4 py-1 border-t border-b">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateItemIncreaseQuantity(item, seller.sellerId)
+                          }
+                          className="bg-gray-200 px-2 py-1 rounded-r"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td className="p-2 font-semibold text-red-700">
+                      {total.toLocaleString("de-DE")}đ
+                    </td>
+                    <td className="p-2">
                       <button
-                        onClick={() =>
-                          updateItemDecreaseQuantity(item, seller.sellerId)
-                        }
-                        className="bg-gray-200 px-2 py-1 rounded-l"
+                        className="text-red-500 hover:underline"
+                        onClick={() => handleDeleteItem(item.variantId)}
                       >
-                        -
+                        Xóa
                       </button>
-                      <span className="px-4 py-1 border-t border-b">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateItemIncreaseQuantity(item, seller.sellerId)
-                        }
-                        className="bg-gray-200 px-2 py-1 rounded-r"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    {(item.salePrice > 0
-                      ? item.salePrice
-                      : item.price * item.quantity
-                    ).toLocaleString("de-DE")}
-                    đ
-                  </td>
-                  <td className="p-2">
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleDeleteItem(item.variantId)}
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       ))}
       <div className="mt-4 text-right">
         <p className="text-lg font-bold text-red-500">
-          Tổng cộng: {totalSale.toLocaleString("de-DE")}đ
+          Tổng cộng: {(totalSale - totalDiscount).toLocaleString("de-DE")}đ
+        </p>
+        <p className="text-md font-semibold text-orange-500">
+          Flashsale: {totalDiscount.toLocaleString("de-DE")}đ
         </p>
         <p className="text-sm text-gray-500">
-          Tiết kiệm: {(totalAmount - totalSale).toLocaleString("de-DE")}đ
+          Tiết kiệm:{" "}
+          {(totalAmount - totalSale + totalDiscount).toLocaleString("de-DE")}đ
         </p>
       </div>
       <div className="mt-2 text-left">
@@ -518,7 +542,9 @@ function CartItem() {
       <div className="container mx-auto p-4">
         <button
           onClick={handleCheckout}
-          className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition duration-200"
+          className={`w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600
+           transition duration-200`}
+          disabled={checkouts.length <= 0}
         >
           Thanh Toán
         </button>

@@ -6,6 +6,7 @@ const initCart = {
   amountItem: 0,
   totalAmount: 0,
   totalSale: 0,
+  totalDiscount: 0,
   countCart: 0,
 };
 
@@ -95,6 +96,24 @@ const cartReducer = (state = initCart, action) => {
       return {
         ...state,
         totalSale: total,
+      };
+    }
+
+    case "TOTAL_CART_DISCOUNT": {
+      const total = state.carts.reduce((sum, seller) => {
+        return (
+          sum +
+          seller.itemResponses.reduce((subSum, product) => {
+            return subSum + product.discount * product.quantity;
+          }, 0)
+        );
+      }, 0);
+
+      console.log(total);
+
+      return {
+        ...state,
+        totalDiscount: total,
       };
     }
 

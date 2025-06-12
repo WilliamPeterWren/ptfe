@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 
 import { imageUrl } from "../../../api/config";
 
@@ -9,8 +9,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 function UpNav() {
   const { user } = useContext(UserContext);
-
+  
   const email = Cookies.get("email");
+  const username = Cookies.get("username");
+  
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,6 +23,16 @@ function UpNav() {
 
   const handleRegister = () => {
     navigate("/register");
+  };
+
+
+  const handleLogout = () => {
+    setShowDropdown(!showDropdown);
+    navigate("/logout");
+  };
+
+  const handleUsernameClick = () => {
+    setShowDropdown(!showDropdown);
   };
 
   return (
@@ -173,28 +186,51 @@ function UpNav() {
               />
             </div>
           </div>
-          {email ? (
-            <div>
-              {" "}
-              <Link to={`user/account/profile`}>{email}</Link>{" "}
-            </div>
-          ) : (
-            <div>
-              {" "}
-              <button
-                className="border-r-2 border-white pr-2 hover:text-blue-500"
-                onClick={handleLogin}
-              >
-                Đăng nhập
-              </button>{" "}
-              <button
-                className="pl-1 hover:text-blue-500"
-                onClick={handleRegister}
-              >
-                Đăng ký
-              </button>{" "}
-            </div>
-          )}
+          <div>
+            {username ? (
+              <div className="relative">
+                {" "}
+                <button
+                  onClick={handleUsernameClick}
+                  className="hover:text-blue-500"
+                >
+                  {username}
+                </button>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <Link
+                      to={`user/account/profile`}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      Trang cá nhân
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div>
+                <button
+                  className="border-r-2 border-white pr-2 hover:text-blue-500"
+                  onClick={handleLogin}
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  className="pl-2 hover:text-blue-500"
+                  onClick={handleRegister}
+                >
+                  Đăng ký
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

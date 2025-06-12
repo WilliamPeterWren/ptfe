@@ -13,8 +13,8 @@ const FromSeller = ({ sellerId }) => {
   const [products, setProducts] = useState([]);
   const getProduct = useCallback(async () => {
     try {
-      const res = await apiProduct.getProductBySellerId(sellerId);
-      // console.log(res.data.result);
+      const res = await apiProduct.getProductBySellerId(sellerId, 0);
+      // console.log(res.data);
       setProducts(res.data.result.content);
       // setOnload(!onload);
     } catch (err) {

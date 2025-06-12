@@ -1,13 +1,16 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
-// Assuming these paths are correct relative to your project structure
 import apiUser from "../../../api/apiUser";
 import UserContext from "../../../context/userContext";
 
 function Login() {
   const { setUser } = useContext(UserContext);
+
+  const accessToken = Cookies.get("accessToken");
+
+  setUser(null);
   const navigate = useNavigate();
 
   const [formLogin, setFormLogin] = useState({
@@ -45,6 +48,7 @@ function Login() {
 
       if (res.status === 200) {
         const data = res.data.result;
+        console.log(data);
         const roles = data.roles;
         let isSeller = false;
 
@@ -55,15 +59,16 @@ function Login() {
         });
 
         if (isSeller) {
-          setUser(data.email);
+          setUser(data.username);
           Cookies.set("id", data.id, { expires: 7 });
           Cookies.set("email", data.email, { expires: 7 });
           Cookies.set("username", data.username, { expires: 7 });
           Cookies.set("accessToken", data.accessToken, { expires: 7 });
+          Cookies.set("avatar", data.avatar, { expires: 1 });
 
           navigate("/seller/product/product-list");
         } else {
-          setError("Access denied: Seller only.");
+          setError("Không được truy cập: Chỉ dành cho người bán");
         }
       } else {
         setError(
@@ -79,6 +84,14 @@ function Login() {
       );
     }
   };
+
+  useEffect(() => {
+    if (accessToken !== undefined) {
+      // console.log(accessToken);
+      setUser(Cookies.get("username"));
+      navigate("/seller/product/product-list");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

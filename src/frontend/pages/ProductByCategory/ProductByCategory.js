@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CategorySlider from "./CategorySlider";
 import PeterMall from "./PeterMall";
 import ProductList from "./ProductList";
 import { useParams } from "react-router-dom";
+import apiPeterCategory from "../../../api/apiPeterCategory";
 
 function ProductByCategory() {
   const { category } = useParams();
-
-  console.log(category);
 
   const pageTitle = "Tìm kiếm sản phẩm theo ngành hàng";
 
@@ -19,11 +18,34 @@ function ProductByCategory() {
     };
   }, [pageTitle]);
 
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState(category);
+
+  const getCategories = async () => {
+    await apiPeterCategory
+      .getAll()
+      .then((res) => {
+        // console.log(res.data.result);
+        setCategories(res.data.result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
   return (
     <div className="py-4 bg-gray-200">
       <CategorySlider />
-      <PeterMall />
-      <ProductList category={category} />
+      <PeterMall categories={categories} setCategoryId={setCategoryId} />
+      <ProductList
+        categories={categories}
+        setCategoryId={setCategoryId}
+        categoryId={categoryId}
+      />
     </div>
   );
 }

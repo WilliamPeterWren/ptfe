@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 
 import Detail from "./Detail";
 import SellerInfo from "./SellerInfo";
@@ -15,15 +16,25 @@ import apiUser from "../../../api/apiUser";
 
 function ProductDetail() {
   const { slug } = useParams();
+  const latestFlashsale = Cookies.get("latestFlashsale");
 
-  const [onload, setOnload] = useState(false);
+  // const [onload, setOnload] = useState(false);
   const [product, setProduct] = useState();
   const [reviews, setReviews] = useState([]);
   const [sellerInfo, setSellerInfo] = useState([]);
 
   const getProduct = useCallback(async () => {
     try {
-      const res = await apiProduct.getBySlug(slug);
+      let res = null;
+      if (latestFlashsale === undefined) {
+        console.log("no flashsale id");
+        res = await apiProduct.getBySlug(slug);
+      } else {
+        console.log("yes flashsale id");
+
+        res = await apiProduct.getBySlugAndFlashsaleId(slug, latestFlashsale);
+      }
+
       const data = res.data.result;
       console.log(data);
       setProduct(data);
@@ -36,7 +47,7 @@ function ProductDetail() {
       setSellerInfo(sellerInfoResponse.data);
       // console.log(sellerInfoResponse.data);
 
-      setOnload((prev) => !prev);
+      // setOnload((prev) => !prev);
     } catch (err) {
       console.error(err);
     }

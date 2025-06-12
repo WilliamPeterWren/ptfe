@@ -1,20 +1,33 @@
 import axiosInstance from "./axios";
 
 const apiShippingVoucher = {
-  create: (data, header) => {
-    return axiosInstance.post("shipping-vouchers", data, header);
+  getOne: (id) => {
+    return axiosInstance.get(`shipping-vouchers/${id}`);
   },
 
   getAll: () => {
     return axiosInstance.get("shipping-vouchers");
   },
 
-  getOne: (id) => {
-    return axiosInstance.get(`shipping-vouchers/${id}`);
+  userGetAll: () => {
+    return axiosInstance.get("shipping-vouchers/user/getall");
   },
 
-  update: (id, data, header) => {
-    return axiosInstance.get(`shipping-vouchers/${id}`, data, header);
+  // admin section
+  create: (count, data, header) => {
+    return axiosInstance.post(`shipping-vouchers/count/${count}`, data, header);
+  },
+
+  update: (id, count, data, header) => {
+    return axiosInstance.put(
+      `shipping-vouchers/${id}/count/${count}`,
+      data,
+      header
+    );
+  },
+
+  delete: (id, header) => {
+    return axiosInstance.delete(`shipping-vouchers/${id}`, header);
   },
 };
 

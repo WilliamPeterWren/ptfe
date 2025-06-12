@@ -1,6 +1,10 @@
 import axiosInstance from "./axios";
 
 const apiCart = {
+  create: () =>{
+
+  },
+
   getCart: (header) => {
     return axiosInstance.get(`carts`, header);
   },

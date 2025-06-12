@@ -1,5 +1,4 @@
 import Login from "../seller/pages/auth/Login";
-import Logout from "../seller/pages/auth/Logout";
 
 import ProductList from "../seller/pages/product/ProductList";
 import ProductDetail from "../seller/pages/product/ProductDetail";
@@ -8,7 +7,6 @@ import EditProduct from "../seller/pages/product/EditProduct";
 
 import CategoryList from "../seller/pages/category/CategoryList";
 
-import OrderList from "../seller/pages/order/OrderList";
 import OrderDetail from "../seller/pages/order/OrderDetail";
 
 import SellerDiscount from "../seller/pages/discount/SellerDiscount";
@@ -25,21 +23,24 @@ import ShippingOptions from "../seller/pages/delivery/ShippingMethod";
 import Profile from "../seller/pages/Shop/Profile";
 import OrderData from "../seller/pages/order/OrderData";
 
+import FlashSale from "../seller/pages/flashsale/FlashSale";
+
 const SellerRoute = [
   { path: "", component: Login },
   { path: "login", component: Login },
-  { path: "logout", component: Logout },
 
   { path: "product/product-list", component: ProductList },
   { path: "product/product-detail/:id", component: ProductDetail },
   { path: "product/create", component: CreateProductPage },
   { path: "product/update/:id", component: EditProduct },
 
+  { path: "product/flashsale", component: FlashSale },
+
   { path: "category/category-list", component: CategoryList },
 
   { path: "order/order-list", component: OrderData },
-  { path: "order/canceled", component: OrderList },
-  { path: "order/returnrefundcancel", component: OrderList },
+  // { path: "order/canceled", component: OrderList },
+  // { path: "order/returnrefundcancel", component: OrderList },
   { path: "order/order-detail/:orderId", component: OrderDetail },
 
   { path: "discount/product-discount", component: ProductDiscount },

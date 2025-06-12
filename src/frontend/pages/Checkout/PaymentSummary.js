@@ -5,24 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { MdOutlineLocalShipping } from "react-icons/md";
 
-
 import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 import apiOrder from "../../../api/apiOrder";
 import apiCart from "../../../api/apiCart";
-import { formatCurrency } from "../utils/FormatCurrency";
+import { formatCurrency } from "../../../utils/FormatCurrency";
 import apiShippingFee from "../../../api/apiShipping";
 import apiShippingVoucher from "../../../api/apiShippingVoucher";
-import apiPeterVoucher from "../../../api/apiPeterVoucher";
+
+import apiEmail from "../../../api/apiEmail";
 
 const PaymentSummary = (props) => {
-  const {
-    data,
-    peterVouchers,
-    setPeterVoucher,
-    peterVoucher,
-    setPeterVoucherId,
-    peterVoucherId,
-  } = props;
+  const { data, peterVoucher, peterVoucherId, addressId } = props;
+  // const email = Cookies.get("email");
+  const userPeterVoucher = JSON.parse(Cookies.get("peterVoucher"));
+
+  const userShippingVoucher = JSON.parse(Cookies.get("shippingVoucher"));
 
   console.log(data);
   const navigate = useNavigate();
@@ -42,6 +39,15 @@ const PaymentSummary = (props) => {
     );
   }, 0);
 
+  const totalDiscount = data.reduce((sum, seller) => {
+    return (
+      sum +
+      seller.items.reduce((sum, item) => {
+        return sum + item.discount * item.quantity;
+      }, 0)
+    );
+  }, 0);
+
   const [shippingFees, setShippingFees] = useState([]);
   const [shippingFee, setShippingFee] = useState(15000);
   const [shippingId, setShippingId] = useState("683b529e2a9cfc41ae6f134b");
@@ -50,10 +56,10 @@ const PaymentSummary = (props) => {
   const [shippingVoucher, setShippingVoucher] = useState(15000);
   const [shippingVoucherId, setShippingVoucherId] = useState("");
 
+  const shippingCostAfterVoucher = Math.max(shippingFee - shippingVoucher, 0);
   const totalPayment =
-    totalProductPrice +
-    (shippingVoucher - shippingFee > 0 ? 0 : shippingFee - shippingVoucher) -
-    peterVoucher;
+    totalProductPrice + shippingCostAfterVoucher - peterVoucher;
+
   const accessToken = Cookies.get("accessToken");
 
   const getShippingFees = async () => {
@@ -104,14 +110,14 @@ const PaymentSummary = (props) => {
         variantId: item.variantId,
         quantity: item.quantity,
         salePrice: item.salePrice,
-        discount: 0,
+        discount: item.discount,
       }));
 
       const dataOrder = {
         sellerId: seller.sellerId,
         orderItems,
         shippingVoucherId: shippingVoucherId,
-        addressId: "",
+        addressId: addressId,
         paymentType: "COD",
         sellerVoucherId: "",
         shippingId: shippingId,
@@ -119,64 +125,80 @@ const PaymentSummary = (props) => {
       };
 
       console.log(dataOrder);
+      if (addressId != null) {
+        try {
+          const res = await apiOrder.createOrder(dataOrder, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
 
-      try {
-        const res = await apiOrder.createOrder(dataOrder, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+          // const dataEmail = {
+          //   to: email,
+          //   subject: "Đơn hàng của bạn",
+          //   htmlBody: ``,
+          // };
 
-        console.log(res.data);
+          // const sendEmail = await apiEmail.sendEmail(dataEmail);
 
-        for (const item of orderItems) {
-          try {
-            const res = await apiCart.deleteItem(item.variantId, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            });
+          console.log(res.data);
 
-            const data = res.data.result;
+          for (const item of orderItems) {
+            try {
+              const res = await apiCart.deleteItem(item.variantId, {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
 
-            const sorted1 = [...data].sort((a, b) => {
-              const aTime = new Date(a.itemResponses?.updatedAt || 0);
-              const bTime = new Date(b.itemResponses?.updatedAt || 0);
-              return bTime - aTime;
-            });
+              const data = res.data.result;
 
-            const sorted2 = [...sorted1].sort((a, b) => {
-              const aTime = new Date(a.updatedAt || 0);
-              const bTime = new Date(b.updatedAt || 0);
-              return bTime - aTime;
-            });
+              const sorted1 = [...data].sort((a, b) => {
+                const aTime = new Date(a.itemResponses?.updatedAt || 0);
+                const bTime = new Date(b.itemResponses?.updatedAt || 0);
+                return bTime - aTime;
+              });
 
-            dispatch(SET_CART_FROM_API(sorted2));
-          } catch (deleteError) {
-            console.log("Delete item error:", deleteError);
+              const sorted2 = [...sorted1].sort((a, b) => {
+                const aTime = new Date(a.updatedAt || 0);
+                const bTime = new Date(b.updatedAt || 0);
+                return bTime - aTime;
+              });
+
+              dispatch(SET_CART_FROM_API(sorted2));
+            } catch (deleteError) {
+              console.log("Delete item error:", deleteError);
+            }
           }
+
+          Swal.fire({
+            title: "Đặt hàng thành công!",
+            text: "Đơn hàng đã được gửi đến nhà bán hàng.",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
+
+          userPeterVoucher.forEach((item) => {
+            if (item.id === peterVoucherId) {
+              item.value -= 1;
+            }
+          });
+          Cookies.set("peterVoucher", JSON.stringify(userPeterVoucher));
+
+          navigate("/home");
+        } catch (err) {
+          console.log("Create order error:", err);
+          Swal.fire({
+            title: "Đặt hàng thất bại!",
+            text: "Đây là lỗi của chúng tôi không phải của bạn!",
+            icon: "error",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
         }
-
-        Swal.fire({
-          title: "Đặt hàng thành công!",
-          text: "Đơn hàng đã được gửi đến nhà bán hàng.",
-          icon: "success",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
-
-        navigate("/home");
-      } catch (err) {
-        console.log("Create order error:", err);
-        Swal.fire({
-          title: "Đặt hàng thất bại!",
-          text: "Đây là lỗi của chúng tôi không phải của bạn!",
-          icon: "error",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
       }
     }
   };
@@ -187,7 +209,7 @@ const PaymentSummary = (props) => {
       <div className="flex flex-col space-y-2 text-sm text-gray-700">
         <div className="flex justify-between items-center border-b pb-2 border-gray-200">
           <span>Tổng tiền hàng</span>
-          <span>{formatCurrency(totalProductPrice)}</span>
+          <span>{formatCurrency(totalProductPrice - totalDiscount)}</span>
         </div>
 
         <div className="flex justify-between items-center border-b pb-2 border-gray-200">
@@ -230,15 +252,16 @@ const PaymentSummary = (props) => {
             }}
           >
             {shippingVouchers.map((item, index) => {
-              return (
-                <option
-                  key={index}
-                  value={JSON.stringify({ id: item.id, value: item.price })}
-                  id={item.id}
-                >
-                  {item.name}
-                </option>
-              );
+              if (item.price * 8 < totalProductPrice)
+                return (
+                  <option
+                    key={index}
+                    value={JSON.stringify({ id: item.id, value: item.price })}
+                    id={item.id}
+                  >
+                    {item.name}
+                  </option>
+                );
             })}
           </select>
         </div>
@@ -248,14 +271,19 @@ const PaymentSummary = (props) => {
             Tổng thanh toán
           </span>
           <span className="text-xl font-bold text-orange-500">
-            {formatCurrency(totalPayment)}
+            {formatCurrency(totalPayment - totalDiscount)}
           </span>
         </div>
       </div>
       <div className="flex justify-end mt-6">
         <button
-          className="bg-orange-500 text-white px-8 py-3 rounded hover:bg-orange-600 text-lg font-semibold"
+          className={` text-white px-8 py-3 rounded ${
+            addressId.length > 5
+              ? "bg-orange-500 hover:bg-orange-600"
+              : "bg-gray-400"
+          }  text-lg font-semibold`}
           onClick={() => handlePlaceTheOrder()}
+          disabled={addressId.length < 5}
         >
           ĐẶT HÀNG
         </button>

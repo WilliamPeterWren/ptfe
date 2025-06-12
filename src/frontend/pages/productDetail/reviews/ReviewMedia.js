@@ -17,7 +17,7 @@ const ReviewMedia = ({ media }) => (
         const retryLoad = () => {
           if (retryCount < maxRetries) {
             retryCount++;
-            target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+            target.src = imageUrl + "review/" + `${media}?retry=${retryCount}`;
             target.onerror = () => {
               setTimeout(retryLoad, retryInterval);
             };

@@ -36,7 +36,6 @@ function DownNav() {
         })
         .then((res) => {
           const data = res.data.result;
-          // console.log(data);
 
           const sorted1 = [...data].sort(
             (a, b) =>
@@ -48,6 +47,7 @@ function DownNav() {
             (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
           );
 
+          // console.log(sorted2);
           dispatch(SET_CART_FROM_API(sorted2));
         })
         .catch((err) => console.log(err));

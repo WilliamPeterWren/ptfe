@@ -1,8 +1,10 @@
 import StarRating from "./StarRating";
 import ReviewMedia from "./ReviewMedia";
 import PropTypes from "prop-types";
+import AvatarImage from "./AvatarImage";
 
 const ReviewCard = ({ review, variants }) => {
+  console.log(review);
   const timestamp = review.createdAt;
   const date = new Date(timestamp);
 
@@ -19,7 +21,7 @@ const ReviewCard = ({ review, variants }) => {
     <div className="border-t pt-4">
       <div className="flex items-center space-x-2 mb-2">
         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-600">{review.userId}</span>
+          <AvatarImage review={review}  />
         </div>
         <div>
           <span className="text-sm font-semibold text-gray-800">

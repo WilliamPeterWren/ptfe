@@ -1,14 +1,14 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const initCart = {
+const initCheckout = {
   checkouts: [],
   amountItem: 0,
   totalAmount: 0,
-  countCart: 0,
+  countCheckout: 0,
 };
 
-const checkoutReducer = (state = initCart, action) => {
+const checkoutReducer = (state = initCheckout, action) => {
   switch (action.type) {
     case "ADD_TO_CHECKOUT": {
       const {
@@ -21,6 +21,7 @@ const checkoutReducer = (state = initCart, action) => {
         price,
         salePrice,
         quantity,
+        discount,
         // sellerVoucherId,
         // shippingId,
       } = action.payload.item;
@@ -37,6 +38,7 @@ const checkoutReducer = (state = initCart, action) => {
         price,
         salePrice,
         quantity,
+        discount
         // sellerVoucherId,
         // shippingId,
       };
@@ -54,8 +56,8 @@ const checkoutReducer = (state = initCart, action) => {
         );
 
         if (existingProductIndex !== -1) {
-          seller.items[existingProductIndex].quantity += quantity;
-          toast.info(`Updated quantity: ${productName}`, toastStyle());
+          seller.items[existingProductIndex].quantity = quantity;
+          toast.success(`Added ${productName} to checkout`, toastStyle());
         } else {
           seller.items.push(productToAdd);
           toast.success(`Added ${productName} to checkout`, toastStyle());
@@ -100,28 +102,29 @@ const checkoutReducer = (state = initCart, action) => {
       );
       return {
         ...state,
-        countCart: count,
+        countCheckout: count,
       };
     }
 
     case "REMOVE_FROM_CHECKOUT": {
-      const { productId, sellerId } = action.payload;
+      const { item, seller } = action.payload;
       console.log(action.payload);
 
       const updatedCheckoutsAfterRemoval = state.checkouts
-        .map((seller) => {
-          if (seller.sellerId === sellerId) {
-            const updatedItems = seller.items.filter(
-              (p) => p.productId !== productId
+        .map((sellerr) => {
+          console.log(sellerr);
+          if (sellerr.sellerId === seller.sellerId) {
+            const updatedItems = sellerr.items.filter(
+              (p) => p.productId !== item.productId
             );
             if (updatedItems.length === 0) return null;
             return {
-              ...seller,
+              ...sellerr,
               items: updatedItems,
               updatedAt: new Date().toISOString(),
             };
           }
-          return seller;
+          return sellerr;
         })
         .filter(Boolean);
 
@@ -140,7 +143,7 @@ const checkoutReducer = (state = initCart, action) => {
         checkouts: [],
         amountItem: 0,
         totalAmount: 0,
-        countCart: 0,
+        countCheckout: 0,
       };
     }
 
@@ -169,7 +172,10 @@ const calculateTotalAmount = (checkouts) => {
     return (
       sum +
       seller.items.reduce((subSum, product) => {
-        const price = product.salePrice > 0 ? product.salePrice : product.price;
+        const price =
+          product.salePrice > 0
+            ? product.salePrice
+            : product.price - product.discount;
         return subSum + price * product.quantity;
       }, 0)
     );

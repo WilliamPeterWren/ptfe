@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { imageUrl } from "../../../api/config";
 import apiFlashSale from "../../../api/apiFlashSale";
 import { Link } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const FlashSaleSection = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -13,13 +14,38 @@ const FlashSaleSection = () => {
     seconds: 0,
   });
 
-  const endTime = new Date("2025-06-29T23:59:59+07:00").getTime();
+  // const endTime = new Date("2025-06-29T23:59:59+07:00").getTime();
+  const [endTime, setEndTime] = useState(null);
 
   const [flashsale, setFlashsale] = useState([]);
 
-  const getProductByFlashsaleId = async () => {
+  // const [availableFlashsale, setAvailableFlashsale] = useState([]);
+  const [latestFlashsale, setLatestFlashsale] = useState();
+
+  const getAvailableFlashsale = async () => {
+    try {
+      const res = await apiFlashSale.getAll();
+      const data = res.data.result;
+      // setAvailableFlashsale(data);
+      setLatestFlashsale(data[0].id);
+      console.log(data);
+
+      const expires = new Date(data[0].expiredAt);
+      setEndTime(expires.getTime());
+      Cookies.set("latestFlashsale", data[0].id, { expires: expires });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAvailableFlashsale();
+  }, []);
+
+  const getProductByFlashsaleId = async (flashsaleId) => {
+    console.log(flashsaleId);
     await apiFlashSale
-      .getProductByFlashsaleId("6837307aa2f0fb78e1704ddf")
+      .getProductByFlashsaleId(flashsaleId)
       .then((res) => {
         // console.log(res.data.result);
         setFlashsale(res.data.result);
@@ -28,8 +54,10 @@ const FlashSaleSection = () => {
   };
 
   useEffect(() => {
-    getProductByFlashsaleId();
-  }, []);
+    if (latestFlashsale !== null) {
+      getProductByFlashsaleId(latestFlashsale);
+    }
+  }, [latestFlashsale]);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -110,7 +138,10 @@ const FlashSaleSection = () => {
               const retryLoad = () => {
                 if (retryCount < maxRetries) {
                   retryCount++;
-                  target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+                  target.src =
+                    imageUrl +
+                    "product/flashsale/flash_sale.png" +
+                    `?retry=${retryCount}`;
                   target.onerror = () => {
                     setTimeout(retryLoad, retryInterval);
                   };

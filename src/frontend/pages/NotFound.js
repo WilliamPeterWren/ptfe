@@ -11,7 +11,7 @@ function NotFound() {
     };
   }, [pageTitle]);
   return (
-    <div className="max-w-xl flex justify-center">
+    <div className=" flex-1 flex-1 justify-between items-center">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300">
         <path
           d="M299.73,256.79q-.06-2.87-.21-5.83-2-37.08-17-55.8t-41.29-17.3q-26.34,1.42-39.17,21.66t-10.84,57.27Z"

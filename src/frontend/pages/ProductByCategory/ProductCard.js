@@ -1,11 +1,15 @@
 import React from "react";
 import { imageUrl } from "../../../api/config";
+import { Link } from "react-router-dom";
 const ProductCard = (props) => {
-  const { productName, variants, productImages } = props;
+  const { productName, variants, productImages, slug } = props;
   console.log(props);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <Link
+      to={`/product-detail/${slug}`}
+      className="bg-white rounded-lg shadow-md overflow-hidden"
+    >
       <img
         src={imageUrl + "product/" + productImages[0]}
         alt={productName}
@@ -20,7 +24,10 @@ const ProductCard = (props) => {
           const retryLoad = () => {
             if (retryCount < maxRetries) {
               retryCount++;
-              target.src = imageUrl + "product/" + `?retry=${retryCount}`;
+              target.src =
+                imageUrl +
+                "product/" +
+                `${productImages[0]}?retry=${retryCount}`;
               target.onerror = () => {
                 setTimeout(retryLoad, retryInterval);
               };
@@ -62,7 +69,7 @@ const ProductCard = (props) => {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

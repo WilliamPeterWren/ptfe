@@ -9,9 +9,10 @@ import Login from "./pages/auth/Login";
 function IndexSeller() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  const accessToken = Cookies.get("accessToken");
 
   useEffect(() => {
-    if (!user) {
+    if (!accessToken) {
       navigate("/seller/login");
     }
   }, []);
@@ -21,9 +22,9 @@ function IndexSeller() {
   }
 
   return (
-    <div className="flex just-center bg-gray-200">
+    <div className="w-full flex just-center bg-gray-200">
       <Sidebar />
-      <div className="ml-4 min-w-[1500px] max-w-[1500px] bg-white">
+      <div className="w-4/5 ml-4 bg-white">
         <Outlet />
       </div>
     </div>

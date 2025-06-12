@@ -1,11 +1,14 @@
-import React from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Sale() {
-  return (
-    <div>
-      <h1>trang sale</h1>
-    </div>
-  );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate("/flashsale");
+  }, []);
+
+  return null;
 }
 
 export default Sale;

@@ -1,57 +1,4 @@
-import { useState } from "react";
-
-const Sidebar = () => {
-  const categories = [
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-1",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-2",
-    },
-    {
-      name: "Thời Trang Nam",
-      slug: "mens-fashion-3",
-    },
-  ];
-
+const Sidebar = ({ categories, setCategory }) => {
   return (
     <div className="max-w-120 bg-white shadow-md p-4">
       <ul className="space-y-2">
@@ -62,20 +9,18 @@ const Sidebar = () => {
         <li>
           <div className="mt-2 max-h-80 overflow-y-auto border-t border-gray-200 pt-2">
             <ul className="space-y-2">
-              {categories.map((category, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => category.subcategories}
-                    className={`w-full text-left px-2 py-1 rounded ${
-                      category.name === "Thời Trang Nam"
-                        ? "text-red-500 font-semibold"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                </li>
-              ))}
+              {categories.map((category, index) => {
+                return (
+                  <li key={index}>
+                    <button
+                      className={`w-full text-left px-2 py-1 rounded capitalize hover:bg-gray-200`}
+                      onClick={() => setCategory(category.id)}
+                    >
+                      {category.categoryName}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </li>

@@ -6,18 +6,20 @@ import UserContext from "../../../context/userContext";
 function Logout() {
   const { setUser } = useContext(UserContext);
 
-  // Remove cookies
-  Cookies.remove("authId");
-  Cookies.remove("authEmail");
-  Cookies.remove("authPassword");
-
-  Cookies.remove("authFirstname");
-  Cookies.remove("authLastname");
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUser("");
+    setUser(null);
+    // Remove cookies
+    Cookies.remove("id");
+    Cookies.remove("email");
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    Cookies.remove("username");
+    Cookies.remove("addressId");
+    Cookies.remove("avatar");
+    Cookies.remove("addressId");
+
     navigate("/login");
   });
 

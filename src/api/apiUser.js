@@ -18,7 +18,7 @@ const apiUser = {
   },
 
   getSellerInfo: (sellerId) => {
-    return axiosInstance.get(`users/get/seller/info/id/${sellerId}`);
+    return axiosInstance.get(`users/seller/get/seller/info/id/${sellerId}`);
   },
 };
 

@@ -67,8 +67,7 @@ const RecommendationsSection = () => {
                     const retryLoad = () => {
                       if (retryCount < maxRetries) {
                         retryCount++;
-                        target.src =
-                          imageUrl + "product/" + `?retry=${retryCount}`;
+                        target.src = imgUrl + `?retry=${retryCount}`;
                         target.onerror = () => {
                           setTimeout(retryLoad, retryInterval);
                         };

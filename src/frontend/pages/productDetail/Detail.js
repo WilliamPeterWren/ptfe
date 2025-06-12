@@ -6,17 +6,17 @@ import { useSelector, useDispatch } from "react-redux";
 import ProductImageSlider from "./ProductImageSlider";
 import apiCart from "../../../api/apiCart";
 import {
-  ADD,
-  CLEAR,
   SET_CART_FROM_API,
-  UPDATE_CART_FROM_API,
+  TOTAL_DISCOUNT,
 } from "../../../redux/action/cartAction";
+import apiPeterVoucher from "../../../api/apiPeterVoucher";
 
 const Detail = ({ productData, reviewsLength }) => {
   const [price, setPrice] = useState(productData.variants[0].price);
   const [salePrice, setSalePrice] = useState(productData.variants[0].salePrice);
-  const [rating, setRating] = useState(0);
   const [selectVariant, setSelectVariant] = useState(0);
+  const [peterVoucher, setPeterVoucher] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const star = useMemo(() => {
     let sum1 = 0;
@@ -30,9 +30,8 @@ const Detail = ({ productData, reviewsLength }) => {
   }, [productData.rating]);
 
   useEffect(() => {
-    console.log(star);
+    // console.log(star);
   }, [star]);
-
 
   const [timeLeft, setTimeLeft] = useState({
     hours: 6,
@@ -71,33 +70,33 @@ const Detail = ({ productData, reviewsLength }) => {
     return () => clearInterval(timer);
   }, [endTime]);
 
-  const product = {
-    name: "Tấm gương khổng vô",
-    brand: "Ventas",
-    originalPrice: "đ62.000",
-    salePrice: "đ20.000",
-    discount: "-68%",
-    rating: 4.7,
-    reviews: "8 Đánh Giá",
-    sales: "Đã bán 42,1K",
-    sizes: [
-      { label: "Gương 22°22 (1 miếng)", stock: true },
-      { label: "Gương 22°22 (4 miếng)", stock: true },
-      { label: "Gương 30°30 (1 miếng)", stock: true },
-      { label: "Gương 30°30 (4 miếng)", stock: true },
-      { label: "Gương 30°40 (1 miếng)", stock: true },
-      { label: "Gương 30°40 (4 miếng)", stock: true },
-      { label: "Gương 40°40 (1 miếng)", stock: true },
-      { label: "Gương 40°40 (4 miếng)", stock: true },
-    ],
-    image: "https://via.placeholder.com/300x400.png?text=Tam+Guong+Khong+Vo",
-    badges: [
-      "Trả hàng miễn phí 15 ngày",
-      "Hàng chính hãng 100%",
-      "Miễn phí vận chuyển",
-    ],
-    vouchers: ["Giảm đ7K", "Giảm đ5K", "Giảm đ10K", "Giảm đ20K", "Giảm đ50"],
+  const userPeterVoucher = JSON.parse(Cookies.get("peterVoucher"));
+  // console.log(userPeterVoucher)
+  const getPeterVoucher = async () => {
+    await apiPeterVoucher
+      .getAll()
+      .then((res) => {
+        const data = res.data.result.slice(0, 5);
+
+        // console.log(data);
+        data.map((i) => {
+          if (userPeterVoucher.some((u) => u.id === i.id)) {
+            // console.log(i);
+            const p = {
+              id: i.id,
+              name: i.name,
+              value: i.value,
+            };
+            setPeterVoucher((prev) => [...prev, p]);
+          }
+        });
+      })
+      .catch((err) => console.log(err));
   };
+
+  useEffect(() => {
+    getPeterVoucher();
+  }, []);
 
   const handleChangeVariant = (index) => {
     setSelectVariant(index);
@@ -113,7 +112,7 @@ const Detail = ({ productData, reviewsLength }) => {
     const data = {
       sellerId: productData.sellerId,
       variantId: productData.variants[selectVariant].id,
-      quantity: 1,
+      quantity: value,
     };
 
     console.log(data);
@@ -158,6 +157,7 @@ const Detail = ({ productData, reviewsLength }) => {
         console.log(sorted2);
 
         dispatch(SET_CART_FROM_API(sorted2));
+        dispatch(TOTAL_DISCOUNT());
       })
       .catch((err) => {
         console.log(err);
@@ -176,6 +176,87 @@ const Detail = ({ productData, reviewsLength }) => {
       });
   };
 
+  const [value, setValue] = useState(1);
+
+  const handleChange = (e) => {
+    const newValue = parseInt(e.target.value, 10);
+    if (!isNaN(newValue)) {
+      setValue(newValue);
+    } else if (e.target.value === "") {
+      setValue("");
+    }
+  };
+
+  const increment = () => setValue((prev) => (isNaN(prev) ? 0 : prev + 1));
+  const decrement = () => setValue((prev) => (isNaN(prev) ? 0 : prev - 1));
+
+  const handleToCheckout = async () => {
+    const data = {
+      sellerId: productData.sellerId,
+      variantId: productData.variants[selectVariant].id,
+      quantity: value,
+    };
+
+    console.log(data);
+
+    await apiCart
+      .addToCart(data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          // "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        const data = res.data.result;
+
+        console.log(data);
+
+        Swal.fire({
+          title: "Thành công",
+          text: "Sản phẩm đã thêm vào giỏ hàng",
+          icon: "success",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+
+        const sorted1 = [...data].sort(
+          (a, b) =>
+            new Date(b.itemResponses.updatedAt) -
+            new Date(a.itemResponses.updatedAt)
+        );
+
+        console.log(sorted1);
+
+        const sorted2 = [...sorted1].sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+
+        console.log(sorted2);
+
+        dispatch(SET_CART_FROM_API(sorted2));
+        dispatch(TOTAL_DISCOUNT());
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          title: "Thêm vào giỏ hàng thất bại!",
+          text: "Sản phẩm chưa được thêm vào giỏ hàng! Kiểm tra API!",
+          icon: "error",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+      });
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 bg-white rounded-lg">
@@ -195,9 +276,19 @@ const Detail = ({ productData, reviewsLength }) => {
               | Đã bán: {productData.sold}
             </span>
           </div>
-          <div className="bg-orange-100 text-orange-700 text-sm font-semibold px-2 py-1 rounded mb-4 inline-block">
-            FLASH SALE
-          </div>
+          {productData.discount > 0 && (
+            <div className="flex justify-items">
+              <div className="bg-orange-100 text-orange-700 text-sm font-semibold px-2 py-1 rounded mb-4 inline-block">
+                FLASH SALE
+              </div>
+              <div className="ml-4">
+                <span className="text-red-500 border border-red-600 rounded p-1">
+                  - {productData.discount.toLocaleString()}
+                </span>{" "}
+              </div>
+            </div>
+          )}
+
           {salePrice > 0 ? (
             <div className="flex items-baseline mb-4">
               <span className="text-3xl font-bold text-red-600">
@@ -219,33 +310,30 @@ const Detail = ({ productData, reviewsLength }) => {
           )}
 
           <div className="mb-4">
-            <span className="text-sm text-gray-600">Voucher Cửa Shop</span>
-            <div className="flex space-x-2 mt-1">
-              {product.vouchers.map((voucher, index) => (
+            <span className="text-sm text-gray-600">Voucher hiện có</span>
+            <div className="flex space-x-2 mt-1 ">
+              {peterVoucher.map((voucher, index) => (
                 <span
                   key={index}
                   className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded"
                 >
-                  {voucher}
+                  {voucher.value.toLocaleString()}
                 </span>
               ))}
-              <a href="/" className="text-xs text-blue-500 hover:underline">
-                Xem tất cả
-              </a>
             </div>
           </div>
           <div className="mb-4">
             <span className="text-sm text-gray-600">Vận Chuyển</span>
-            <p className="text-xs text-gray-600 mt-1">
-              Nhận từ 24 Th05 - 26 Th05 <br /> Miễn phí vận chuyển <br /> Tặng
-              Voucher 15.000 nếu đơn giao sau 48h từ khi nhận.
-            </p>
+            <p className="text-xs text-gray-600 mt-1">Miễn phí vận chuyển</p>
           </div>
           <div className="mb-4">
             <span className="text-sm text-gray-600">An Tâm Mua</span>
             <p className="text-xs text-gray-600 mt-1">
-              Trả hàng miễn phí 15 ngày - Chính hãng 100% - Miễn phí vận chuyển
-              - B. . .
+              Trả hàng miễn phí 15 ngày
+              <br />
+              Chính hãng 100%
+              <br />
+              Miễn phí vận chuyển
             </p>
           </div>
           <div className="mb-4">
@@ -267,6 +355,29 @@ const Detail = ({ productData, reviewsLength }) => {
               ))}
             </div>
           </div>
+
+          <div className="flex items-center p-1 w-fit my-2">
+            <button
+              onClick={decrement}
+              className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              value={value}
+              onChange={handleChange}
+              min={1}
+              className="w-24 text-center px-2 py-1 border-y border-gray-300 focus:outline-none  appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+
+            <button
+              onClick={increment}
+              className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+            >
+              +
+            </button>
+          </div>
           <div className="flex space-x-4">
             <button
               className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors duration-300"
@@ -274,17 +385,20 @@ const Detail = ({ productData, reviewsLength }) => {
             >
               Thêm Vào Giỏ Hàng
             </button>
-            <button className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors duration-300">
+            {/* <button
+              className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors duration-300"
+              // onClick={handleToCheckout}
+            >
               Mua Ngay
-            </button>
+            </button> */}
           </div>
-          <div className="mt-4 flex space-x-2">
+          {/* <div className="mt-4 flex space-x-2">
             <button className="text-blue-500 hover:underline">Chia sẻ:</button>
             <span className="text-gray-600">😀</span>
             <span className="text-blue-500">Facebook</span>
             <span className="text-blue-500">Twitter</span>
             <span className="text-red-500">❤️ Đã thích (7K)</span>
-          </div>
+          </div> */}
         </div>
       </div>
 

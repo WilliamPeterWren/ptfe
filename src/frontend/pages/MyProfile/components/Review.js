@@ -1,51 +1,159 @@
 import React, { useState, useEffect } from "react";
 import { Star, Upload, X, Send } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import Cookies from "js-cookie";
+import Swal from "sweetalert2";
+
 import { imageUrl } from "../../../../api/config";
+import apiReview from "../../../../api/apiReview";
+import apiFile from "../../../../api/apiFile";
 
 function Review(props) {
-  const { openModal, setOpenModal, order } = props;
+  const { openModal, setOpenModal, order, setShowReview } = props;
+  const accessToken = Cookies.get("accessToken");
 
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [productReviews, setProductReviews] = useState({});
 
   useEffect(() => {
-    if (openModal) {
-      console.log("Order for review:", order);
-      setRating(0);
-      setComment("");
-      setSelectedImage(null);
-      setImagePreviewUrl(null);
+    if (openModal && order?.items) {
+      const initialReviews = {};
+      order.items.forEach((item) => {
+        if (!item.alreadyReview) {
+          initialReviews[`${item.productId}-${item.variantId}`] = {
+            rating: 0,
+            comment: "",
+            selectedImage: null,
+            imagePreviewUrl: null,
+          };
+        }
+      });
+      setProductReviews(initialReviews);
     }
   }, [openModal, order]);
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setImagePreviewUrl(URL.createObjectURL(file));
-    } else {
-      setSelectedImage(null);
-      setImagePreviewUrl(null);
-    }
-  };
-
   useEffect(() => {
     return () => {
-      if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl);
-      }
+      Object.values(productReviews).forEach((review) => {
+        if (review.imagePreviewUrl) {
+          URL.revokeObjectURL(review.imagePreviewUrl);
+        }
+      });
     };
-  }, [imagePreviewUrl]);
+  }, [productReviews]);
 
-  const handleSubmit = () => {
-    console.log("Submitting review:");
-    console.log("Order ID:", order?.id);
-    console.log("Rating:", rating);
-    console.log("Comment:", comment);
-    console.log("Selected Image:", selectedImage);
+  const handleRatingChange = (itemId, value) => {
+    setProductReviews((prevReviews) => ({
+      ...prevReviews,
+      [itemId]: { ...prevReviews[itemId], rating: value },
+    }));
+  };
+
+  const handleCommentChange = (itemId, value) => {
+    setProductReviews((prevReviews) => ({
+      ...prevReviews,
+      [itemId]: { ...prevReviews[itemId], comment: value },
+    }));
+  };
+
+  const handleImageChange = (itemId, event) => {
+    const file = event.target.files[0];
+    setProductReviews((prevReviews) => {
+      const currentImagePreviewUrl = prevReviews[itemId]?.imagePreviewUrl;
+      if (currentImagePreviewUrl) {
+        URL.revokeObjectURL(currentImagePreviewUrl);
+      }
+      return {
+        ...prevReviews,
+        [itemId]: {
+          ...prevReviews[itemId],
+          selectedImage: file,
+          imagePreviewUrl: file ? URL.createObjectURL(file) : null,
+        },
+      };
+    });
+  };
+
+  const handleRemoveImage = (itemId) => {
+    setProductReviews((prevReviews) => {
+      const currentImagePreviewUrl = prevReviews[itemId]?.imagePreviewUrl;
+      if (currentImagePreviewUrl) {
+        URL.revokeObjectURL(currentImagePreviewUrl);
+      }
+      return {
+        ...prevReviews,
+        [itemId]: {
+          ...prevReviews[itemId],
+          selectedImage: null,
+          imagePreviewUrl: null,
+        },
+      };
+    });
+  };
+
+  const handleSubmit = async () => {
+    for (const item of order.items) {
+      const itemId = `${item.productId}-${item.variantId}`;
+      const reviewData = productReviews[itemId];
+
+      if (reviewData && !item.alreadyReview) {
+        const { rating, comment, selectedImage } = reviewData;
+
+        let uuidFileName = null;
+        if (selectedImage) {
+          const formData = new FormData();
+          uuidFileName = uuidv4() + "_" + selectedImage.name;
+          formData.append("files", selectedImage, uuidFileName);
+
+          try {
+            await fetch("http://localhost:8889/api/files/upload/review", {
+              method: "POST",
+              body: formData,
+            });
+            // await apiFile.uploadFileReview(formData);
+          } catch (error) {
+            console.error("Error uploading image for review:", error);
+            continue;
+          }
+        }
+
+        const dataReview = {
+          userId: order?.userId,
+          productId: item.productId,
+          variantId: item.variantId,
+          orderId: order?.id,
+          comment,
+          image: uuidFileName,
+          star: rating,
+        };
+
+        console.log(
+          `Submitting review for product ${item.productName}:`,
+          dataReview
+        );
+
+        await apiReview
+          .create(dataReview, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            setShowReview(false);
+            Swal.fire({
+              title: "Đánh giá thành công!",
+              text: "Đánh giá đã được ghi nhận",
+              icon: "success",
+              timer: 1500,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }
 
     setOpenModal(false);
   };
@@ -58,9 +166,12 @@ function Review(props) {
     return null;
   }
 
+  const itemsToReview =
+    order?.items?.filter((item) => !item.alreadyReview) || [];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-auto relative transform transition-all sm:my-8 sm:w-full">
+      <div className=" bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto relative transform transition-all md:my-8 md:w-full">
         <button
           onClick={handleCancel}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -73,19 +184,18 @@ function Review(props) {
           Đánh giá sản phẩm
         </h2>
 
-        {/* Scrollable area for order items */}
-        {order?.items && order.items.length > 0 && (
+        {itemsToReview.length > 0 ? (
           <div className="max-h-96 overflow-y-auto pr-2">
-            {" "}
-            {/* Added max-h-96 and overflow-y-auto */}
-            {order.items.map((item, index) => {
+            {itemsToReview.map((item) => {
+              const itemId = `${item.productId}-${item.variantId}`;
+              const { rating, comment, imagePreviewUrl } =
+                productReviews[itemId] || {}; // Get current review data for this item
+
               return (
                 <div
-                  key={index}
+                  key={itemId}
                   className="mb-6 border-b pb-4 last:border-b-0 last:pb-0"
                 >
-                  {" "}
-                  {/* Added border-b for separation */}
                   <div className="flex items-center mb-4 p-2 bg-gray-50 rounded-md">
                     <img
                       src={imageUrl + "product/" + item.image}
@@ -112,14 +222,14 @@ function Review(props) {
                             size={32}
                             className={`cursor-pointer transition-colors duration-200
                               ${
-                                starValue <= (hoverRating || rating)
+                                starValue <= rating
                                   ? "text-yellow-400 fill-yellow-400"
                                   : "text-gray-300"
                               }
                             `}
-                            onClick={() => setRating(starValue)}
-                            onMouseEnter={() => setHoverRating(starValue)}
-                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() =>
+                              handleRatingChange(itemId, starValue)
+                            }
                           />
                         );
                       })}
@@ -127,17 +237,19 @@ function Review(props) {
                   </div>
                   <div className="mb-4">
                     <label
-                      htmlFor={`comment-${index}`} // Unique ID for each textarea
+                      htmlFor={`comment-${itemId}`}
                       className="block text-gray-700 text-sm font-bold mb-2"
                     >
                       Bình luận của bạn:
                     </label>
                     <textarea
-                      id={`comment-${index}`}
+                      id={`comment-${itemId}`}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent h-24 resize-none"
                       placeholder="Viết đánh giá của bạn về sản phẩm..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
+                      value={comment || ""}
+                      onChange={(e) =>
+                        handleCommentChange(itemId, e.target.value)
+                      }
                     ></textarea>
                   </div>
                   <div className="mb-6">
@@ -147,12 +259,12 @@ function Review(props) {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleImageChange(itemId, e)}
                       className="hidden"
-                      id={`image-upload-${index}`} // Unique ID for each file input
+                      id={`image-upload-${itemId}`}
                     />
                     <label
-                      htmlFor={`image-upload-${index}`}
+                      htmlFor={`image-upload-${itemId}`}
                       className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md inline-flex items-center transition-colors duration-200"
                     >
                       <Upload size={20} className="mr-2" />
@@ -166,10 +278,7 @@ function Review(props) {
                           className="w-full h-full object-cover"
                         />
                         <button
-                          onClick={() => {
-                            setSelectedImage(null);
-                            setImagePreviewUrl(null);
-                          }}
+                          onClick={() => handleRemoveImage(itemId)}
                           className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs"
                           aria-label="Remove image"
                         >
@@ -182,11 +291,13 @@ function Review(props) {
               );
             })}
           </div>
+        ) : (
+          <p className="text-center text-gray-600">
+            Tất cả sản phẩm trong đơn hàng này đã được đánh giá.
+          </p>
         )}
 
         <div className="flex justify-end space-x-4 mt-6">
-          {" "}
-          {/* Added mt-6 for spacing from scrollable area */}
           <button
             onClick={handleCancel}
             className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md transition-colors duration-200 inline-flex items-center"

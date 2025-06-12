@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Link, useNavigate } from "react-router-dom";
 
 import { imageUrl } from "../../../api/config";
-import apiPeterCategory from "../../../api/apiPeterCategory";
 
-const PeterMall = () => {
+const PeterMall = ({ categories, setCategoryId }) => {
   const settings = {
     infinite: true,
     speed: 500,
@@ -39,28 +36,6 @@ const PeterMall = () => {
       },
     ],
   };
-  const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
-  const getCategories = async () => {
-    await apiPeterCategory
-      .getAll()
-      .then((res) => {
-        // console.log(res.data.result);
-        setCategories(res.data.result);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    getCategories();
-  }, []);
-
-  const handleChangeCategory = (id) => {
-    navigate(`/products-by-cat/${id}`);
-    window.location.reload();
-  };
 
   return (
     <div className="container mx-auto px-4 py-6 bg-white mt-10">
@@ -70,7 +45,7 @@ const PeterMall = () => {
         <Slider {...settings}>
           {categories.map((category, index) => (
             <div key={index} className="px-2 ">
-              <button onClick={() => handleChangeCategory(category.id)}>
+              <button onClick={() => setCategoryId(category.id)}>
                 <div className="flex flex-col items-center ">
                   <img
                     src={imageUrl + "category/" + category.images}

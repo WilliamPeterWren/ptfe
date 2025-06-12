@@ -3,9 +3,16 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
 import apiUser from "../../../api/apiUser";
+import { imageUrl } from "../../../api/config";
 
 export default function Profile() {
   const accessToken = Cookies.get("accessToken");
+
+  const [email, setEmail] = useState(Cookies.get("email") || "");
+
+  const [avatar, setAvatar] = useState(
+    imageUrl + "avatar/" + Cookies.get("avatar")
+  );
 
   const [activeTab, setActiveTab] = useState("Thông tin cơ bản");
 
@@ -14,13 +21,14 @@ export default function Profile() {
 
   const shopInfo = {
     name: username,
-    logoUrl: "https://placehold.co/100x100/E0E0E0/333333?text=Shop+Logo",
+    logoUrl: avatar,
     logoGuidelines: [
       "Kích thước hình ảnh tiêu chuẩn: Chiều rộng 300px, Chiều cao 300px",
-      "Dung lượng tệp tối đa: 2.0MB",
+      "Dung lượng tệp tối đa: 0.5MB",
       "Định dạng tệp được hỗ trợ: JPG, JPEG, PNG",
+      "Cập nhật hình ảnh ở trang chủ Peter",
     ],
-    description: "",
+    email: email,
   };
 
   const handleChangeProfile = () => {
@@ -93,7 +101,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="p-4 sm:p-6">
           {activeTab === "Thông tin cơ bản" && (
             <div>
@@ -102,9 +109,9 @@ export default function Profile() {
                   Thông tin cơ bản
                 </h2>
                 <div className="flex space-x-3">
-                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm">
+                  {/* <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm">
                     Xem Shop của tôi
-                  </button>
+                  </button> */}
                   <button
                     className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
                     onClick={handleChangeProfile}
@@ -123,7 +130,11 @@ export default function Profile() {
                     Tên Shop
                   </label>
                   <input
-                    className="w-full sm:w-3/4 text-gray-900 text-base"
+                    className={`w-full sm:w-3/4 text-gray-900 text-base p-2 ${
+                      update
+                        ? ""
+                        : "focus:border-red-500 border border-blue-500 rounded-lg"
+                    }`}
                     defaultValue={shopInfo.name}
                     disabled={update}
                     onChange={(e) => setUsername(e.target.value)}
@@ -141,7 +152,7 @@ export default function Profile() {
                     <div className="flex-shrink-0 w-24 h-24 rounded-md overflow-hidden border border-gray-200">
                       <img
                         src={shopInfo.logoUrl}
-                        alt="Shop Logo"
+                        alt={shopInfo.logoUrl}
                         className="w-full h-full object-contain p-2"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -163,19 +174,22 @@ export default function Profile() {
                     htmlFor="shopDescription"
                     className="w-full sm:w-1/4 text-gray-600 text-sm font-medium mb-1 sm:mb-0"
                   >
-                    Mô tả Shop
+                    Email
                   </label>
                   <input
                     className="w-full sm:w-3/4 text-gray-900 text-base"
-                    defaultValue={shopInfo.description || "Chưa có mô tả"}
+                    defaultValue={shopInfo.email || "Email@gmail.com"}
                     disabled={true}
                   />
                 </div>
               </div>
               <div className="text-right">
                 <button
-                  className="bg-blue-500 text-white px-2 py-1 rounded font-bold hover:bg-orange-500"
+                  className={`text-white px-2 py-1 rounded font-bold ${
+                    update ? "" : "bg-blue-500 hover:bg-orange-500"
+                  } `}
                   onClick={handleUpdateProfile}
+                  disabled={update}
                 >
                   Cập nhật
                 </button>

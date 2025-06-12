@@ -21,7 +21,7 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <div className="max-w-120 bg-white shadow-md p-4">
+    <div className="max-w-120 h-full bg-white shadow-md p-4">
       <ul className="space-y-2">
         <div className="mt-2 max-h-80 overflow-y-auto border-t border-gray-200 pt-2">
           <ul className="space-y-2">

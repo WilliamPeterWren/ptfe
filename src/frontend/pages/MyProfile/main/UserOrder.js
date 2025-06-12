@@ -3,68 +3,12 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
-import { imageUrl } from "../../../api/config";
-import apiOrder from "../../../api/apiOrder";
+import { imageUrl } from "../../../../api/config";
+import apiOrder from "../../../../api/apiOrder";
 
-import Review from "./components/Review";
+import Review from "../components/Review";
 
-const statusPriority = [
-  "PENDING",
-  "SELLER_CANCELLED",
-  "SELLER_CHECKING",
-  "SELLER_PREPAIRING",
-  "SELLER_PREPAIRED",
-  "SHIPPER_TAKING",
-  "SHIPPER_TAKEN",
-  "DISPATCHED",
-  "DELIVERING",
-  "DELIVERD",
-  "CANCELLED",
-  "RETURN",
-  "REFUND",
-];
-
-const statusTranslations = {
-  PENDING: "Chờ thanh toán",
-  SELLER_CANCELLED: "Người bán đã hủy",
-  SELLER_CHECKING: "Người bán đang kiểm tra",
-  SELLER_PREPAIRING: "Người bán đang chuẩn bị hàng",
-  SELLER_PREPAIRED: "Người bán đã chuẩn bị xong",
-  SHIPPER_TAKING: "Shipper đang lấy hàng",
-  SHIPPER_TAKEN: "Shipper đã lấy hàng",
-  DISPATCHED: "Đang vận chuyển",
-  DELIVERING: "Đang giao hàng",
-  DELIVERD: "Đã giao hàng",
-  CANCELLED: "Đã hủy",
-  RETURN: "Trả hàng",
-  REFUND: "Hoàn tiền",
-};
-
-const getLatestStatus = (orderStatusList) => {
-  if (!orderStatusList || orderStatusList.length === 0)
-    return {
-      status: "PENDING",
-      createdAt: new Date(),
-      translatedStatus: statusTranslations["PENDING"],
-    };
-
-  const sortedByTime = [...orderStatusList].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
-
-  const latestStatusObject = sortedByTime.reduce((latest, current) => {
-    const currentPriority = statusPriority.indexOf(current.status);
-    const latestPriority = statusPriority.indexOf(latest.status);
-    return currentPriority > latestPriority ? current : latest;
-  });
-
-  return {
-    ...latestStatusObject,
-    translatedStatus:
-      statusTranslations[latestStatusObject.status] ||
-      latestStatusObject.status,
-  };
-};
+import { getLatestStatus } from "../../../../utils/OrderStatus";
 
 const UserOrders = () => {
   const pageTitle = "Đơn hàng";
@@ -80,6 +24,7 @@ const UserOrders = () => {
   const accessToken = Cookies.get("accessToken");
 
   const [orderToReview, setOrderToReview] = useState(null);
+  const [showReview, setShowReview] = useState(true);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("Tất cả");
 
@@ -103,21 +48,21 @@ const UserOrders = () => {
       });
 
       const data = res.data.content;
-      // console.log(res.data.content);
-      const sorted1 = [...data].sort(
+
+      const sortedOrders = [...data].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      setOrders(sorted1 || []);
+
+      const ordersWithSortedStatus = sortedOrders.map((order) => ({
+        ...order,
+        orderStatus: [...order.orderStatus].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        ),
+      }));
+
+      setOrders(ordersWithSortedStatus);
     } catch (err) {
       console.error(err);
-      Swal.fire({
-        title: "Lỗi API",
-        text: "Lấy dữ liệu không thành công",
-        icon: "error",
-        timer: 1500,
-        timerProgressBar: true,
-        showConfirmButton: false,
-      });
     }
   };
 
@@ -198,6 +143,7 @@ const UserOrders = () => {
   }, [activeTab, accessToken]);
 
   const handleReviewing = (order) => {
+    // order.items.map((item) => {});
     setOrderToReview(order);
   };
 
@@ -232,6 +178,7 @@ const UserOrders = () => {
 
           let totalSalePrice = 0;
           let totalOriginalPrice = 0;
+          let totalDiscount = 0;
 
           order.items.forEach((item) => {
             totalSalePrice +=
@@ -240,13 +187,15 @@ const UserOrders = () => {
                 : item.price * item.quantity;
 
             totalOriginalPrice += item.price * item.quantity;
+
+            totalDiscount += item.discount * item.quantity;
           });
 
           let tot =
             order.peterVoucher +
             (order.shippingVoucherPrice - order.shippingPrice > 0
-              ? 0
-              : order.shippingPrice - order.shippingVoucherPrice);
+              ? order.shippingPrice
+              : order.shippingVoucherPrice);
 
           return (
             <div
@@ -275,9 +224,7 @@ const UserOrders = () => {
                   )}
                 </div>
               </div>
-
               {order.items.map((item, itemIndex) => {
-                // item.productId; // check productId has review with this ID
                 return (
                   <div
                     key={item.id || itemIndex}
@@ -313,39 +260,47 @@ const UserOrders = () => {
                           <p className="text-red-500">
                             {item.salePrice.toLocaleString()}đ
                           </p>
+                          {item.discount > 0 && (
+                            <p className="text-orange-500">
+                              {item.discount.toLocaleString()}đ
+                            </p>
+                          )}
                         </div>
                       ) : (
-                        <p className="text-red-500">
-                          {item.price.toLocaleString()}đ
-                        </p>
+                        <div>
+                          <p className="text-red-500">
+                            {item.price.toLocaleString()}đ
+                          </p>
+                          {item.discount > 0 && (
+                            <p className="text-orange-500">
+                              {item.discount.toLocaleString()}đ
+                            </p>
+                          )}
+                        </div>
                       )}
                       <p>x{item.quantity.toLocaleString()}</p>
                     </div>
                   </div>
                 );
               })}
-
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <p>Khuyến mãi sàn</p>
                 <p className="text-red-500">
                   {order.peterVoucher.toLocaleString()} đ
                 </p>
               </div>
-
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <p>Cước vận chuyển</p>
                 <p className="text-red-500">
                   {order.shippingPrice.toLocaleString()} đ
                 </p>
               </div>
-
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <p>Khuyến mãi vận chuyển</p>
                 <p className="text-red-500">
                   {order.shippingVoucherPrice.toLocaleString()} đ
                 </p>
               </div>
-
               <div className="flex justify-between items-center mt-2 border-t pt-2">
                 <span>Thành tiền: </span>
                 <div className="text-right">
@@ -354,27 +309,38 @@ const UserOrders = () => {
                       {totalOriginalPrice.toLocaleString()}đ
                     </p>
                   )}
-                  <p className="text-red-500 font-bold">
+                  <p className="text-red-500 font-semibold">
                     {totalSalePrice.toLocaleString()}đ
                   </p>
                 </div>
               </div>
               <div className="flex justify-between items-center border-t mt-2 pt-2">
                 <p>Tổng khuyến mãi</p>
-                <p className="text-red-500 font-bold">
+                <p className="text-red-500 font-semibold">
                   {" "}
                   {tot.toLocaleString()}{" "}
+                </p>
+              </div>
+              <div className="flex justify-between items-center border-t mt-2 pt-2">
+                <p>Tổng flashsale</p>
+                <p className="text-red-500 font-semibold">
+                  {" "}
+                  {totalDiscount.toLocaleString()}{" "}
                 </p>
               </div>
               <div className="flex justify-between items-center border-t mt-2 pt-2">
                 <p>Tổng thanh toán</p>
                 <p className="text-red-500 font-bold">
                   {" "}
-                  {(totalSalePrice - tot).toLocaleString()}{" "}
+                  {(
+                    totalSalePrice -
+                    tot +
+                    order.shippingPrice -
+                    totalDiscount
+                  ).toLocaleString()}{" "}
                 </p>
               </div>
-
-              <div className="flex justify-end mt-2 space-x-2">
+              {/* <div className="flex justify-end mt-2 space-x-2">
                 <button
                   onClick={() => handleBuyAgain(order)}
                   className="bg-orange-500 text-white py-1 px-2 rounded hover:bg-orange-600 transition-colors duration-200"
@@ -387,27 +353,31 @@ const UserOrders = () => {
                 >
                   Liên Hệ Người Bán
                 </button>
-              </div>
-
+              </div> */}
               {latestStatus.status === "DELIVERD" && (
                 <div className="text-green-500 flex items-center mt-2">
                   <span>ⓘ Giao hàng thành công</span>
-                  <span className="ml-2 text-blue-500 cursor-pointer">
-                    <button
-                      onClick={() => handleReviewing(order)}
-                      className="text-blue-500 hover:underline font-semibold"
-                    >
-                      ĐÁNH GIÁ
-                    </button>
-                  </span>
+
+                  {order?.items?.length > 0 &&
+                    showReview &&
+                    order.items.some((item) => !item.alreadyReview) && (
+                      <span className="ml-2 text-blue-500 cursor-pointer">
+                        <button
+                          onClick={() => handleReviewing(order)}
+                          className="text-blue-500 hover:underline font-semibold"
+                        >
+                          ĐÁNH GIÁ
+                        </button>
+                      </span>
+                    )}
                 </div>
               )}
-
               {orderToReview && orderToReview.id === order.id && (
                 <Review
                   setOpenModal={handleCloseReviewModal}
                   openModal={true}
                   order={orderToReview}
+                  setShowReview={setShowReview}
                 />
               )}
             </div>

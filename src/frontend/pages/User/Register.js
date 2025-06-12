@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 
 import { imageUrl } from "../../../api/config";
 
@@ -46,6 +47,14 @@ function Register() {
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
+          Swal.fire({
+            title: "Đăng ký thành công",
+            text: "Bạn hãy vào email để kích hoạt!",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
           navigate("/login");
         }
       })
@@ -55,10 +64,10 @@ function Register() {
   };
 
   return (
-    <section className="">
+    <section className="bg-white">
       <div className="h-[4px] bg-red-700 my-4"></div>
 
-      <div className="px-80 flex justify-items items-center">
+      <div className=" flex justify-items items-center">
         <div className="w-1/2 p-4 flex flex-col items-center">
           <img
             alt="logo"
@@ -73,7 +82,7 @@ function Register() {
           />
           <img
             alt="peter"
-            src={imageUrl + "logo/peter 2.png"}
+            src={imageUrl + "logo/peter black.jpg"}
             onError={(e) => {
               e.target.onerror = null;
               // e.target.src = defaultImage(item);
@@ -82,8 +91,8 @@ function Register() {
             width={200}
           />
         </div>
-        <div className="w-1/2 bg-orange-500 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="w-1/2 flex items-center justify-center p-4">
+          <div className="bg-gray-200 p-6 rounded-lg shadow-lg w-full max-w-md">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold text-orange-500">Đăng ký</h2>
             </div>
