@@ -13,10 +13,10 @@ function Index() {
   }, []);
 
   return (
-    <div className="">
+    <div className="bg-gray-200">
       <Header />
 
-      <div ref={topRef} className="px-80 bg-gray-200">
+      <div ref={topRef} className="w-2/3 mx-auto ">
         <Outlet />
       </div>
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 import { imageUrl } from "../../../api/config";
 import userContext from "../../../context/userContext";
@@ -32,6 +33,8 @@ function CartItem() {
   const totalDiscount = useSelector((state) => state.cart.totalDiscount);
   const checkouts = useSelector((state) => state.checkout.checkouts);
 
+  const [value, setValue] = useState(1);
+
   useEffect(() => {
     if (accessToken) {
       dispatch(TOTAL());
@@ -40,198 +43,204 @@ function CartItem() {
     }
   }, [accessToken, cartItems, dispatch]);
 
-  const updateItemIncreaseQuantity = async (item, sellerId) => {
-    const data = {
-      sellerId: sellerId,
-      variantId: item.variantId,
-      quantity: 1,
-    };
+  // const updateItemIncreaseQuantity = async (item, sellerId) => {
+  //   setValue(value + 1);
+  //   console.log(item);
+  //   const data = {
+  //     sellerId: sellerId,
+  //     variantId: item.variantId,
+  //     quantity: 1,
+  //   };
 
-    // console.log(data);
+  //   // console.log(data);
 
-    await apiCart
-      .addToCart(data, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          // "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        const data = res.data.result;
+  //   await apiCart
+  //     .addToCart(data, {
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //         // "Content-Type": "application/json",
+  //       },
+  //     })
+  //     .then((res) => {
+  //       const data = res.data.result;
 
-        // console.log(data);
+  //       console.log(data);
 
-        Swal.fire({
-          title: "Cập nhật thành công",
-          text: "Sản phẩm đã được cập nhật",
-          icon: "success",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-          }
-        });
+  //       toast.success(`Cập nhật giỏ hàng!`, {
+  //         position: "top-right",
+  //         autoClose: 2000,
+  //         hideProgressBar: false,
+  //         closeOnClick: true,
+  //         pauseOnHover: true,
+  //         draggable: true,
+  //         style: {
+  //           top: "-50%",
+  //           transform: "translateY(50%)",
+  //           marginRight: "2%",
+  //           width: "fit-content",
+  //         },
+  //       });
 
-        const sorted1 = [...data].sort(
-          (a, b) =>
-            new Date(b.itemResponses.updatedAt) -
-            new Date(a.itemResponses.updatedAt)
-        );
+  //       const sorted1 = [...data].sort(
+  //         (a, b) =>
+  //           new Date(b.itemResponses.updatedAt) -
+  //           new Date(a.itemResponses.updatedAt)
+  //       );
 
-        console.log(sorted1);
+  //       console.log(sorted1);
 
-        const sorted2 = [...sorted1].sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
+  //       const sorted2 = [...sorted1].sort(
+  //         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+  //       );
 
-        console.log(sorted2);
+  //       console.log(sorted2);
 
-        dispatch(SET_CART_FROM_API(sorted2));
-      })
-      .catch((err) => {
-        console.log(err);
-        Swal.fire({
-          title: "Cập nhật giỏ hàng thất bại!",
-          text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
-          icon: "error",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-          }
-        });
-      });
-  };
+  //       dispatch(SET_CART_FROM_API(sorted2));
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       Swal.fire({
+  //         title: "Cập nhật giỏ hàng thất bại!",
+  //         text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
+  //         icon: "error",
+  //         timer: 1500,
+  //         timerProgressBar: true,
+  //         showConfirmButton: false,
+  //       }).then((result) => {
+  //         if (result.dismiss === Swal.DismissReason.timer) {
+  //           console.log("I was closed by the timer");
+  //         }
+  //       });
+  //     });
+  // };
 
-  const updateItemDecreaseQuantity = async (item, sellerId) => {
-    if (item.quantity > 1) {
-      const data = {
-        sellerId: sellerId,
-        variantId: item.variantId,
-        quantity: -1,
-      };
+  // const updateItemDecreaseQuantity = async (item, sellerId) => {
+  //   if (item.quantity > 1) {
+  //     const data = {
+  //       sellerId: sellerId,
+  //       variantId: item.variantId,
+  //       quantity: -1,
+  //     };
 
-      // console.log(data);
+  //     // console.log(data);
 
-      await apiCart
-        .addToCart(data, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            // "Content-Type": "application/json",
-          },
-        })
-        .then((res) => {
-          const data = res.data.result;
+  //     await apiCart
+  //       .addToCart(data, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //           // "Content-Type": "application/json",
+  //         },
+  //       })
+  //       .then((res) => {
+  //         const data = res.data.result;
 
-          // console.log(data);
+  //         // console.log(data);
 
-          Swal.fire({
-            title: "Xóa thành công",
-            text: "Sản phẩm đã được xóa khỏi giỏ hàng của bạn",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              console.log("I was closed by the timer");
-            }
-          });
+  //         Swal.fire({
+  //           title: "Xóa thành công",
+  //           text: "Sản phẩm đã được xóa khỏi giỏ hàng của bạn",
+  //           icon: "success",
+  //           timer: 1500,
+  //           timerProgressBar: true,
+  //           showConfirmButton: false,
+  //         }).then((result) => {
+  //           if (result.dismiss === Swal.DismissReason.timer) {
+  //             console.log("I was closed by the timer");
+  //           }
+  //         });
 
-          const sorted1 = [...data].sort(
-            (a, b) =>
-              new Date(b.itemResponses.updatedAt) -
-              new Date(a.itemResponses.updatedAt)
-          );
+  //         const sorted1 = [...data].sort(
+  //           (a, b) =>
+  //             new Date(b.itemResponses.updatedAt) -
+  //             new Date(a.itemResponses.updatedAt)
+  //         );
 
-          console.log(sorted1);
+  //         // console.log(sorted1);
 
-          const sorted2 = [...sorted1].sort(
-            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-          );
+  //         const sorted2 = [...sorted1].sort(
+  //           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+  //         );
 
-          console.log(sorted2);
+  //         console.log(sorted2);
 
-          dispatch(SET_CART_FROM_API(sorted2));
-        })
-        .catch((err) => {
-          console.log(err);
-          Swal.fire({
-            title: "Cập nhật giỏ hàng thất bại!",
-            text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
-            icon: "error",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              console.log("I was closed by the timer");
-            }
-          });
-        });
-    } else {
-      await apiCart
-        .deleteItem(item.variantId, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((res) => {
-          const data = res.data.result;
+  //         dispatch(SET_CART_FROM_API(sorted2));
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //         Swal.fire({
+  //           title: "Cập nhật giỏ hàng thất bại!",
+  //           text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
+  //           icon: "error",
+  //           timer: 1500,
+  //           timerProgressBar: true,
+  //           showConfirmButton: false,
+  //         }).then((result) => {
+  //           if (result.dismiss === Swal.DismissReason.timer) {
+  //             console.log("I was closed by the timer");
+  //           }
+  //         });
+  //       });
+  //   } else {
+  //     await apiCart
+  //       .deleteItem(item.variantId, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       })
+  //       .then((res) => {
+  //         const data = res.data.result;
 
-          console.log(data);
+  //         console.log(data);
 
-          Swal.fire({
-            title: "Cập nhật thành công",
-            text: "Sản phẩm đã được cập nhật",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              console.log("I was closed by the timer");
-            }
-          });
+  //         toast.success(`Cập nhật giỏ hàng!`, {
+  //           position: "top-right",
+  //           autoClose: 2000,
+  //           hideProgressBar: false,
+  //           closeOnClick: true,
+  //           pauseOnHover: true,
+  //           draggable: true,
+  //           style: {
+  //             top: "-50%",
+  //             transform: "translateY(50%)",
+  //             marginRight: "2%",
+  //             width: "fit-content",
+  //           },
+  //         });
 
-          const sorted1 = [...data].sort(
-            (a, b) =>
-              new Date(b.itemResponses.updatedAt) -
-              new Date(a.itemResponses.updatedAt)
-          );
+  //         const sorted1 = [...data].sort(
+  //           (a, b) =>
+  //             new Date(b.itemResponses.updatedAt) -
+  //             new Date(a.itemResponses.updatedAt)
+  //         );
 
-          console.log(sorted1);
+  //         console.log(sorted1);
 
-          const sorted2 = [...sorted1].sort(
-            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-          );
+  //         const sorted2 = [...sorted1].sort(
+  //           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+  //         );
 
-          console.log(sorted2);
+  //         console.log(sorted2);
 
-          dispatch(SET_CART_FROM_API(sorted2));
-        })
-        .catch((err) => {
-          console.log(err);
-          Swal.fire({
-            title: "Xóa thất bại!",
-            text: "Xóa sản phẩm khỏi giỏ hàng thất bại!",
-            icon: "error",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              console.log("I was closed by the timer");
-            }
-          });
-        });
-    }
-  };
+  //         dispatch(SET_CART_FROM_API(sorted2));
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //         Swal.fire({
+  //           title: "Xóa thất bại!",
+  //           text: "Xóa sản phẩm khỏi giỏ hàng thất bại!",
+  //           icon: "error",
+  //           timer: 1500,
+  //           timerProgressBar: true,
+  //           showConfirmButton: false,
+  //         }).then((result) => {
+  //           if (result.dismiss === Swal.DismissReason.timer) {
+  //             console.log("I was closed by the timer");
+  //           }
+  //         });
+  //       });
+  //   }
+  // };
 
   const handleDeleteItem = async (variantId) => {
     await apiCart
@@ -362,6 +371,83 @@ function CartItem() {
     navigate("/checkout");
   };
 
+  const handleChange = async (e, item, sellerId) => {
+    console.log(e);
+    const newValue = parseInt(e.target.value, 10);
+    if (!isNaN(newValue)) {
+      setValue(newValue);
+
+      const data = {
+        sellerId: sellerId,
+        variantId: item.variantId,
+        quantity: newValue - item.quantity,
+      };
+
+      // console.log(data);
+
+      await apiCart
+        .addToCart(data, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            // "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          const data = res.data.result;
+
+          console.log(data);
+
+          toast.success(`Cập nhật giỏ hàng!`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            style: {
+              top: "-50%",
+              transform: "translateY(50%)",
+              marginRight: "2%",
+              width: "fit-content",
+            },
+          });
+
+          const sorted1 = [...data].sort(
+            (a, b) =>
+              new Date(b.itemResponses.updatedAt) -
+              new Date(a.itemResponses.updatedAt)
+          );
+
+          // console.log(sorted1);
+
+          const sorted2 = [...sorted1].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          // console.log(sorted2);
+
+          dispatch(SET_CART_FROM_API(sorted2));
+        })
+        .catch((err) => {
+          console.log(err);
+          // Swal.fire({
+          //   title: "Cập nhật giỏ hàng thất bại!",
+          //   text: "Giỏ hàng chưa được cập nhật! Kiểm tra API!",
+          //   icon: "error",
+          //   timer: 1500,
+          //   timerProgressBar: true,
+          //   showConfirmButton: false,
+          // }).then((result) => {
+          //   if (result.dismiss === Swal.DismissReason.timer) {
+          //     console.log("I was closed by the timer");
+          //   }
+          // });
+        });
+    } else if (e.target.value === "") {
+      setValue("");
+    }
+  };
+
   return (
     <div className="ontainer mx-auto p-4 bg-white rounded-lg">
       {cartItems.map((seller, sellerIndex) => (
@@ -371,9 +457,11 @@ function CartItem() {
               <tr className="bg-gray-200">
                 <th className="p-2 text-left">
                   <span className="font-normal">Shop</span>{" "}
-                  <span className="text-orange-500">
-                    {seller.sellerUsername}
-                  </span>
+                  <Link to={`/seller/page/${seller.sellerId}`}>
+                    <span className="text-orange-500">
+                      {seller.sellerUsername}
+                    </span>
+                  </Link>
                 </th>
                 <th className="p-2 text-left">Đơn Giá</th>
                 <th className="p-2 text-left">Số Lượng</th>
@@ -477,25 +565,50 @@ function CartItem() {
 
                     <td className="p-2">
                       <div className="flex items-center">
-                        <button
+                        {/* <button
                           onClick={() =>
                             updateItemDecreaseQuantity(item, seller.sellerId)
                           }
                           className="bg-gray-200 px-2 py-1 rounded-l"
                         >
                           -
-                        </button>
-                        <span className="px-4 py-1 border-t border-b">
+                        </button> */}
+                        {/* <span className="px-4 py-1 border-t border-b">
                           {item.quantity}
-                        </span>
-                        <button
+                        </span> */}
+                        <input
+                          type="number"
+                          defaultValue={item.quantity}
+                          onChange={(e) =>
+                            handleChange(e, item, seller.sellerId)
+                          }
+                          min={1}
+                          max={item.stock}
+                          className="w-24 text-center px-2 py-1 rounded-lg border border-gray-300 focus:border-blue-500
+                          focus:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          onInput={(e) => {
+                            let val = parseInt(e.target.value, 10);
+                            const min = parseInt(e.target.min, 10);
+                            const max = parseInt(e.target.max, 10);
+
+                            if (isNaN(val)) {
+                              e.target.value = "";
+                            } else if (val > max) {
+                              e.target.value = max;
+                            } else if (val < min) {
+                              e.target.value = min;
+                            }
+                          }}
+                        />
+                        {/* <button
                           onClick={() =>
                             updateItemIncreaseQuantity(item, seller.sellerId)
                           }
+                          disabled={item.stock <= item.quantity}
                           className="bg-gray-200 px-2 py-1 rounded-r"
                         >
                           +
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                     <td className="p-2 font-semibold text-red-700">
@@ -528,7 +641,7 @@ function CartItem() {
           {(totalAmount - totalSale + totalDiscount).toLocaleString("de-DE")}đ
         </p>
       </div>
-      <div className="mt-2 text-left">
+      {/* <div className="mt-2 text-left">
         <p className="text-blue-500">
           <span className="text-red-500">🎫</span> Voucher giảm đến 41k{" "}
           <span className="text-blue-500">Xem thêm voucher</span>
@@ -538,11 +651,15 @@ function CartItem() {
           chuyển đơn từ ₫0; Giảm ₫500.000 phí vận chuyển đơn từ ₫500.000{" "}
           <span className="text-blue-500">Tìm hiểu thêm</span>
         </p>
-      </div>
+      </div> */}
       <div className="container mx-auto p-4">
         <button
           onClick={handleCheckout}
-          className={`w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600
+          className={`w-full text-white py-3 rounded-lg font-semibold ${
+            checkouts.length > 0
+              ? "bg-orange-500 hover:bg-orange-600"
+              : "bg-gray-500"
+          }  
            transition duration-200`}
           disabled={checkouts.length <= 0}
         >

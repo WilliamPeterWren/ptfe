@@ -13,9 +13,9 @@ const RecommendationsSection = () => {
 
   const getProducts = async () => {
     await apiProduct
-      .getRandomProducts(48)
+      .getRandomProducts(20)
       .then((res) => {
-        // console.log(res);
+        console.log(res.data);
         setProducts(res.data);
       })
       .catch((err) => console.log(err));
@@ -45,9 +45,26 @@ const RecommendationsSection = () => {
         <h2 className="text-xl font-bold uppercase">Gợi Ý Hôm Nay</h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {products.map((product, index) => {
           const imgUrl = imageUrl + "product/" + product.productImages[0];
+          
+          let totalRatingSum = 0;
+          let totalVotes = 0;
+
+          for (const ratingValue in product.rating) {
+            if (Object.hasOwnProperty.call(product.rating, ratingValue)) {
+              const count = product.rating[ratingValue];
+              totalRatingSum += parseInt(ratingValue, 10) * count;
+              totalVotes += count;
+            }
+          }
+
+          let averageRating = 0;
+          if (totalVotes > 0) {
+            averageRating = totalRatingSum / totalVotes;
+          }
+
           return (
             <div
               key={index}
@@ -94,6 +111,17 @@ const RecommendationsSection = () => {
                   <p className="h-16 text-sm text-gray-800 line-clamp-2">
                     {product.productName}
                   </p>
+                  <p className="h-8 text-sm text-yellow-600 line-clamp-2">
+                    {averageRating > 0 && averageRating.toFixed(1) + " ★"}
+                  </p>
+                  {product.discount > 0 && (
+                    <p className="text-sm font-semibold text-orange-800 line-clamp-2 mt-2 leading-tight rounded ">
+                      Shop giảm
+                      <span className=" text-orange-600 ml-2">
+                        {product.discount.toLocaleString()}
+                      </span>
+                    </p>
+                  )}
                   {product.variants[0].salePrice > 0 ? (
                     <div>
                       <p className="h-8 text-lg font-bold text-gray-400 line-through">
@@ -117,6 +145,9 @@ const RecommendationsSection = () => {
                     </p>
                     <p className="text-xs text-gray-600">
                       Đã bán: {product.sold.toLocaleString("de-DE")}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Lượt xem: {product.views.toLocaleString("de-DE")}
                     </p>
                   </div>
                 </div>

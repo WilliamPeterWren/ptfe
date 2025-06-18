@@ -1,11 +1,13 @@
 import { useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import UserContext from "../../context/userContext";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { setUser, user } = useContext(UserContext);
+  const username = Cookies.get("username");
 
   const [openSections, setOpenSections] = useState({
     taiChinh: false,
@@ -40,11 +42,14 @@ export default function Sidebar() {
     Cookies.remove("username");
     Cookies.remove("accessToken");
     Cookies.remove("avatar");
+    Cookies.remove("seller");
+
+    navigate("/seller/login");
   };
 
   return (
     <div className="w-1/5 min-w-1/5 border-r p-4 bg-white">
-      <h1 className="text-xl font-bold mb-8">Nhà bán hàng {user}</h1>
+      <h1 className="text-xl font-bold mb-8">Nhà bán hàng {username}</h1>
       <hr className="flex-1 border-t border-red-300 mb-4" />
       <nav className="flex flex-col space-y-2">
         <div>

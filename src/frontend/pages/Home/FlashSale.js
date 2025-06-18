@@ -20,7 +20,7 @@ const FlashSaleSection = () => {
   const [flashsale, setFlashsale] = useState([]);
 
   // const [availableFlashsale, setAvailableFlashsale] = useState([]);
-  const [latestFlashsale, setLatestFlashsale] = useState();
+  const [latestFlashsale, setLatestFlashsale] = useState(null);
 
   const getAvailableFlashsale = async () => {
     try {
@@ -28,7 +28,7 @@ const FlashSaleSection = () => {
       const data = res.data.result;
       // setAvailableFlashsale(data);
       setLatestFlashsale(data[0].id);
-      console.log(data);
+      // console.log(data);
 
       const expires = new Date(data[0].expiredAt);
       setEndTime(expires.getTime());
@@ -43,7 +43,7 @@ const FlashSaleSection = () => {
   }, []);
 
   const getProductByFlashsaleId = async (flashsaleId) => {
-    console.log(flashsaleId);
+    // console.log(flashsaleId);
     await apiFlashSale
       .getProductByFlashsaleId(flashsaleId)
       .then((res) => {
@@ -119,6 +119,10 @@ const FlashSaleSection = () => {
       },
     ],
   };
+
+  if (latestFlashsale === undefined) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">

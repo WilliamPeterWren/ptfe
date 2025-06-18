@@ -109,7 +109,7 @@ const cartReducer = (state = initCart, action) => {
         );
       }, 0);
 
-      console.log(total);
+      // console.log(total);
 
       return {
         ...state,

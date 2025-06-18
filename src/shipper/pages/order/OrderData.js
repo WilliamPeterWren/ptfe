@@ -22,6 +22,13 @@ export default function OrderData() {
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [orderCode, setOrderCode] = useState("");
   // const [shippingUnitFilter, setShippingUnitFilter] = useState("Tất cả ĐVVC");
+  const [loading, setLoading] = useState(true);
+
+  // paginate
+  const [isFirst, setIsFirst] = useState(false);
+  const [isLast, setIsLast] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const handleToOrderDetail = (id) => {
     navigate(`/shipper/order/order-detail/${id}`);
@@ -37,8 +44,8 @@ export default function OrderData() {
         },
       })
       .then((res) => {
-        const data = res.data.content;
-        const sorted1 = [...data].sort(
+        const data = res.data;
+        const sorted1 = [...data.content].sort(
           (a, b) =>
             new Date(b.orderStatus.createdAt) -
             new Date(a.orderStatus.createdAt)
@@ -47,7 +54,13 @@ export default function OrderData() {
         const sorted2 = [...sorted1].sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
-        // console.log(sorted2);
+
+        console.log(res.data);
+        setIsFirst(data.first);
+        setIsLast(data.last);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.number);
+
         setOrders(sorted2 || []);
       })
       .catch((err) => {
@@ -56,8 +69,10 @@ export default function OrderData() {
   };
 
   useEffect(() => {
-    getAllOrder();
-  }, []);
+    if (loading) {
+      getAllOrder();
+    }
+  }, [loading, currentPage]);
 
   const tabs = [
     "Tất cả",
@@ -129,6 +144,49 @@ export default function OrderData() {
     }
   }, [activeTab, accessToken]);
 
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && orderCode.length > 5) {
+      handleFindOrderById();
+    } else {
+      getAllOrder();
+    }
+  };
+
+  const handleFindOrderById = async () => {
+    if (orderCode.length > 5) {
+      setOrders([]);
+      try {
+        const res = await apiOrder.getByIdShipper(orderCode, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = res.data;
+        setOrders((prevArray) => [...prevArray, data]);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      setLoading(!loading);
+    }
+  };
+
+  const handleGetOrderData = async (index) => {
+    setCurrentPage(index);
+    setLoading(!loading);
+  };
+
+  const handleNextOrder = async () => {
+    setCurrentPage(currentPage + 1);
+    setLoading(!loading);
+  };
+
+  const handlePrevOrder = async () => {
+    setCurrentPage(currentPage - 1);
+    setLoading(!loading);
+  };
+
   return (
     <div className="min-h-screen w-4/5 bg-gray-100 p-4 font-sans">
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -177,17 +235,10 @@ export default function OrderData() {
               placeholder="Nhập Mã đơn hàng"
               value={orderCode}
               onChange={(e) => setOrderCode(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
           </div>
-
-          <div className="col-span-1 md:col-span-1 lg:col-span-3 flex justify-end space-x-3">
-            <button className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">
-              Áp dụng
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-              Đặt lại
-            </button>
-          </div>
+          
         </div>
 
         <div className="p-6">
@@ -370,20 +421,97 @@ export default function OrderData() {
             </table>
           </div>
 
-          <p className="text-sm text-gray-500 mt-6">
-            Chỉ hiển thị 10 đơn hàng gần nhất
-          </p>
-
           <div className="flex justify-end items-center mt-6 space-x-2 text-sm">
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-              &lt;
-            </button>
-            <span className="px-3 py-1 bg-blue-500 text-white rounded-md">
-              1
-            </span>
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-              &gt;
-            </button>
+            {!isFirst && (
+              <button
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={handlePrevOrder}
+              >
+                &lt;
+              </button>
+            )}
+
+            {(() => {
+              const pageButtons = [];
+              const maxButtons = 5;
+              const sideCount = 1;
+
+              const startPage = Math.max(0, currentPage - sideCount);
+              const endPage = Math.min(totalPages - 1, currentPage + sideCount);
+
+              if (startPage > 0) {
+                pageButtons.push(
+                  <button
+                    key={0}
+                    className={`px-3 py-1 ${
+                      currentPage === 0
+                        ? "bg-blue-500 text-white"
+                        : "border border-blue-500"
+                    } rounded-md`}
+                    onClick={() => handleGetOrderData(0)}
+                  >
+                    1
+                  </button>
+                );
+                if (startPage > 1) {
+                  pageButtons.push(
+                    <span key="start-ellipsis" className="px-2">
+                      ...
+                    </span>
+                  );
+                }
+              }
+
+              for (let i = startPage; i <= endPage; i++) {
+                pageButtons.push(
+                  <button
+                    key={i}
+                    className={`px-3 py-1 ${
+                      currentPage === i
+                        ? "bg-blue-500 text-white"
+                        : "border border-blue-500"
+                    } rounded-md`}
+                    onClick={() => handleGetOrderData(i)}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              }
+
+              if (endPage < totalPages - 1) {
+                if (endPage < totalPages - 2) {
+                  pageButtons.push(
+                    <span key="end-ellipsis" className="px-2">
+                      ...
+                    </span>
+                  );
+                }
+                pageButtons.push(
+                  <button
+                    key={totalPages - 1}
+                    className={`px-3 py-1 ${
+                      currentPage === totalPages - 1
+                        ? "bg-blue-500 text-white"
+                        : "border border-blue-500"
+                    } rounded-md`}
+                    onClick={() => handleGetOrderData(totalPages - 1)}
+                  >
+                    {totalPages}
+                  </button>
+                );
+              }
+
+              return pageButtons;
+            })()}
+
+            {!isLast && (
+              <button
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={handleNextOrder}
+              >
+                &gt;
+              </button>
+            )}
           </div>
         </div>
       </div>

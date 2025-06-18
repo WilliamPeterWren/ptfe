@@ -38,6 +38,7 @@ export default function OrderData() {
       .then((res) => {
         const data = res.data;
         console.log(data);
+
         setIsFirst(data.first);
         setIsLast(data.last);
         setTotalPages(data.totalPages);
@@ -88,10 +89,17 @@ export default function OrderData() {
         },
       });
       // console.log(res);
-      const data = res.data.content;
-      const sorted1 = [...data].sort(
+      const data = res.data;
+
+      setIsFirst(data.first);
+      setIsLast(data.last);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number);
+
+      const sorted1 = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
+
       console.log(sorted1);
       setOrders(sorted1 || []);
     } catch (err) {
@@ -235,26 +243,7 @@ export default function OrderData() {
               onKeyPress={handleKeyPress}
             />
           </div>
-          <div className="col-span-1">
-            {/* <label
-              htmlFor="shippingUnit"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Đơn vị vận chuyển
-            </label>
-            <select
-              id="shippingUnit"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
-              value={shippingUnitFilter}
-              onChange={(e) => setShippingUnitFilter(e.target.value)}
-            >
-              {shippingUnits.map((unit) => (
-                <option key={unit} value={unit}>
-                  {unit}
-                </option>
-              ))}
-            </select> */}
-          </div>
+          <div className="col-span-1"></div>
         </div>
 
         <div className="p-6">

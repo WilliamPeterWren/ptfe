@@ -9,9 +9,16 @@ import Pagination from "./Pagination";
 import Sidebar from "./SideBar";
 
 function ProductList({ categories, setCategoryId, categoryId }) {
-
   const [products, setProducts] = useState([]);
   const [pagable, setPagable] = useState();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
 
   const getProducts = async () => {
     await apiProduct
@@ -19,17 +26,105 @@ function ProductList({ categories, setCategoryId, categoryId }) {
       .then((res) => {
         const data = res.data;
         console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
         setPagable(data.pageable);
         setProducts(data.content);
       })
       .catch((err) => console.log(err));
   };
 
+  const getProductByPeterCategoryOrderByCreatedAtDesc = async () => {
+    await apiProduct
+      .getProductByPeterCategoryOrderByCreatedAtDesc(categoryId)
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(data.content);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductByPeterCategoryOrderBySoldDesc = async () => {
+    await apiProduct
+      .getProductByPeterCategoryOrderBySoldDesc(categoryId)
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(data.content);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductsDesc = async () => {
+    await apiProduct
+      .getProductByPeterCategory(categoryId)
+      .then((res) => {
+        const data = res.data;
+
+        const sorted1 = [...data.content].sort(
+          (a, b) => b.variants[0].price - a.variants[0].price
+        );
+        console.log(sorted1);
+
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(sorted1);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductsAsc = async () => {
+    await apiProduct
+      .getProductByPeterCategory(categoryId)
+      .then((res) => {
+        const data = res.data;
+
+        const sorted1 = [...data.content].sort(
+          (a, b) => a.variants[0].price - b.variants[0].price
+        );
+        console.log(sorted1);
+
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(sorted1);
+      })
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
-    getProducts();
-  }, [categoryId]);
+    if (activeFilter === "Phổ Biến") {
+      getProducts();
+    }
 
+    if (activeFilter === "Mới Nhất") {
+      getProductByPeterCategoryOrderByCreatedAtDesc();
+    }
 
+    if (activeFilter === "Bán Chạy") {
+      getProductByPeterCategoryOrderBySoldDesc();
+    }
+  }, [categoryId, activeFilter]);
+
+  useEffect(() => {
+    if (sortOrder === "asc") {
+      console.log(sortOrder);
+      getProductsAsc();
+    }
+
+    if (sortOrder === "desc") {
+      console.log(sortOrder);
+      getProductsDesc();
+    }
+  }, [sortOrder]);
 
   return (
     <div className="container mx-auto p-4 flex justify-center">
@@ -37,15 +132,27 @@ function ProductList({ categories, setCategoryId, categoryId }) {
         <Sidebar categories={categories} setCategoryId={setCategoryId} />
       </div>
       <div className="w-4/5 ml-2">
-        <FilterBar />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <FilterBar
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          filters={filters}
+          setActiveFilter={setActiveFilter}
+          activeFilter={activeFilter}
+          setSortOrder={setSortOrder}
+          sortOrder={sortOrder}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
           {products.map((product, index) => (
             <ProductCard key={index} {...product} />
           ))}
         </div>
-
-        <Pagination pagable={pagable} />
+        <Pagination
+          pagable={pagable}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+        />
       </div>
     </div>
   );

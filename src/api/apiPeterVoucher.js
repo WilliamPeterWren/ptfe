@@ -9,12 +9,20 @@ const apiPeterVoucher = {
     return axiosInstance.get("vouchers");
   },
 
+  adminGetAll: (page, size, header) => {
+    return axiosInstance.get(`vouchers/admin/get/all?page=${page}&size=${size}`, header);
+  },
+
   getOne: (id) => {
     return axiosInstance.get(`vouchers/${id}`);
   },
 
   update: (id, data, header) => {
-    return axiosInstance.get(`vouchers/${id}`, data, header);
+    return axiosInstance.put(`vouchers/${id}`, data, header);
+  },
+
+  delete: (id, header) => {
+    return axiosInstance.delete(`vouchers/${id}`, header);
   },
 };
 

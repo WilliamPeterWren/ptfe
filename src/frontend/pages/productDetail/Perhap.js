@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { imageUrl } from "../../../api/config";
 import apiProduct from "../../../api/apiProduct";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Perhap = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Perhap = () => {
 
   const getProducts = async () => {
     await apiProduct
-      .getRandomProducts(48)
+      .getRandomProducts(20)
       .then((res) => {
         // console.log(res);
         setProducts(res.data);
@@ -27,15 +27,13 @@ const Perhap = () => {
     window.location.reload();
   };
 
-
-
   return (
     <div className="container mx-auto px-4 py-6 bg-white mt-4 rounded-lg">
       <div className="flex justify-between items-center mb-4 w-full">
         <h2 className="text-xl font-bold uppercase">CÓ THỂ BẠN CŨNG THÍCH</h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {products.map((product, index) => {
           const imgUrl = imageUrl + "product/" + product.productImages[0];
           return (
@@ -80,6 +78,14 @@ const Perhap = () => {
                   <p className="h-16 text-sm text-gray-800 line-clamp-2 text-left">
                     {product.productName}
                   </p>
+                  {product.discount > 0 && (
+                    <p className="text-sm text-left font-semibold text-orange-800 line-clamp-2 mt-2 leading-tight rounded ">
+                      Shop giảm
+                      <span className=" text-orange-600 ml-2">
+                        {product.discount.toLocaleString()}
+                      </span>
+                    </p>
+                  )}
                   {product.variants[0]?.salePrice > 0 ? (
                     <div className="h-16 text-left">
                       <p className="text-lg font-bold text-gray-400 line-through">
@@ -108,9 +114,11 @@ const Perhap = () => {
 
       <div className="flex justify-center mt-6">
         <div className="flex justify-center bg-blue-300 rounded-lg h-[40px] flex items-center">
-          <button className="px-6 py-2 text-white font-semibold uppercase transition-colors duration-300 hover:bg-blue-400 rounded-lg w-[400px] hover:text-gray-100">
-            Xem Thêm
-          </button>
+          <Link to="/todaysuggest">
+            <button className="px-6 py-2 text-white font-semibold uppercase transition-colors duration-300 hover:bg-blue-400 rounded-lg w-[400px] hover:text-gray-100">
+              Xem Thêm
+            </button>
+          </Link>
         </div>
       </div>
     </div>

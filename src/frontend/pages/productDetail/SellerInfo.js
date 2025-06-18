@@ -9,21 +9,21 @@ const SellerInfo = ({ sellerInfo }) => {
         <div className="text-2xl font-bold text-black">
           {sellerInfo.sellerUsername}{" "}
         </div>
-        <div className="text-sm text-gray-600">Ventas Home Life</div>
+        <div className="text-sm text-gray-600"></div>
       </div>
 
       <div className="flex-1">
         <h1 className="text-xl font-semibold text-gray-800 mb-2">
-          Online 17 Phút Trước
+         
         </h1>
 
-        <div className="flex space-x-2 mb-3">
+        <div className="flex space-x-2 mb-3 border-b border-gray-500 pb-4">
           <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded uppercase">
             PETER MALL
           </span>
-          <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
+          {/* <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
             <span className="mr-1">💬</span> Chat Ngay
-          </button>
+          </button> */}
           <button className="border border-gray-300 text-gray-600 text-xs font-semibold px-2 py-1 rounded flex items-center">
             <Link to={`/seller/page/${sellerInfo.sellerId}`}>
               <span className="mr-1">🏪</span> Xem Shop
@@ -70,7 +70,9 @@ const SellerInfo = ({ sellerInfo }) => {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Nguời Theo Dõi</span>
-            <span className="text-gray-800 font-semibold">{sellerInfo.follower} </span>
+            <span className="text-gray-800 font-semibold">
+              {sellerInfo.follower}{" "}
+            </span>
           </div>
         </div>
       </div>

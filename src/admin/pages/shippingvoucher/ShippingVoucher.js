@@ -13,7 +13,7 @@ function ShippingVoucher() {
   const [shippings, setShippingVouchers] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
 
   const [shippingName, setShippingVoucherName] = useState(null);
 
@@ -39,14 +39,16 @@ function ShippingVoucher() {
       setShippingVouchers(data);
     } catch (err) {
       console.error("Failed to fetch flash sales:", err);
-      setError("Failed to load flash sales. Please try again later.");
+      // setError("Failed to load flash sales. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getListShippingVoucher();
+    if (loading) {
+      getListShippingVoucher();
+    }
   }, [loading]);
 
   const handleAddShippingVoucher = async () => {
@@ -312,7 +314,6 @@ function ShippingVoucher() {
     }
   };
 
-
   return (
     <div className="w-4/5 mx-auto p-4">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
@@ -483,13 +484,17 @@ function ShippingVoucher() {
               <h2 className="text-xl font-semibold text-indigo-700 mb-2 capitalize">
                 {ship.name}
               </h2>
-              {!ship?.available && (
+              {!ship?.available ? (
                 <button
                   className="border border-white rounded p-2 text-white hover:border-blue-500"
-                  onClick={() => handleActiveShippingVoucher(ship.id)}
+                  onClick={() => handleActiveShippingVoucher(ship?.id)}
                 >
                   Kích hoạt
                 </button>
+              ) : (
+                <span className="ml-4 font-semibold text-indigo-700 mb-2">
+                  x{ship?.count}
+                </span>
               )}
             </div>
 

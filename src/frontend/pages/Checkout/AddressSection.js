@@ -2,6 +2,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import apiAddress from "../../../api/apiAddress";
 import EmbeddedGoogleMap from "./EmbeddedGoogleMap";
@@ -26,6 +27,15 @@ const AddressSection = () => {
       })
       .catch((err) => {
         console.log(err);
+
+        Swal.fire({
+          title: "Cập nhật địa chỉ!",
+          text: "Bạn hãy vào trang cá nhân để cập nhật địa chỉ và số điện thoại nhận hàng!",
+          icon: "warning",
+          timer: 2500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
       });
   };
 
@@ -43,7 +53,7 @@ const AddressSection = () => {
         <FaMapMarkerAlt className="mr-2" />
         Địa Chỉ Nhận Hàng
       </div>
-      {address.length !== 0 ? (
+      {address.length !== 0 && address?.address !== undefined ? (
         <div className="text-gray-800 text-sm">
           <p>
             <span className="font-semibold">

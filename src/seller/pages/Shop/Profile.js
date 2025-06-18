@@ -83,7 +83,7 @@ export default function Profile() {
       <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="border-b border-gray-200 px-4 sm:px-6 py-3">
           <div className="flex space-x-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
-            {["Thông tin cơ bản", "Thông tin Thuế", "Thông tin Định Danh"].map(
+            {/* {["Thông tin cơ bản", "Thông tin Thuế", "Thông tin Định Danh"].map(
               (tab) => (
                 <button
                   key={tab}
@@ -97,7 +97,7 @@ export default function Profile() {
                   {tab}
                 </button>
               )
-            )}
+            )} */}
           </div>
         </div>
 
@@ -197,7 +197,7 @@ export default function Profile() {
             </div>
           )}
 
-          {activeTab === "Thông tin Thuế" && (
+          {/* {activeTab === "Thông tin Thuế" && (
             <div className="text-gray-700">
               <h2 className="text-xl font-bold mb-4">Thông tin Thuế</h2>
               <p>Nội dung về thông tin thuế sẽ được hiển thị tại đây.</p>
@@ -209,7 +209,7 @@ export default function Profile() {
               <h2 className="text-xl font-bold mb-4">Thông tin Định Danh</h2>
               <p>Nội dung về thông tin định danh sẽ được hiển thị tại đây.</p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

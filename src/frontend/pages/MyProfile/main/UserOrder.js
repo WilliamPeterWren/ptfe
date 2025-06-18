@@ -9,6 +9,7 @@ import apiOrder from "../../../../api/apiOrder";
 import Review from "../components/Review";
 
 import { getLatestStatus } from "../../../../utils/OrderStatus";
+import Pagination from "../components/Pagination";
 
 const UserOrders = () => {
   const pageTitle = "Đơn hàng";
@@ -28,6 +29,9 @@ const UserOrders = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("Tất cả");
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalpages, setTotalpages] = useState(1);
+
   const tabs = [
     "Tất cả",
     "Chờ thanh toán",
@@ -40,16 +44,19 @@ const UserOrders = () => {
 
   const getUserOrder = async () => {
     try {
-      const res = await apiOrder.getAll({
+      const res = await apiOrder.getAll(currentPage, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
 
-      const data = res.data.content;
+      const data = res.data;
+      console.log(data);
+      setCurrentPage(data.number);
+      setTotalpages(data.totalPages);
 
-      const sortedOrders = [...data].sort(
+      const sortedOrders = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
 
@@ -67,30 +74,32 @@ const UserOrders = () => {
   };
 
   useEffect(() => {
-    getUserOrder();
-  }, []);
-
-  const handleBuyAgain = (order) => {
-    alert(`Buying again from ${order.store} with total ${order.total}đ`);
-  };
-
-  const handleContactSeller = (order) => {
-    alert(`Contacting seller ${order.store}`);
-  };
+    if (accessToken) {
+      getUserOrder();
+    }
+  }, [currentPage, accessToken]);
 
   const getOrderByStatusPending = async (statusToFetch) => {
     const dataToSend = statusToFetch;
 
     try {
-      const res = await apiOrder.getOrderByUserIdAndStatus(dataToSend, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await apiOrder.getOrderByUserIdAndStatus(
+        dataToSend,
+        currentPage,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const data = res.data.content;
-      const sorted1 = [...data].sort(
+      const data = res.data;
+
+      setCurrentPage(data.number);
+      setTotalpages(data.totalPages);
+
+      const sorted1 = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
       console.log(sorted1);
@@ -140,7 +149,7 @@ const UserOrders = () => {
     if (statusToFetch) {
       getOrderByStatusPending(statusToFetch, 0, 10);
     }
-  }, [activeTab, accessToken]);
+  }, [activeTab, accessToken, currentPage]);
 
   const handleReviewing = (order) => {
     // order.items.map((item) => {});
@@ -207,9 +216,9 @@ const UserOrders = () => {
                   <span className="text-orange-500 font-bold">
                     {order.sellerUsername}
                   </span>
-                  <button className="ml-2 text-blue-500 hover:underline">
+                  {/* <button className="ml-2 text-blue-500 hover:underline">
                     Chat
-                  </button>
+                  </button> */}
                   <Link
                     to={`/seller/page/${order.sellerId}`}
                     className="ml-2 text-blue-500 hover:underline"
@@ -240,7 +249,7 @@ const UserOrders = () => {
                         className="w-20 h-20 mr-2 object-cover rounded"
                       />
                       <div className="hover:text-blue-600">
-                        <p className="text-sm">
+                        <p className="text-sm capitalize">
                           {item.productName.length > 90
                             ? item.productName.slice(0, 90) + "..."
                             : item.productName}
@@ -384,6 +393,12 @@ const UserOrders = () => {
           );
         })}
       </div>
+
+      <Pagination
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+        totalPages={totalpages}
+      />
     </div>
   );
 };

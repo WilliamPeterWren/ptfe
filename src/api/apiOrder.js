@@ -5,18 +5,24 @@ const apiOrder = {
     return axiosInstance.post(`orders`, data, header);
   },
 
-  getAll: (header) => {
-    return axiosInstance.get("orders/user/getall", header);
+  getAll: (page, header) => {
+    return axiosInstance.get(`orders/user/getall?page=${page}`, header);
   },
 
-  getOrderByUserIdAndStatus: (status, header) => {
-    return axiosInstance.get(`orders/user/orderstatus/${status}`, header);
+  getOrderByUserIdAndStatus: (status, page, header) => {
+    return axiosInstance.get(
+      `orders/user/orderstatus/${status}?page=${page}`,
+      header
+    );
   },
 
   // ----------------- seller -----------------
 
   getOrderBySellerId: (page, header) => {
-    return axiosInstance.get(`orders/seller/getall?page=${page}&size=10`, header);
+    return axiosInstance.get(
+      `orders/seller/getall?page=${page}&size=10`,
+      header
+    );
   },
 
   getOrderBySellerIdAndStatus: (status, header) => {
@@ -29,6 +35,48 @@ const apiOrder = {
 
   updateStatusBySeller: (id, data, header) => {
     return axiosInstance.put(`orders/seller/id/${id}`, data, header);
+  },
+
+  sellerCountOrderThisMonth: (header) => {
+    return axiosInstance.get(`orders/seller/count/order/thismonth`, header);
+  },
+
+  sellerCountOrderThisMonthCancelled: (header) => {
+    return axiosInstance.get(
+      `orders/seller/count/order/thismonth/cancelled`,
+      header
+    );
+  },
+
+  revenueThisMonth: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/thismonth`, header);
+  },
+
+  revenueLastMonth: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/lastmonth`, header);
+  },
+
+  getYearlyRevenuePerMonth: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/yearly/permonth`, header);
+  },
+
+  getDailyRevenueForMonth: (year, month, header) => {
+    return axiosInstance.get(
+      `orders/seller/revenue/daily?year=${year}&month=${month}`,
+      header
+    );
+  },
+
+  getTodayRevenue: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/today`, header);
+  },
+
+  getThisWeek: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/thisweek`, header);
+  },
+
+  getLastWeek: (header) => {
+    return axiosInstance.get(`orders/seller/revenue/lastweek`, header);
   },
 
   // ----------------- shipper -----------------

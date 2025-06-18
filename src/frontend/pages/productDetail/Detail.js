@@ -14,9 +14,13 @@ import apiPeterVoucher from "../../../api/apiPeterVoucher";
 const Detail = ({ productData, reviewsLength }) => {
   const [price, setPrice] = useState(productData.variants[0].price);
   const [salePrice, setSalePrice] = useState(productData.variants[0].salePrice);
+  const [discount, setDiscount] = useState(productData.discount);
   const [selectVariant, setSelectVariant] = useState(0);
   const [peterVoucher, setPeterVoucher] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [maxVariantStock, setMaxVariantStock] = useState(
+    productData.variants[0].stock
+  );
 
   const star = useMemo(() => {
     let sum1 = 0;
@@ -70,7 +74,7 @@ const Detail = ({ productData, reviewsLength }) => {
     return () => clearInterval(timer);
   }, [endTime]);
 
-  const userPeterVoucher = JSON.parse(Cookies.get("peterVoucher"));
+  const userPeterVoucher = Cookies.get("peterVoucher");
   // console.log(userPeterVoucher)
   const getPeterVoucher = async () => {
     await apiPeterVoucher
@@ -161,9 +165,20 @@ const Detail = ({ productData, reviewsLength }) => {
       })
       .catch((err) => {
         console.log(err);
+        const errData = err.response.data;
+        const textError =
+          errData.code === 1015
+            ? "Bạn không thể thêm sản phẩm bạn đang bán!"
+            : "Lỗi API";
+
+        const titleError =
+          errData.code === 1015
+            ? "Đây là sản phẩm của bạn!"
+            : "Thêm vào giỏ hàng thất bại!";
+
         Swal.fire({
-          title: "Thêm vào giỏ hàng thất bại!",
-          text: "Sản phẩm chưa được thêm vào giỏ hàng! Kiểm tra API!",
+          title: titleError,
+          text: `${textError}`,
           icon: "error",
           timer: 1500,
           timerProgressBar: true,
@@ -187,8 +202,13 @@ const Detail = ({ productData, reviewsLength }) => {
     }
   };
 
-  const increment = () => setValue((prev) => (isNaN(prev) ? 0 : prev + 1));
-  const decrement = () => setValue((prev) => (isNaN(prev) ? 0 : prev - 1));
+  const increment = () => {
+    if (value < productData.variants[selectVariant].stock)
+      setValue((prev) => (isNaN(prev) ? 0 : prev + 1));
+  };
+  const decrement = () => {
+    if (value > 1) setValue((prev) => (isNaN(prev) ? 0 : prev - 1));
+  };
 
   const handleToCheckout = async () => {
     const data = {
@@ -264,7 +284,7 @@ const Detail = ({ productData, reviewsLength }) => {
         <ProductImageSlider productData={productData} />
 
         <div className="w-full md:w-1/2">
-          <h1 className="text-2xl font-bold mb-2">
+          <h1 className="text-2xl font-bold mb-2 capitalize ">
             {productData?.productName}
           </h1>
           <p className="text-lg text-gray-600 mb-4"></p>
@@ -291,37 +311,75 @@ const Detail = ({ productData, reviewsLength }) => {
 
           {salePrice > 0 ? (
             <div className="flex items-baseline mb-4">
-              <span className="text-3xl font-bold text-red-600">
-                {salePrice.toLocaleString()}
-              </span>
-              <span className="text-lg text-gray-500 line-through ml-2">
-                {price.toLocaleString()}
-              </span>
+              {discount > 0 ? (
+                <div>
+                  <span className="text-3xl font-bold text-red-600">
+                    {(salePrice - discount).toLocaleString()}
+                  </span>
+                  <span className="text-lg text-gray-500 line-through ml-2">
+                    {price.toLocaleString()}
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <span className="text-3xl font-bold text-red-600">
+                    {salePrice.toLocaleString()}
+                  </span>
+                  <span className="text-lg text-gray-500 line-through ml-2">
+                    {price.toLocaleString()}
+                  </span>
+                </div>
+              )}
+
               <span className="text-red-600 ml-2 bg-red-100 px-1 rounded">
                 -{Math.round(((price - salePrice) / price) * 100)}%
               </span>
+
+              {discount > 0 && (
+                <span className="text-red-600 ml-2 bg-red-100 px-1 rounded">
+                  -{Math.round((discount / salePrice) * 100)}%
+                </span>
+              )}
             </div>
           ) : (
             <div className="flex items-baseline mb-4">
-              <span className="text-3xl font-bold text-red-600">
-                {price.toLocaleString()}
-              </span>
+              {discount > 0 ? (
+                <div>
+                  <span className="text-3xl font-bold text-red-600">
+                    {(price - discount).toLocaleString()}
+                  </span>
+                  <span className="ml-4 text-3xl font-bold text-gray-600 line-through">
+                    {price.toLocaleString()}
+                  </span>
+                  {discount > 0 && (
+                    <span className="text-red-600 ml-2 bg-red-100 px-1 rounded">
+                      -{Math.round((discount / price) * 100)}%
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-3xl font-bold text-red-600">
+                  {price.toLocaleString()}
+                </span>
+              )}
             </div>
           )}
 
-          <div className="mb-4">
-            <span className="text-sm text-gray-600">Voucher hiện có</span>
-            <div className="flex space-x-2 mt-1 ">
-              {peterVoucher.map((voucher, index) => (
-                <span
-                  key={index}
-                  className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded"
-                >
-                  {voucher.value.toLocaleString()}
-                </span>
-              ))}
+          {peterVoucher?.length > 0 && (
+            <div className="mb-4">
+              <span className="text-sm text-gray-600">Voucher hiện có</span>
+              <div className="flex space-x-2 mt-1 ">
+                {peterVoucher.map((voucher, index) => (
+                  <span
+                    key={index}
+                    className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded"
+                  >
+                    {voucher.value.toLocaleString()}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           <div className="mb-4">
             <span className="text-sm text-gray-600">Vận Chuyển</span>
             <p className="text-xs text-gray-600 mt-1">Miễn phí vận chuyển</p>
@@ -335,6 +393,11 @@ const Detail = ({ productData, reviewsLength }) => {
               <br />
               Miễn phí vận chuyển
             </p>
+          </div>
+          <div className="mb-4">
+            <span className="text-sm text-gray-600">
+              Kho: {productData.variants[selectVariant].stock}
+            </span>
           </div>
           <div className="mb-4">
             <span className="text-sm text-gray-600">Lựa chọn</span>
@@ -368,7 +431,21 @@ const Detail = ({ productData, reviewsLength }) => {
               value={value}
               onChange={handleChange}
               min={1}
-              className="w-24 text-center px-2 py-1 border-y border-gray-300 focus:outline-none  appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              max={productData.variants[selectVariant].stock}
+              className="w-24 text-center px-2 py-1 border-y border-gray-300 focus:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              onInput={(e) => {
+                let val = parseInt(e.target.value, 10);
+                const min = parseInt(e.target.min, 10);
+                const max = parseInt(e.target.max, 10);
+
+                if (isNaN(val)) {
+                  e.target.value = "";
+                } else if (val > max) {
+                  e.target.value = max;
+                } else if (val < min) {
+                  e.target.value = min;
+                }
+              }}
             />
 
             <button

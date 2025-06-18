@@ -31,12 +31,13 @@ export const statusTranslations = {
 };
 
 export const getLatestStatus = (orderStatusList) => {
-  if (!orderStatusList || orderStatusList.length === 0)
+  if (!orderStatusList || orderStatusList.length === 0) {
     return {
       status: "PENDING",
       createdAt: new Date(),
       translatedStatus: statusTranslations["PENDING"],
     };
+  }
 
   const sortedByTime = [...orderStatusList].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

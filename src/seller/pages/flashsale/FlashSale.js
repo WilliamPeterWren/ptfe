@@ -28,7 +28,11 @@ function FlashSale() {
   const getListFlashsale = async () => {
     try {
       setLoading(true);
-      const res = await apiFlashSale.getAll();
+      const res = await apiFlashSale.sellerGetAll({
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       const data = res.data.result;
       // console.log(data);
       setFlashsales(data);
@@ -58,6 +62,17 @@ function FlashSale() {
       // console.log(data);
       setLoading(!loading);
       setProducts(data);
+
+      if (data.length === 0) {
+        Swal.fire({
+          title: "Chưa đăng ký sản phẩm!",
+          text: "Bạn không có sản phẩm nào trong chương trình flashsale này!",
+          icon: "warning",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      }
     } catch (error) {
       console.log(error);
       Swal.fire({
@@ -245,11 +260,27 @@ function FlashSale() {
             <hr className="border border-red-500 w-full" />
             <p className="text-gray-600 text-sm mb-1 mt-2">
               <span className="font-medium">Bắt đầu:</span>{" "}
-              {new Date(sale.startedAt).toLocaleString()}
+              {new Date(sale.startedAt).toLocaleString("vi-VN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              })}
             </p>
             <p className="text-gray-600 text-sm">
               <span className="font-medium">Kết thúc:</span>{" "}
-              {new Date(sale.expiredAt).toLocaleString()}
+              {new Date(sale.expiredAt).toLocaleString("vi-VN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              })}
             </p>
 
             <button
@@ -350,7 +381,7 @@ function FlashSale() {
                           {product.discount.toLocaleString()} đ
                         </div>
                       </td>
-                      
+
                       <td className="py-2 px-4 border-b align-middle relative">
                         <button
                           className="border border-blue-500 p-2 mr-2 rounded hover:border-orange-600"

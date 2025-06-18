@@ -9,6 +9,7 @@ const SellerSection = (props) => {
     setPeterVoucher,
     peterVoucher,
     setPeterVoucherId,
+    peterVoucherId,
   } = props;
   const sellerTotal = seller.items.reduce((sum, item) => {
     return (
@@ -73,6 +74,7 @@ const SellerSection = (props) => {
                     <option
                       key={index}
                       value={JSON.stringify({ id: item.id, value: item.value })}
+                      // selected={peterVoucherId === item.id}
                     >
                       {item.name}{" "}
                       <span className="text-blue-500">

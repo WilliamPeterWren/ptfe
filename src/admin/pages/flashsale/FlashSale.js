@@ -302,7 +302,7 @@ function FlashSale() {
   };
 
   return (
-    <div className="w-4/5 mx-auto p-4">
+    <div className="w-4/5 mx-auto p-4 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Danh sách chương trình flashsale
       </h1>

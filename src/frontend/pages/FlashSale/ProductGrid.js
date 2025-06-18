@@ -33,7 +33,7 @@ const ProductGrid = ({ currentFlashSale }) => {
         .getProductByFlashsaleIdPageable(currentFlashSale, currentPage, size)
         .then((res) => {
           const data = res.data.result;
-          // console.log(data);
+          console.log(data);
           setCurrentPage(data.number);
           setTotalPages(data.totalPages);
           setFlashsale(data.content);
@@ -127,6 +127,22 @@ const ProductGrid = ({ currentFlashSale }) => {
         {flashsale?.length > 0 &&
           flashsale?.map((product, index) => {
             const imgUrl = imageUrl + "product/" + product.images[0];
+
+            let totalRatingSum = 0;
+            let totalVotes = 0;
+
+            for (const ratingValue in product.rating) {
+              if (Object.hasOwnProperty.call(product.rating, ratingValue)) {
+                const count = product.rating[ratingValue];
+                totalRatingSum += parseInt(ratingValue, 10) * count;
+                totalVotes += count;
+              }
+            }
+
+            let averageRating = 0;
+            if (totalVotes > 0) {
+              averageRating = totalRatingSum / totalVotes;
+            }
             return (
               <div
                 key={index}
@@ -154,6 +170,9 @@ const ProductGrid = ({ currentFlashSale }) => {
                   </div>
                   <h3 className="h-16 text-sm font-semibold line-clamp-2">
                     {product.productName}
+                  </h3>
+                  <h3 className="h-8 text-yellow-500 text-sm font-semibold line-clamp-2">
+                    {averageRating > 0 && averageRating.toFixed(1) + " ★"}
                   </h3>
                   {product.stock && (
                     <span className="text-red-500 text-xs border border-red-400 p-0.5 rounded">
@@ -187,7 +206,13 @@ const ProductGrid = ({ currentFlashSale }) => {
           })}
       </div>
 
-      {productModal && <DetailModal productSlug={productSlug} productModal={productModal} setProductModal={setProductModal}  />}
+      {productModal && (
+        <DetailModal
+          productSlug={productSlug}
+          productModal={productModal}
+          setProductModal={setProductModal}
+        />
+      )}
 
       <div className="container mx-auto p-4">
         <Pagination

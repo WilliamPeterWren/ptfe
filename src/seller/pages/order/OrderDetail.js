@@ -124,7 +124,6 @@ export default function OrderDetail() {
   };
 
   const handleSellerCancel = () => {
-    console.log("huy don hang");
     Swal.fire({
       title: "Hủy đơn hàng?",
       text: "Bạn có chắc hủy đơn hàng này?",

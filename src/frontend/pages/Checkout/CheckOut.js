@@ -18,7 +18,7 @@ function CheckOut() {
 
   const addressId = Cookies.get("addressId");
   useEffect(() => {
-    if (addressId == undefined) {
+    if (addressId === undefined || addressId?.length < 5) {
       Swal.fire({
         title: "Cập nhật địa chỉ",
         text: "Bạn hãy vào trang cá nhân cập nhật địa chỉ!",
@@ -97,7 +97,7 @@ function CheckOut() {
           setPeterVoucher={setPeterVoucher}
           peterVoucher={peterVoucher}
           setPeterVoucherId={setPeterVoucherId}
-          // peterVoucherId={peterVoucherId}
+          peterVoucherId={peterVoucherId}
         />
       ))}
       <PaymentSummary

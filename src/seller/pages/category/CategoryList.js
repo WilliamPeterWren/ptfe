@@ -83,8 +83,8 @@ export default function Category() {
     setUpdate(true);
 
     Swal.fire({
-      title: "Tạo sản phẩm thành công",
-      text: "Sản phẩm đã được tạo",
+      title: "Cập nhật thành công",
+      text: "Danh mục đã được tạo",
       icon: "success",
       timer: 1500,
       timerProgressBar: true,

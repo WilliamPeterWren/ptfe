@@ -80,7 +80,7 @@ export default function CreateProduct() {
       ...fileData.map((data) => data.previewUrl),
     ]);
   };
-  
+
   const handleDeleteImage = (indexToDelete) => {
     setImages((prevImages) => [
       prevImages.filter((_, index) => index !== indexToDelete),
@@ -138,8 +138,10 @@ export default function CreateProduct() {
     },
   ];
 
-  const handleAddProduct = async () => {
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
     const accessToken = Cookies.get("accessToken");
+    console.log(accessToken);
 
     try {
       const fileInput = document.querySelector('input[type="file"][multiple]');
@@ -195,6 +197,14 @@ export default function CreateProduct() {
       navigate("/seller/product/product-list");
     } catch (error) {
       console.error("Error adding product:", error);
+      Swal.fire({
+        title: "Kiểm tra lại thông tin!",
+        text: "Thiếu thông tin không thể thêm sản phẩm!",
+        icon: "warning",
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
     }
   };
 
@@ -708,7 +718,7 @@ export default function CreateProduct() {
             </button>
             <button
               className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-              onClick={handleAddProduct}
+              onClick={(e) => handleAddProduct(e)}
             >
               Thêm sản phẩm
             </button>

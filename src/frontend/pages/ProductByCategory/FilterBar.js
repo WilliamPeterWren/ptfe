@@ -1,10 +1,24 @@
 import { useState } from "react";
 
-const FilterBar = () => {
-  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
-  const [sortOrder, setSortOrder] = useState("asc");
+const FilterBar = (props) => {
+  const {
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    filters,
+    activeFilter,
+    setActiveFilter,
+    setSortOrder,
+    sortOrder,
+  } = props;
 
-  const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
+  const handleSetPrevPage = () => {
+    if (currentPage > 0) setCurrentPage(currentPage - 1);
+  };
+
+  const handleSetNextPage = () => {
+    if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
+  };
 
   return (
     <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-sm mb-4">
@@ -37,8 +51,14 @@ const FilterBar = () => {
       </div>
 
       <div className="flex items-center space-x-2">
-        <span className="text-gray-700"> 1/9 </span>
-        <button className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">
+        <span className="text-gray-700">
+          {" "}
+          {currentPage + 1}/{totalPages}{" "}
+        </span>
+        <button
+          className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+          onClick={handleSetPrevPage}
+        >
           <svg
             className="w-4 h-4"
             fill="none"
@@ -53,7 +73,10 @@ const FilterBar = () => {
             />
           </svg>
         </button>
-        <button className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">
+        <button
+          className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+          onClick={handleSetNextPage}
+        >
           <svg
             className="w-4 h-4"
             fill="none"

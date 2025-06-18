@@ -5,6 +5,13 @@ const apiFlashSale = {
     return axiosInstance.get(`flashsales/get/flashsales/available`);
   },
 
+  sellerGetAll: (header) => {
+    return axiosInstance.get(
+      `flashsales/seller/get/flashsales/available`,
+      header
+    );
+  },
+
   adminGetAll: (header) => {
     return axiosInstance.get(`flashsales/admin/get/flashsales`, header);
   },

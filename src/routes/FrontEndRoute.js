@@ -33,6 +33,8 @@ import About from "../frontend/pages/About/About";
 import Contact from "../frontend/pages/Contact/Contact";
 import Help from "../frontend/pages/Help/Help";
 import ProductID from "../frontend/pages/productId/ProductID";
+import TopSearch from "../frontend/pages/TopSearch/TopSearch";
+import Callback from "../frontend/pages/auth/CallBack";
 
 const FrontendRoute = [
   // ------------ home ------------
@@ -43,6 +45,7 @@ const FrontendRoute = [
   { path: "/register", component: Register },
   { path: "/login", component: Login },
   { path: "/logout", component: Logout },
+  { path: "/callback", component: Callback },
   { path: "/forgot-password", component: ForgotPassword },
 
   { path: "/user/account/profile", component: MyProfile },
@@ -52,6 +55,7 @@ const FrontendRoute = [
   { path: "/product-detail/productid/:productId", component: ProductID },
   { path: "/products-by-cat/:category", component: ProductByCategory },
   { path: "/todaysuggest", component: SuggestToday },
+  { path: "/topsearch", component: TopSearch },
 
   // ------------ flashsale ------------
   { path: "/flashsale", component: FlashSale },

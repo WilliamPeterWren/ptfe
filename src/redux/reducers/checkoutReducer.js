@@ -137,7 +137,7 @@ const checkoutReducer = (state = initCheckout, action) => {
     }
 
     case "CLEAR_CHECKOUT": {
-      toast.warning("Warning! Deleted ALL checkouts", toastStyle());
+      // toast.warning("Warning! Deleted ALL checkouts", toastStyle());
       return {
         ...state,
         checkouts: [],

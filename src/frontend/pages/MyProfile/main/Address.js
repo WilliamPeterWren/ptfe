@@ -7,6 +7,7 @@ import apiUser from "../../../../api/apiUser";
 
 function Address() {
   const addressId = Cookies.get("addressId");
+  console.log("address id: " + addressId);
   const accessToken = Cookies.get("accessToken");
 
   const [update, setUpdate] = useState(true);
@@ -49,7 +50,7 @@ function Address() {
   };
 
   useEffect(() => {
-    if (addressId != null || addressId !== undefined) {
+    if (addressId?.length > 5) {
       console.log(addressId);
       getAddress();
     } else {
@@ -67,14 +68,16 @@ function Address() {
       dob,
     };
 
-    if (addressId === undefined || addressId === null) {
+    console.log(addressId);
+
+    if (addressId?.length < 5 || addressId === undefined) {
       try {
         const res = await apiAddress.create(updatedData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        // console.log(res.data.result);
+        console.log(res.data.result);
         Cookies.set("addressId", res.data.result.id, { expires: 1 });
 
         Swal.fire({
@@ -89,7 +92,23 @@ function Address() {
             console.log("I was closed by the timer");
           }
         });
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+        const errData = err.response.data;
+
+        Swal.fire({
+          title: `Lỗi ${errData.code}`,
+          text: `${errData.message}`,
+          icon: "warning",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+        });
+      }
     } else {
       if (
         address?.firstName !== firstName ||
@@ -100,7 +119,7 @@ function Address() {
         address?.dob !== dob
       ) {
         await apiAddress
-          .update(address.id, updatedData, {
+          .update(addressId, updatedData, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },

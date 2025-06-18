@@ -25,7 +25,6 @@ function SellerPage() {
     };
   }, [pageTitle]);
 
-  const [products, setProducts] = useState([]);
   const [products1, setProducts1] = useState([]);
   const [products2, setProducts2] = useState([]);
   const getProduct = useCallback(async () => {
@@ -72,7 +71,7 @@ function SellerPage() {
 
   const getRandomProductBySellerIdLimit = async () => {
     await apiProduct
-      .getRandomProductBySellerIdLimit(sellerId, 10)
+      .getRandomProductBySellerIdLimit(sellerId, 8)
       .then((res) => {
         const data = res.data.result;
         // console.log(data);
@@ -91,7 +90,7 @@ function SellerPage() {
     await apiProduct
       .getProductBySellerIdAndCategoryId(sellerId, category)
       .then((res) => {
-        const data = res.data.result.content;
+        const data = res.data.result;
         // console.log(data);
         setProducts(data);
       })
@@ -101,12 +100,132 @@ function SellerPage() {
   };
 
   useEffect(() => {
-    if (category.length > 0) {
+    if (category?.length > 0) {
       console.log("categoryid: " + category);
 
       getProductBySellerIdAndCategoryId();
+    } else {
+      getRandomProductBySellerIdLimit();
     }
   }, [category]);
+
+  const [products, setProducts] = useState([]);
+  const [pagable, setPagable] = useState();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
+
+  const getProducts = async () => {
+    await apiProduct
+      .getProductBySellerIdAndCategoryId(sellerId, category)
+      .then((res) => {
+        const data = res.data;
+        // console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(data.result.content);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductByPeterCategoryOrderByCreatedAtDesc = async () => {
+    await apiProduct
+      .getProductBySellerIdAndCategoryId(sellerId, category)
+      .then((res) => {
+        const data = res.data;
+        // console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(data.result);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductByPeterCategoryOrderBySoldDesc = async () => {
+    await apiProduct
+      .getProductBySellerIdAndCategoryId(sellerId, category)
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(data.result);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductsDesc = async () => {
+    await apiProduct
+      .getRandomProductBySellerIdLimit(sellerId, 8)
+      .then((res) => {
+        const data = res.data;
+
+        const sorted1 = [...data.result].sort(
+          (a, b) => b.variants[0].price - a.variants[0].price
+        );
+        // console.log(sorted1);
+
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(sorted1);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getProductsAsc = async () => {
+    await apiProduct
+      .getRandomProductBySellerIdLimit(sellerId, 8)
+      .then((res) => {
+        const data = res.data;
+        // console.log(data);
+
+        const sorted1 = [...data.result].sort(
+          (a, b) => a.variants[0].price - b.variants[0].price
+        );
+        // console.log(sorted1);
+
+        setCurrentPage(data.number);
+        setTotalPages(data.totalPages);
+        setPagable(data.pageable);
+        setProducts(sorted1);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    if (activeFilter === "Phổ Biến") {
+      getProducts();
+    }
+
+    if (activeFilter === "Mới Nhất") {
+      getProductByPeterCategoryOrderByCreatedAtDesc();
+    }
+
+    if (activeFilter === "Bán Chạy") {
+      getProductByPeterCategoryOrderBySoldDesc();
+    }
+  }, [category, activeFilter]);
+
+  useEffect(() => {
+    if (sortOrder === "asc") {
+      // console.log(sortOrder);
+      getProductsAsc();
+    }
+
+    if (sortOrder === "desc") {
+      console.log(sortOrder);
+      getProductsDesc();
+    }
+  }, [sortOrder]);
 
   return (
     <div className="mt-4 bg-gray-200">
@@ -127,8 +246,17 @@ function SellerPage() {
             <Sidebar categories={categories} setCategory={setCategory} />
           </div>
           <div className="w-4/5 ml-2">
-            <FilterBar />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <FilterBar
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+              filters={filters}
+              setActiveFilter={setActiveFilter}
+              activeFilter={activeFilter}
+              setSortOrder={setSortOrder}
+              sortOrder={sortOrder}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {products?.length > 0 &&
                 products.map((product, index) => (
                   <ProductCard key={index} product={product} />

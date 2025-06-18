@@ -1,5 +1,9 @@
 // components/BarChart.jsx
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+
+import apiOrder from "../../../api/apiOrder";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,38 +24,90 @@ ChartJS.register(
   Legend
 );
 
-const generateDailyData = (monthIndex, year) => {
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+const useDailyRevenueData = (monthIndex, year, accessToken) => {
+  const [dailyRevenue, setDailyRevenue] = useState([]);
+  const [loadingDaily, setLoadingDaily] = useState(true);
+  const [errorDaily, setErrorDaily] = useState(null);
+
+  useEffect(() => {
+    const getDailyRevenueForMonth = async () => {
+      if (monthIndex === null || !accessToken) {
+        setDailyRevenue([]);
+        setLoadingDaily(false);
+        return;
+      }
+
+      setLoadingDaily(true);
+      setErrorDaily(null);
+      try {
+        const res = await apiOrder.getDailyRevenueForMonth(
+          year,
+          monthIndex + 1,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        const data = res.data;
+        // console.log("Daily Revenue Data:", data);
+        setDailyRevenue(data);
+      } catch (error) {
+        console.error("Error fetching daily revenue:", error);
+        setErrorDaily(error);
+      } finally {
+        setLoadingDaily(false);
+      }
+    };
+
+    getDailyRevenueForMonth();
+  }, [monthIndex, year, accessToken]);
+
+  const daysInMonth =
+    monthIndex !== null ? new Date(year, monthIndex + 1, 0).getDate() : 0;
   const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
 
-  const data = labels.map(() => Math.floor(Math.random() * 20) + 1);
-
-  return { labels, data };
+  return { labels, dailyRevenue, loadingDaily, errorDaily };
 };
 
-export default function BarChart() {
+export default function BarChart({
+  yearlyRevenue,
+  loadingMonthly,
+  errorMonthly,
+}) {
+  const accessToken = Cookies.get("accessToken");
+
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
   const currentYear = new Date().getFullYear();
 
+  const {
+    labels: dailyLabels,
+    dailyRevenue,
+    loadingDaily,
+    errorDaily,
+  } = useDailyRevenueData(selectedMonthIndex, currentYear, accessToken);
+
+  const monthNames = [
+    "Tháng giêng",
+    "Tháng hai",
+    "Tháng ba",
+    "Tháng tư",
+    "Tháng năm",
+    "Tháng sáu",
+    // "Tháng bảy",
+    // "Tháng tám",
+    // "Tháng chín",
+    // "Tháng mười",
+    // "Tháng mười một",
+    // "Tháng chạp",
+  ];
+
   const monthlyData = {
-    labels: [
-      "Tháng giêng",
-      "Tháng hai",
-      "Tháng ba",
-      "Tháng tư",
-      "Tháng năm",
-      "Tháng sáu",
-      "Tháng bảy",
-      "Tháng tám",
-      "Tháng chín",
-      "Tháng mười",
-      "Tháng mười một",
-      "Tháng chạp",
-    ],
+    labels: monthNames.slice(0, yearlyRevenue.length),
     datasets: [
       {
         label: "Doanh thu",
-        data: [10, 19, 3, 5, 2, 3, 15, 8, 12, 7, 18, 9],
+        data: yearlyRevenue,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
           "rgba(54, 162, 235, 0.2)",
@@ -85,27 +141,22 @@ export default function BarChart() {
     ],
   };
 
-  const chartData =
-    selectedMonthIndex !== null
-      ? (() => {
-          const { labels, data } = generateDailyData(
-            selectedMonthIndex,
-            currentYear
-          );
-          return {
-            labels: labels,
-            datasets: [
-              {
-                label: `${monthlyData.labels[selectedMonthIndex]} Doanh thu (hàng ngày)`,
-                data: data,
-                backgroundColor: "rgba(75, 192, 192, 0.4)",
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 1,
-              },
-            ],
-          };
-        })()
-      : monthlyData;
+  const dailyChartData = {
+    labels: dailyLabels,
+    datasets: [
+      {
+        label: `${
+          selectedMonthIndex !== null ? monthNames[selectedMonthIndex] : ""
+        } Doanh thu (hàng ngày)`,
+        data: dailyRevenue,
+        backgroundColor: "rgba(75, 192, 192, 0.4)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartData = selectedMonthIndex !== null ? dailyChartData : monthlyData;
 
   const options = {
     responsive: true,
@@ -121,7 +172,7 @@ export default function BarChart() {
         display: true,
         text:
           selectedMonthIndex !== null
-            ? `Doanh thu hàng ngày ${monthlyData.labels[selectedMonthIndex]}`
+            ? `Doanh thu hàng ngày ${monthNames[selectedMonthIndex]}`
             : "Doanh thu hàng tháng",
         color: "#1f2937",
         font: {
@@ -133,7 +184,7 @@ export default function BarChart() {
         callbacks: {
           title: function (context) {
             if (selectedMonthIndex !== null) {
-              return `Day ${context[0].label}`;
+              return `Ngày ${context[0].label}`;
             }
             return context[0].label;
           },
@@ -158,11 +209,50 @@ export default function BarChart() {
     },
   };
 
+  if (!accessToken) {
+    return (
+      <div className="text-red-500">
+        Vui lòng đăng nhập để xem dữ liệu doanh thu.
+      </div>
+    );
+  }
+
+  if (loadingMonthly) {
+    return (
+      <div className="text-center mt-8">Đang tải doanh thu hàng tháng...</div>
+    );
+  }
+
+  if (errorMonthly) {
+    return (
+      <div className="text-red-500 text-center mt-8">
+        Lỗi tải doanh thu hàng tháng: {errorMonthly.message}
+      </div>
+    );
+  }
+
+  if (selectedMonthIndex !== null && loadingDaily) {
+    return (
+      <div className="text-center mt-8">Đang tải doanh thu hàng ngày...</div>
+    );
+  }
+
+  if (selectedMonthIndex !== null && errorDaily) {
+    return (
+      <div className="text-red-500 text-center mt-8">
+        Lỗi tải doanh thu hàng ngày: {errorDaily.message}
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-md mt-8">
       <div>
-        <span>Doanh thu tháng này</span>
-        <span>{}</span>
+        <span className="text-lg font-semibold">
+          {selectedMonthIndex !== null
+            ? `Doanh thu ngày của ${monthNames[selectedMonthIndex]}`
+            : `Doanh thu hàng tháng trong năm ${currentYear}`}
+        </span>
       </div>
       <Bar data={chartData} options={options} />
       {selectedMonthIndex !== null && (

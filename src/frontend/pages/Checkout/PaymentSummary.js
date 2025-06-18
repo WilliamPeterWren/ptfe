@@ -13,10 +13,124 @@ import apiShippingFee from "../../../api/apiShipping";
 import apiShippingVoucher from "../../../api/apiShippingVoucher";
 
 import apiEmail from "../../../api/apiEmail";
+import { CLEAR_CHECKOUT } from "../../../redux/action/checkoutAction";
+
+const generateOrderHtmlBody = (
+  orderItems,
+  orderTotal,
+  customerName,
+  orderId,
+  customerEmail,
+  shippingFee,
+  shippingVoucher,
+  peterVoucher,
+  grandTotal
+) => {
+  let tableRowsHtml = "";
+  orderItems.forEach((item) => {
+    const effectivePrice = item.salePrice > 0 ? item.salePrice : item.price;
+    const itemTotalPrice = effectivePrice * item.quantity - item.discount;
+
+    tableRowsHtml += `
+      <tr>
+        <td style="padding: 8px; border: 1px solid #ddd;">          
+          ${item.productName || "Unknown Product"} (${
+      item.variantName || "N/A"
+    })
+        </td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${
+          item.quantity
+        }</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${item.price.toFixed(
+          2
+        )}</td>
+        ${
+          item.salePrice > 0
+            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: green;">$${item.salePrice.toFixed(
+                2
+              )}</td>`
+            : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">N/A</td>'
+        }
+        ${
+          item.discount > 0
+            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: red;">-$${item.discount.toFixed(
+                2
+              )}</td>`
+            : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$0.00</td>'
+        }
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${itemTotalPrice.toFixed(
+          2
+        )}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #0056b3;">Xác nhận đơn hàng - #${orderId}</h2>
+      <p>Kính gửi ${customerName},</p>
+      <p>Cảm ơn bạn đã mua hàng! Dưới đây là chi tiết đơn hàng của bạn:</p>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sản phẩm</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Số lượng</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Giá gốc</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Giá bán</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Giảm giá</th>
+            <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Tổng phụ</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRowsHtml}   
+        </tbody>
+           <tfoot>
+          <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">Tổng tiền sản phẩm:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">$${orderTotal.toFixed(
+              2
+            )}</td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Phí vận chuyển:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${shippingFee.toFixed(
+              2
+            )}</td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Khuyến mãi vận chuyển:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${
+              shippingVoucher > 0 ? "red" : "#333"
+            };">-$${shippingVoucher.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Khuyến mãi Peter:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${
+              peterVoucher > 0 ? "red" : "#333"
+            };">-$${peterVoucher.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; background-color: #f2f2f2;">Tổng cộng:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; background-color: #f2f2f2;">$${grandTotal.toFixed(
+              2
+            )}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p>Chúng tôi sẽ thông báo cho bạn khi đơn hàng của bạn được vận chuyển. Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+      <p>Trân trọng,</p>
+      <p>Đội ngũ Peter Ecom</p>
+      <p style="font-size: 0.9em; color: #777;">Email này được gửi đến: ${customerEmail}</p>
+    </div>
+  `;
+};
 
 const PaymentSummary = (props) => {
   const { data, peterVoucher, peterVoucherId, addressId } = props;
-  // const email = Cookies.get("email");
+  const email = Cookies.get("email");
+  const customerName = Cookies.get("username");
   const userPeterVoucher = JSON.parse(Cookies.get("peterVoucher"));
 
   const userShippingVoucher = JSON.parse(Cookies.get("shippingVoucher"));
@@ -133,15 +247,63 @@ const PaymentSummary = (props) => {
             },
           });
 
-          // const dataEmail = {
-          //   to: email,
-          //   subject: "Đơn hàng của bạn",
-          //   htmlBody: ``,
-          // };
+          Swal.fire({
+            title: "Đặt hàng thành công!",
+            text: "Đơn hàng đã được gửi đến nhà bán hàng.",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
 
-          // const sendEmail = await apiEmail.sendEmail(dataEmail);
+          console.log(res.data.result);
+          const createdOrder = res.data.result;
+          const orderId = createdOrder.id;
 
-          console.log(res.data);
+          const orderItemsForEmail = seller.items.map((item) => ({
+            ...item,
+            productName: item.productName || "Unknown Product",
+            variantName: item.variantName || "N/A",
+            itemTotal:
+              (item.salePrice > 0
+                ? item.salePrice
+                : item.price - item.discount) * item.quantity,
+          }));
+
+          const orderTotalForEmail = orderItemsForEmail.reduce(
+            (sum, item) => sum + item.itemTotal,
+            0
+          );
+
+          const htmlBodyContent = generateOrderHtmlBody(
+            orderItemsForEmail,
+            orderTotalForEmail,
+            customerName,
+            orderId,
+            email,
+
+            shippingFee,
+            shippingVoucher,
+            peterVoucher,
+            totalPayment - totalDiscount
+          );
+
+          const dataEmail = {
+            to: email,
+            subject: `Đơn hàng của bạn #${orderId} - Peter Ecom`,
+            htmlBody: htmlBodyContent,
+          };
+
+          const sendEmailRes = await apiEmail.sendEmail(dataEmail);
+
+          if (sendEmailRes.status === 200) {
+            console.log("Order created and email sent successfully!");
+          } else {
+            console.error(
+              "Order created, but failed to send email:",
+              sendEmailRes
+            );
+          }
 
           for (const item of orderItems) {
             try {
@@ -171,21 +333,14 @@ const PaymentSummary = (props) => {
             }
           }
 
-          Swal.fire({
-            title: "Đặt hàng thành công!",
-            text: "Đơn hàng đã được gửi đến nhà bán hàng.",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          });
-
           userPeterVoucher.forEach((item) => {
             if (item.id === peterVoucherId) {
               item.value -= 1;
             }
           });
           Cookies.set("peterVoucher", JSON.stringify(userPeterVoucher));
+
+          dispatch(CLEAR_CHECKOUT());
 
           navigate("/home");
         } catch (err) {

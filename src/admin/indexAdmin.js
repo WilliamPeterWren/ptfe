@@ -1,29 +1,31 @@
-import React, { useContext, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 
-import UserContext from "../context/userContext";
 import Sidebar from "./components/Sidebar";
 import Login from "./pages/auth/Login";
 
 function IndexAdmin() {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
-  const accessToken = Cookies.get("accessToken");
+  const location = useLocation();
+
+  const admintoken = Cookies.get("admintoken");
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!admintoken) {
       navigate("/admin/login");
     }
   }, []);
 
-  if (!user) {
+  if (!admintoken) {
     return <Login />;
   }
 
   return (
     <div className="flex just-center bg-gray-200">
-      <Sidebar />
+      {location.pathname !== "/admin/login" &&
+        location.pathname !== "/admin" && <Sidebar />}
+
       <div className="ml-4 min-w-[1500px] max-w-[1500px] bg-white">
         <Outlet />
       </div>

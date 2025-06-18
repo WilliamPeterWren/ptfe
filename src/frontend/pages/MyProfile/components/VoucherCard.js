@@ -1,6 +1,6 @@
 import { calculateDurationReverse } from "../../../../utils/CountDate";
 
-const VoucherCard = ({ voucher, data }) => {
+const VoucherCard = ({ voucher, data, index }) => {
   const getBorderColorClass = (type) => {
     switch (type) {
       case "Bất ngờ":
@@ -93,68 +93,53 @@ const VoucherCard = ({ voucher, data }) => {
     }
   };
 
-  // const result = Object.entries(data).map(([id, value]) => ({
-  //   id,
-  //   value,
-  // }));
-
-  // console.log(data)
-
   return (
     <div
+      key={index}
       className={`relative min-w-96 bg-white rounded-lg shadow-md overflow-hidden border-l-8 ${getBorderColorClass(
         voucher.name
       )}`}
     >
-      <div
-        className={`flex justify-between items-center p-3 text-white ${getHeaderColorClass(
-          voucher.name
-        )}`}
-      >
-        <span className="text-sm font-semibold capitalize">{voucher.name}</span>
-        {data?.length > 0 &&
-          data?.map((item) => {
-            if (item.id === voucher.id)
-              return (
-                <span className="text-sm font-semibold">x{item.value} </span>
-              );
-          })}
-      </div>
-      <div className="p-4 flex items-center space-x-4">
-        <div className="flex-shrink-0">{getIcon(voucher.name)}</div>
-        <div className="flex-grow">
-          <p className="text-lg font-bold text-gray-800">
-            Giảm tối đa {(voucher.value || voucher.price).toLocaleString()} đ
-          </p>
-          <p className="text-sm text-gray-600">
-            Đơn Tối Thiểu{" "}
-            {((voucher.value || voucher.price) * 8).toLocaleString()}
-          </p>
-          {voucher.liveExclusive && (
-            <p className="text-red-500 text-sm font-semibold">
-              Chỉ có trên Live
-            </p>
-          )}
-          {voucher.contentXtra && (
-            <p className="text-red-500 text-sm font-semibold">
-              Content Xtra trên Live
-            </p>
-          )}
-          {voucher.progress && (
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-              <div
-                className="bg-green-500 h-2.5 rounded-full"
-                style={{ width: voucher.progress }}
-              ></div>
-            </div>
-          )}
-          {voucher.expiredAt && (
-            <p className="text-xs text-gray-500 mt-2">
-              Còn lại: {calculateDurationReverse(voucher.expiredAt)}
-            </p>
-          )}
-        </div>
-      </div>
+      {data?.length > 0 &&
+        data.map((item) => {
+          console.log(item);
+          if (item.id === voucher.id && voucher.value > 0)
+            return (
+              <div>
+                <div
+                  className={`flex justify-between items-center p-3 text-white ${getHeaderColorClass(
+                    item.name
+                  )}`}
+                >
+                  <span className="text-sm font-semibold capitalize">
+                    {item.name}
+                  </span>
+                  <span className="text-sm font-semibold capitalize">
+                    x{item.count}
+                  </span>
+                </div>
+                <div className="p-4 flex items-center space-x-4">
+                  <div className="flex-shrink-0">{getIcon(item.name)}</div>
+                  <div className="flex-grow">
+                    <p className="text-lg font-bold text-gray-800">
+                      Giảm tối đa {(item.value || item.price).toLocaleString()}{" "}
+                      đ
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Đơn Tối Thiểu{" "}
+                      {((item.value || item.price) * 8).toLocaleString()}
+                    </p>
+
+                    {item.expiredAt && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Còn lại: {calculateDurationReverse(item.expiredAt)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+        })}
     </div>
   );
 };

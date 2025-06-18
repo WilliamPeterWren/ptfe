@@ -1,7 +1,4 @@
-import { useState } from "react";
-
 const Pagination = (props) => {
-
   const { currentPage, setCurrentPage, totalPages } = props;
 
   const handlePageChange = (page) => {

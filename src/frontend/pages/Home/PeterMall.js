@@ -113,9 +113,9 @@ const PeterMall = () => {
             Miễn Phí Vận Chuyển
           </span>
         </div>
-        <a href="/" className="text-sm text-blue-500 hover:underline">
+        {/* <a href="/" className="text-sm text-blue-500 hover:underline">
           Xem Tất Cả
-        </a>
+        </a> */}
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
@@ -127,7 +127,7 @@ const PeterMall = () => {
             <p className="text-sm mb-4">Ưu đãi đến 50%</p>
             <div className="flex justify-center space-x-2">
               <span className="text-xs bg-white text-red-500 px-2 py-1 rounded">
-                Voucher Shopee
+                Voucher Peter
               </span>
               <span className="text-xs bg-white text-red-500 px-2 py-1 rounded">
                 Giảm đến 50%

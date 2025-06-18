@@ -60,7 +60,7 @@ const TopSearchesSection = () => {
     <div className="container mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold uppercase">Tìm Kiếm Hàng Đầu</h2>
-        <a href="/" className="text-sm text-blue-500 hover:underline">
+        <a href="/topsearch" className="text-sm text-blue-500 hover:underline">
           Xem Tất Cả
         </a>
       </div>

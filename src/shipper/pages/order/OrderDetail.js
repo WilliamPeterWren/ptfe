@@ -36,6 +36,11 @@ export default function OrderDetail() {
   const [latestStatus, setLatestStatus] = useState(null);
   const [isCancelled, setCancelled] = useState(false);
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
+
   const getOrder = async () => {
     try {
       const res = await apiOrder.getByIdShipper(orderId, {
@@ -72,7 +77,11 @@ export default function OrderDetail() {
         ["CANCELLED", "SELLER_CANCELLED", "DELIVERD"].includes(item.status)
       );
 
-      setUpdateStatus(!hasFinalStatus);
+      const hasFinalStatusSeller = data?.orderStatus.some((item) =>
+        ["SELLER_PREPAIRED"].includes(item.status)
+      );
+
+      setUpdateStatus(!hasFinalStatus && hasFinalStatusSeller);
 
       const finalStatus = data?.orderStatus.some((item) =>
         ["CANCELLED", "SELLER_CANCELLED"].includes(item.status)
@@ -140,6 +149,8 @@ export default function OrderDetail() {
             timerProgressBar: true,
             showConfirmButton: false,
           });
+
+          setImagePreviewUrl(imageUrl + "order/" + uuidFileName);
         })
         .catch((err) => console.log(err));
     } else {
@@ -170,7 +181,7 @@ export default function OrderDetail() {
   };
 
   const handleSellerCancel = () => {
-    console.log("huy don hang");
+    // console.log("huy don hang");
     Swal.fire({
       title: "Hủy đơn hàng?",
       text: "Bạn có chắc hủy đơn hàng này?",
@@ -200,11 +211,6 @@ export default function OrderDetail() {
       }
     });
   };
-
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState("");
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -450,7 +456,7 @@ export default function OrderDetail() {
                     <div className="mt-8">
                       <img
                         src={imagePreviewUrl}
-                        alt="Profile Avatar"
+                        alt={order.id}
                         className="w-36 h-36 rounded-lg object-cover border-4 border-gray-200 shadow-sm mb-4"
                         onError={(e) => {
                           e.target.onerror = null;

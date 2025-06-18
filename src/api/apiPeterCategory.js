@@ -14,7 +14,11 @@ const apiPeterCategory = {
   },
 
   update: (id, data, header) => {
-    return axiosInstance.get(`petercategories/${id}`, data, header);
+    return axiosInstance.put(`petercategories/${id}`, data, header);
+  },
+
+  delete: (id, header) => {
+    return axiosInstance.delete(`petercategories/${id}`, header);
   },
 };
 
