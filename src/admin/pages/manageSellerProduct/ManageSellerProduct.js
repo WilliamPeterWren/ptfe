@@ -446,7 +446,14 @@ function ManageSellerProduct() {
         // setReportData(dataToExport);
         console.log(dataToExport);
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const exportData = dataToExport.map((item) => ({
+          // "Mã sản phẩm": item.id,
+          "Tên sản phẩm": item.name,
+          "Đã bán": item.sold,
+          "Doanh thu": item.revenue,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
         XLSX.writeFile(workbook, `bao-cao-doanh-thu${name}.xlsx`);

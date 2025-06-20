@@ -38,9 +38,9 @@ const apiFlashSale = {
     return axiosInstance.get(`flashsales/get/items/${id}`);
   },
 
-  sellerGetProductByFlashsaleId: (id, header) => {
+  sellerGetProductByFlashsaleId: (id, page, size, header) => {
     return axiosInstance.get(
-      `flashsales/seller/get/product/flashsale/id/${id}`,
+      `flashsales/seller/get/product/flashsale/id/${id}?page=${page}&size=${size}`,
       header
     );
   },

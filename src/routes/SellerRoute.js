@@ -14,9 +14,6 @@ import SellerDiscount from "../seller/pages/discount/SellerDiscount";
 import ProductDiscount from "../seller/pages/discount/ProductDiscount";
 
 import Revenue from "../seller/pages/finance/Revenue";
-// import Balance from "../seller/pages/finance/Balance";
-// import BankingAccount from "../seller/pages/finance/BankingAccount";
-// import PaymentSetting from "../seller/pages/finance/PaymentSetting";
 
 import ManageDelivery from "../seller/pages/delivery/ManageDelivery";
 import ShippingOptions from "../seller/pages/delivery/ShippingMethod";
@@ -25,6 +22,7 @@ import Profile from "../seller/pages/Shop/Profile";
 import OrderData from "../seller/pages/order/OrderData";
 
 import FlashSale from "../seller/pages/flashsale/FlashSale";
+import ProductListDeactive from "../seller/pages/product/ProductListDeactive";
 
 const SellerRoute = [
   { path: "", component: Login },
@@ -35,6 +33,8 @@ const SellerRoute = [
   { path: "product/product-detail/:id", component: ProductDetail },
   { path: "product/create", component: CreateProductPage },
   { path: "product/update/:id", component: EditProduct },
+
+  { path: "product/product-list/deactive", component: ProductListDeactive },
 
   { path: "product/flashsale", component: FlashSale },
 
@@ -47,12 +47,8 @@ const SellerRoute = [
   { path: "discount/seller-discount", component: SellerDiscount },
 
   { path: "finance/revenue", component: Revenue },
-  // { path: "finance/balance", component: Balance },
-  // { path: "finance/banking-account", component: BankingAccount },
-  // { path: "finance/payment-setting", component: PaymentSetting },
 
   { path: "delivery/manage-delivery", component: ManageDelivery },
-  { path: "delivery/shipping-method", component: ShippingOptions },
   { path: "delivery/shipping-method", component: ShippingOptions },
 
   { path: "shop/profile", component: Profile },

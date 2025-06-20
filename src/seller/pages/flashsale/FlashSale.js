@@ -7,6 +7,7 @@ import { imageUrl } from "../../../api/config";
 import apiFlashSale from "../../../api/apiFlashSale";
 
 import FlashSaleUpdateModal from "./modal/FlashSaleUpdateModal";
+import Pagination from "./Pagination";
 
 function FlashSale() {
   const accessToken = Cookies.get("accessToken");
@@ -23,6 +24,9 @@ function FlashSale() {
 
   const [products, setProducts] = useState([]);
   const [currentDiscount, setCurrentDiscount] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [size, setSize] = useState(8);
+  const [totalPages, setTotatPages] = useState(1);
 
   const getListFlashsale = async () => {
     try {
@@ -48,19 +52,25 @@ function FlashSale() {
   }, []);
 
   const getProductByFlashsaleId = async (id) => {
-    // console.log("id" + id);
-    // console.log("token: " + accessToken);
+    console.log("page: " + currentPage);
     setCurrentFlashsales(id);
     try {
-      const res = await apiFlashSale.sellerGetProductByFlashsaleId(id, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const data = res.data.content;
-      // console.log(data);
+      const res = await apiFlashSale.sellerGetProductByFlashsaleId(
+        id,
+        currentPage,
+        size,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const data = res.data;
+      console.log(res.data);
       setLoading(!loading);
-      setProducts(data);
+      setProducts(data.content);
+      setCurrentPage(data.number);
+      setTotatPages(data.totalPages);
 
       if (data.length === 0) {
         Swal.fire({
@@ -85,12 +95,19 @@ function FlashSale() {
     }
   };
 
+  const handleChangeFlashsale = (id) => {
+    setCurrentPage(0);
+    setTotatPages(1);
+    getProductByFlashsaleId(id);
+  };
+
   useEffect(() => {
     if (currentFlashsale !== undefined && loading) {
       // console.log(currentFlashsale);
+
       getProductByFlashsaleId(currentFlashsale);
     }
-  }, [loading, currentFlashsale]);
+  }, [loading, currentFlashsale, currentPage]);
 
   const handleRemoveProductFromFlashsale = async (id) => {
     console.log("product id: " + id + " flashsaleid: " + currentFlashsale);
@@ -284,6 +301,7 @@ function FlashSale() {
 
             <button
               onClick={() => getProductByFlashsaleId(sale.id)}
+              // onClick={() => handleChangeFlashsale(sale.id)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
             >
               Danh sách sản phẩm
@@ -424,6 +442,13 @@ function FlashSale() {
           </div>
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={totalPages}
+        setLoading={setLoading}
+        loading={loading}
+      />
     </div>
   );
 }

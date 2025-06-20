@@ -11,7 +11,7 @@ import { imageUrl } from "../../../api/config";
 
 import FlashSale from "./FlashSale";
 
-const ProductList = () => {
+const ProductListDeactive = () => {
   const accessToken = Cookies.get("accessToken");
   const navigate = useNavigate();
   // const location = useLocation();
@@ -24,7 +24,7 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [totalProduct, setTotalProduct] = useState(0);
   const [flashSaleProductId, setFlashSaleProductId] = useState("");
-  const [status, setStatus] = useState(true);
+  const [status, setStatus] = useState(false);
   const [flashSale, setFlashSale] = useState([]);
   const [flashSaleId, setFlashSaleId] = useState("");
   const [flashSaleProductName, setFlashSaleProductName] = useState("");
@@ -33,6 +33,10 @@ const ProductList = () => {
   const [isLast, setIsLast] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [deactiveCurrentPage, setDeactiveCurrentPage] = useState(0);
+  const [deactiveTotalPages, setDeactiveTotalPages] = useState(1);
+  const [size, setSize] = useState(10);
 
   const getAllAvailableFlashSale = async () => {
     await apiFlashSale
@@ -55,11 +59,15 @@ const ProductList = () => {
 
   const getProducts = async () => {
     await apiProduct
-      .getProductBySellerId(sellerId, currentPage)
+      .sellerGetDeactiveProduct(currentPage, size, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
       .then((res) => {
         if (res.status === 200) {
-          const data = res.data.result;
-          console.log(data);
+          const data = res.data;
+          console.log(res);
 
           setIsFirst(data.first);
           setIsLast(data.last);
@@ -100,19 +108,19 @@ const ProductList = () => {
     navigate("/seller/product/create");
   };
 
-  const handleRemoveProduct = (id) => {
+  const handleActiveProduct = (id) => {
     Swal.fire({
-      title: "Bạn có chắn muốn xóa?",
-      text: "Bạn không thể đảo ngược quá trình này!",
+      title: "Bạn có chắc kích hoạt?",
+      text: "Kích hoạt sản phẩm!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Vẫn xóa!",
-      cancelButtonText: "Không xóa!",
+      confirmButtonText: "Kích hoạt!",
+      cancelButtonText: "Không kích hoạt!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        toast.success(`Bạn đã xóa sản phẩm`, {
+        toast.success(`Bạn đã kích hoạt`, {
           position: "top-right",
           autoClose: 2000,
           hideProgressBar: false,
@@ -129,8 +137,10 @@ const ProductList = () => {
 
         const accessToken = Cookies.get("accessToken");
 
+        console.log(accessToken);
+
         await apiProduct
-          .deleteProduct(id, {
+          .sellerActiveProduct(id, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
@@ -144,23 +154,11 @@ const ProductList = () => {
             }
           })
           .catch((err) => console.log(err));
-        Swal.fire({
-          title: "Đã xóa!",
-          text: "Sản phẩm bị xóa khỏi cửa hàng của bạn.",
-          icon: "success",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-          }
-        });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: "Không xóa!",
-          text: "Sản phẩm còn trong cửa hàng của bạn!",
-          icon: "error",
+          title: "Không kích hoạt!",
+          text: "Sản phẩm vẫn tạm ngưng bán!",
+          icon: "warning",
           timer: 1500,
           timerProgressBar: true,
           showConfirmButton: false,
@@ -418,69 +416,7 @@ const ProductList = () => {
                         <ul className="py-1">
                           <li>
                             <button
-                              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
-                              onClick={() => handleOpenFlashSaleModal(index)}
-                            >
-                              <img
-                                alt="flashsale"
-                                src={imageUrl + "icons/flashsale.png"}
-                                width={40}
-                                className="mr-2"
-                              />
-                              Thêm
-                            </button>
-                          </li>
-                          <li>
-                            <Link
-                              to={`/seller/product/update/${product.id}`}
-                              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            >
-                              <svg
-                                className="w-5 h-5 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                />
-                              </svg>
-                              Cập nhật
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              to={`/seller/product/product-detail/${product.id}`}
-                              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            >
-                              <svg
-                                className="w-5 h-5 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
-                              Xem
-                            </Link>
-                          </li>
-                          <li>
-                            <button
-                              onClick={() => handleRemoveProduct(product.id)}
+                              onClick={() => handleActiveProduct(product.id)}
                               className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
                             >
                               <svg
@@ -496,7 +432,7 @@ const ProductList = () => {
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                 />
                               </svg>
-                              Xóa
+                              Kích hoạt
                             </button>
                           </li>
                         </ul>
@@ -618,4 +554,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;
+export default ProductListDeactive;

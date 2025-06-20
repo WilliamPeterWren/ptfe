@@ -220,18 +220,16 @@ const UserOrders = () => {
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center">
-                  <span className="text-orange-500 font-bold">
-                    {order.sellerUsername}
-                  </span>
-                  {/* <button className="ml-2 text-blue-500 hover:underline">
-                    Chat
-                  </button> */}
                   <Link
                     to={`/seller/page/${order.sellerId}`}
-                    className="ml-2 text-blue-500 hover:underline"
+                    className="ml-2 text-blue-500"
                   >
-                    Xem Shop
+                    <span className="text-orange-500 font-bold hover:text-blue-600">
+                      {order.sellerUsername}
+                    </span>
                   </Link>
+
+                  <span className="ml-4 text-blue-500">#{order.id}</span>
                 </div>
                 <div className="text-green-500 flex items-center">
                   <span>ⓘ {latestStatus.translatedStatus}</span>
@@ -364,20 +362,19 @@ const UserOrders = () => {
                   ).toLocaleString()}{" "}
                 </p>
               </div>
-              {/* <div className="flex justify-end mt-2 space-x-2">
-                <button
-                  onClick={() => handleBuyAgain(order)}
-                  className="bg-orange-500 text-white py-1 px-2 rounded hover:bg-orange-600 transition-colors duration-200"
-                >
-                  Mua Lại
-                </button>
-                <button
-                  onClick={() => handleContactSeller(order)}
-                  className="text-blue-500 hover:underline py-1 px-2"
-                >
-                  Liên Hệ Người Bán
-                </button>
-              </div> */}
+              {order.recieveImage !== null && order.recieveImage.length > 5 && (
+                <div className="border-t pt-2 border-blue-500 mt-2 space-x-2">
+                  <span className="py-1 px-2 rounded transition-colors duration-200">
+                    Hình ảnh nhận hàng
+                  </span>
+                  <img
+                    alt={order.id}
+                    src={imageUrl + "order/" + order.recieveImage}
+                    className="mt-4 h-24 w-24 object-cover border border-red-500"
+                  />
+                </div>
+              )}
+
               {latestStatus.status === "DELIVERD" && (
                 <div className="text-green-500 flex items-center mt-2">
                   <span>ⓘ Giao hàng thành công</span>

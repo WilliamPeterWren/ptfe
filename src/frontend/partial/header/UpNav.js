@@ -1,18 +1,19 @@
-import React, { useState, useContext } from "react";
+import { useState } from "react";
 
 import { imageUrl } from "../../../api/config";
 
 import Cookies from "js-cookie";
 
-import UserContext from "../../../context/userContext";
+// import UserContext from "../../../context/userContext";
 import { Link, useNavigate } from "react-router-dom";
 
 function UpNav() {
-  const { user } = useContext(UserContext);
-  
-  const email = Cookies.get("email");
+  // const { user } = useContext(UserContext);
+
+  // const email = Cookies.get("email");
+  const avatar = Cookies.get("avatar");
   const username = Cookies.get("username");
-  
+
   const [showDropdown, setShowDropdown] = useState(false);
 
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ function UpNav() {
   const handleRegister = () => {
     navigate("/register");
   };
-
 
   const handleLogout = () => {
     setShowDropdown(!showDropdown);
@@ -188,8 +188,18 @@ function UpNav() {
           </div>
           <div>
             {username ? (
-              <div className="relative">
-                {" "}
+              <div className="relative flex justify-between">
+                <img
+                  alt=""
+                  src={imageUrl + "avatar/" + avatar}
+                  className="rounded-full h-6 w-6 object-cover mr-2 items-center"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = `https://placehold.co/40x40/cccccc/ffffff?text=${"peter".charAt(
+                      0
+                    )}`;
+                  }}
+                />{" "}
                 <button
                   onClick={handleUsernameClick}
                   className="hover:text-blue-500"

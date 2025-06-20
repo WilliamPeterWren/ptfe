@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useParams } from "react-router-dom";
 
-import apiOrder from "../../../api/apiOrder";
 import apiUser from "../../../api/apiUser";
-import apiAddress from "../../../api/apiAddress";
 import OrderData from "./OrderData";
 
 function ManageShipperOrder() {
@@ -13,8 +11,7 @@ function ManageShipperOrder() {
   const { shipperid } = useParams();
 
   const [shipperToken, setShipperToken] = useState("");
-  const [shipperRating, setShipperRating] = useState(null);
-  const [shipperInfo, setShipperInfo] = useState(null);
+  // const [shipperInfo, setShipperInfo] = useState(null);
 
   const adminGetShipperToken = async () => {
     try {
@@ -26,7 +23,7 @@ function ManageShipperOrder() {
 
       const data = res.data;
       console.log(data);
-      setShipperInfo(data);
+      // setShipperInfo(data);
 
       setShipperToken(data.accessToken);
       Cookies.set("shipperAccessToken", data.accessToken, { expires: 1 });

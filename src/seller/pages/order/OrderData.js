@@ -118,10 +118,10 @@ export default function OrderData() {
       setCurrentPage(0);
     } catch (err) {
       console.error("Error finding order by ID:", err);
-      setOrders([]);
+      // setOrders([]);
       Swal.fire({
         title: "Mã đơn hàng không đúng!",
-        text: "Không tìm thấy đơn hàng",
+        text: "Không tìm thấy đơn hàng của bạn!",
         icon: "warning",
         timer: 1500,
         timerProgressBar: true,

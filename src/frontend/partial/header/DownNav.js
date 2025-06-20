@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useSelector, useDispatch } from "react-redux";
 
 import { imageUrl } from "../../../api/config";
-import userContext from "../../../context/userContext";
+// import userContext from "../../../context/userContext";
 import apiCart from "../../../api/apiCart";
 import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 
@@ -21,10 +21,10 @@ function DownNav() {
     // console.log("Search button clicked, searchData:", searchData);
     navigate(`/search/products/${searchData}`);
   };
-  const { user } = useContext(userContext);
+  // const { user } = useContext(userContext);
   const dispatch = useDispatch();
   const accessToken = Cookies.get("accessToken");
-  // console.log(accessToken)
+
   const getCartFromApi = async () => {
     if (accessToken) {
       await apiCart
@@ -61,8 +61,7 @@ function DownNav() {
   }, [accessToken]);
 
   const countCart = useSelector((state) => state.cart.countCart);
-  // console.log(cartItem);
-  // console.log("count " + countCart);
+
 
   return (
     <div className="flex justify-between items-center py-5 pr-10">

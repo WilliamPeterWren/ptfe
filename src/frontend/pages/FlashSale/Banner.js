@@ -1,8 +1,9 @@
 import React from "react";
 import { imageUrl } from "../../../api/config";
 
-function Banner({ flashsales, setCurrentFlashsale }) {
+function Banner({ flashsales, setCurrentFlashsale, setCurrentPage }) {
   const handleCurrentFlashSale = (id) => {
+    setCurrentPage(0);
     setCurrentFlashsale(id);
   };
   return (
@@ -19,7 +20,19 @@ function Banner({ flashsales, setCurrentFlashsale }) {
 
       <div className="flex justify-center space-x-2 pt-2 bg-gray-100">
         {flashsales.map((item, index) => {
-          const isActive = item.startedAt > Date.now();
+          const startTime = new Date(item.startedAt).getTime();
+          const currentTime = Date.now();
+
+          const isActive = startTime <= currentTime; 
+          console.log("Start Time:", item.startedAt, "(", startTime, "ms)");
+          console.log(
+            "Current Time:",
+            new Date(currentTime).toISOString(),
+            "(",
+            currentTime,
+            "ms)"
+          );
+          console.log("Is Active:", isActive);
 
           return (
             <button
@@ -33,9 +46,6 @@ function Banner({ flashsales, setCurrentFlashsale }) {
             >
               <span className="block">
                 {new Date(item.startedAt).toLocaleString("vi-VN", {
-                  // day: "2-digit",
-                  // month: "2-digit",
-                  // year: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
                   second: "2-digit",

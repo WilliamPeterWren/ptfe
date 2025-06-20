@@ -11,7 +11,7 @@ const SellerInfo = ({ categories }) => {
   const { sellerId } = useParams();
 
   const following = JSON.parse(Cookies.get("following"));
-  console.log(following);
+  // console.log(following);
 
   const accessToken = Cookies.get("accessToken");
 
@@ -23,7 +23,7 @@ const SellerInfo = ({ categories }) => {
       .getSellerInfo(sellerId)
       .then((res) => {
         const data = res.data;
-        console.log(data);
+        // console.log(data);
 
         setSellerInfo(data);
 
@@ -95,9 +95,10 @@ const SellerInfo = ({ categories }) => {
         <div>📦 Sản Phẩm: {sellerInfo?.countProduct} </div>
         <div>👥 Người Theo Dõi: {sellerInfo?.follower} </div>
         <div>
-          📈 Đánh Giá: {sellerInfo?.star} ({sellerInfo?.rating} Đánh Giá)
+          📈 Đánh Giá: {sellerInfo?.star.toFixed(1)} ({sellerInfo?.rating} Đánh
+          Giá)
         </div>
-        <div>⏰ Đang Theo: {sellerInfo?.following} </div>
+        <div>⏰ Đang Theo Dõi: {sellerInfo?.following} </div>
       </div>
 
       <div className="flex space-x-2 mt-2">

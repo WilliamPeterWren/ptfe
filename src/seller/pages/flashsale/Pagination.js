@@ -1,10 +1,10 @@
 const Pagination = (props) => {
-  const { currentPage, setCurrentPage, totalPages } = props;
+  const { currentPage, setCurrentPage, totalPages, setLoading, loading } =
+    props;
 
-  // console.log(currentPage);
   const handlePageChange = (page) => {
+    setLoading(!loading);
     setCurrentPage(page - 1);
-    // setLoading(true);
   };
 
   const renderPageNumbers = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 
-import { imageUrl } from "../../../api/config";
+// import { imageUrl } from "../../../api/config";
 import apiProduct from "../../../api/apiProduct";
 import ProductCard from "./ProductCard";
 import FilterBar from "./FilterBar";
@@ -21,7 +21,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
   const getProducts = async () => {
     await apiProduct
-      .getProductByPeterCategory(categoryId)
+      .getProductByPeterCategory(categoryId, currentPage)
       .then((res) => {
         const data = res.data;
         console.log(data);
@@ -34,7 +34,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
   const getProductByPeterCategoryOrderByCreatedAtDesc = async () => {
     await apiProduct
-      .getProductByPeterCategoryOrderByCreatedAtDesc(categoryId)
+      .getProductByPeterCategoryOrderByCreatedAtDesc(categoryId, currentPage)
       .then((res) => {
         const data = res.data;
         console.log(data);
@@ -47,7 +47,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
   const getProductByPeterCategoryOrderBySoldDesc = async () => {
     await apiProduct
-      .getProductByPeterCategoryOrderBySoldDesc(categoryId)
+      .getProductByPeterCategoryOrderBySoldDesc(categoryId, currentPage)
       .then((res) => {
         const data = res.data;
         console.log(data);
@@ -60,7 +60,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
   const getProductsDesc = async () => {
     await apiProduct
-      .getProductByPeterCategory(categoryId)
+      .getProductByPeterCategory(categoryId, currentPage)
       .then((res) => {
         const data = res.data;
 
@@ -78,7 +78,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
   const getProductsAsc = async () => {
     await apiProduct
-      .getProductByPeterCategory(categoryId)
+      .getProductByPeterCategory(categoryId, currentPage)
       .then((res) => {
         const data = res.data;
 
@@ -106,7 +106,7 @@ function ProductList({ categories, setCategoryId, categoryId }) {
     if (activeFilter === "Bán Chạy") {
       getProductByPeterCategoryOrderBySoldDesc();
     }
-  }, [categoryId, activeFilter]);
+  }, [categoryId, activeFilter, currentPage]);
 
   useEffect(() => {
     if (sortOrder === "asc") {

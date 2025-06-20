@@ -59,7 +59,7 @@ const generateOrderHtmlBody = (
             ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: red;">-${item.discount.toFixed(
                 2
               )}</td>`
-            : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$0.00</td>'
+            : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">0.00</td>'
         }
         <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${itemTotalPrice.toFixed(
           2
@@ -142,7 +142,7 @@ const PaymentSummary = (props) => {
   const customerName = Cookies.get("username");
   const userPeterVoucher = JSON.parse(Cookies.get("peterVoucher"));
 
-  const userShippingVoucher = JSON.parse(Cookies.get("shippingVoucher"));
+  // const userShippingVoucher = JSON.parse(Cookies.get("shippingVoucher"));
 
   console.log(data);
   const navigate = useNavigate();

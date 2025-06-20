@@ -1,15 +1,22 @@
-import { useState } from "react";
+const FilterBar = ({
+  filters,
+  setActiveFilter,
+  activeFilter,
+  sortOrder,
+  setSortOrder,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+}) => {
+  // const [activeFilter, setActiveFilter] = useState("Phổ Biến");
+  // const [sortOrder, setSortOrder] = useState("asc");
 
-const FilterBar = () => {
-  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
-  const [sortOrder, setSortOrder] = useState("asc");
-
-  const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
+  // const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
 
   return (
     <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-sm mb-4">
       <div className="flex space-x-2">
-        {filters.map((filter) => (
+        {/* {filters.map((filter) => (
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
@@ -21,7 +28,7 @@ const FilterBar = () => {
           >
             {filter}
           </button>
-        ))}
+        ))} */}
       </div>
 
       <div className="flex items-center space-x-2">
@@ -37,7 +44,10 @@ const FilterBar = () => {
       </div>
 
       <div className="flex items-center space-x-2">
-        <span className="text-gray-700"> 1/9 </span>
+        <span className="text-gray-700">
+          {" "}
+          {currentPage} / {totalPages}{" "}
+        </span>
         <button className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">
           <svg
             className="w-4 h-4"

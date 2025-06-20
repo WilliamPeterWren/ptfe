@@ -31,13 +31,15 @@ const apiProduct = {
     );
   },
 
-  getProductByPeterCategory: (peterCategoryId) => {
-    return axiosInstance.get(`/products/get/product/peter/${peterCategoryId}`);
+  getProductByPeterCategory: (peterCategoryId, page) => {
+    return axiosInstance.get(
+      `/products/get/product/peter/${peterCategoryId}?page=${page}`
+    );
   },
 
-  getProductByPeterCategoryOrderBySoldDesc: (peterCategoryId) => {
+  getProductByPeterCategoryOrderBySoldDesc: (peterCategoryId, page) => {
     return axiosInstance.get(
-      `/products/get/product/peter/${peterCategoryId}/sold`
+      `/products/get/product/peter/${peterCategoryId}/sold?page=${page}`
     );
   },
 
@@ -47,9 +49,9 @@ const apiProduct = {
     );
   },
 
-  getProductByPeterCategoryOrderByCreatedAtDesc: (peterCategoryId) => {
+  getProductByPeterCategoryOrderByCreatedAtDesc: (peterCategoryId, page) => {
     return axiosInstance.get(
-      `/products/get/product/peter/${peterCategoryId}/created`
+      `/products/get/product/peter/${peterCategoryId}/created?page=${page}`
     );
   },
 
@@ -97,6 +99,17 @@ const apiProduct = {
 
   updateProduct: (id, data, header) => {
     return axiosInstance.put(`products/seller/${id}`, data, header);
+  },
+
+  sellerGetDeactiveProduct: (page, size, header) => {
+    return axiosInstance.get(
+      `products/seller/get/product/deactive?page=${page}&size=${size}`,
+      header
+    );
+  },
+
+  sellerActiveProduct: (id, header) => {
+    return axiosInstance.put(`products/seller/active/${id}`, {}, header);
   },
 
   // admin

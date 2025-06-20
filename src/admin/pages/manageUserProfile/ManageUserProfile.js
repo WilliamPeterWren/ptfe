@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { Link, useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 import apiOrder from "../../../api/apiOrder";
 import apiUser from "../../../api/apiUser";
@@ -159,11 +160,9 @@ function ManageUserProfile() {
         0
       );
       setThisYearSpending(sum);
-
     } catch (error) {
       console.error("Error fetching yearly spending:", error);
     } finally {
-      
     }
   };
 
@@ -174,7 +173,6 @@ function ManageUserProfile() {
   }, [userAccessToken]);
 
   const adminGetUserSpendingToday = async () => {
-    
     try {
       const res = await apiOrder.adminGetUserSpendingToday({
         headers: {
@@ -187,7 +185,6 @@ function ManageUserProfile() {
     } catch (error) {
       console.error("Error fetching yearly spending:", error);
     } finally {
-      
     }
   };
 
@@ -198,20 +195,21 @@ function ManageUserProfile() {
   }, [userAccessToken]);
 
   const adminGetUserSpendingThisWeek = async () => {
-    
+    console.log(userAccessToken);
     try {
       const res = await apiOrder.adminGetUserSpendingThisWeek({
         headers: {
           Authorization: `Bearer ${userAccessToken}`,
         },
       });
+      console.log(res);
+
       const data = res.data;
 
       setThisweekSpending(data);
     } catch (error) {
       console.error("Error fetching yearly spending:", error);
     } finally {
-      
     }
   };
 
@@ -221,8 +219,85 @@ function ManageUserProfile() {
     }
   }, [userAccessToken]);
 
+  const [exportTrigger, setExportTrigger] = useState(null);
+
+  const fetchExportData = async (apiCall) => {
+    try {
+      const res = await apiCall({
+        headers: {
+          Authorization: `Bearer ${userAccessToken}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchDataAndExport = async () => {
+      let dataToExport = null;
+      let name = "";
+      switch (exportTrigger) {
+        case 0:
+          dataToExport = await fetchExportData(apiOrder.getUserExportToday);
+          name = "-hom-nay";
+          break;
+        case 1:
+          dataToExport = await fetchExportData(apiOrder.getUserExportThisWeek);
+          name = "-tuan-nay";
+          break;
+        case 2:
+          dataToExport = await fetchExportData(apiOrder.getUserExportLastWeek);
+          name = "-tuan-truoc";
+          break;
+        case 3:
+          dataToExport = await fetchExportData(apiOrder.getUserExportThisYear);
+          name = "-nam-nay";
+          break;
+        case 4:
+          dataToExport = await fetchExportData(apiOrder.getUserExportThisMonth);
+          name = "-thang-nay";
+          break;
+        case 5:
+          dataToExport = await fetchExportData(apiOrder.getUserExportLastMonth);
+          name = "-thang-truoc";
+          break;
+        default:
+          return;
+      }
+
+      if (dataToExport) {
+        // setReportData(dataToExport);
+        console.log(dataToExport);
+
+        const exportData = dataToExport.map((item) => ({
+          // "Mã sản phẩm": item.id,
+          "Tên sản phẩm": item.name,
+          "Đã bán": item.sold,
+          "Doanh thu": item.revenue,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
+        XLSX.writeFile(workbook, `bao-cao-chi-tieu${name}.xlsx`);
+
+        setExportTrigger(null);
+      }
+    };
+
+    if (exportTrigger !== null) {
+      fetchDataAndExport();
+    }
+  }, [exportTrigger, accessToken]);
+
+  const handleExport = (triggerIndex) => {
+    setExportTrigger(triggerIndex);
+  };
+
   const adminGetUserSpendingLastWeek = async () => {
-    
     try {
       const res = await apiOrder.adminGetUserSpendingLastWeek({
         headers: {
@@ -235,7 +310,6 @@ function ManageUserProfile() {
     } catch (error) {
       console.error("Error fetching yearly spending:", error);
     } finally {
-      
     }
   };
 
@@ -328,6 +402,8 @@ function ManageUserProfile() {
                 value={data.value}
                 percentage={data.percentage}
                 type={data.type}
+                handleExport={handleExport}
+                index={index}
               />
             ))}
           </div>

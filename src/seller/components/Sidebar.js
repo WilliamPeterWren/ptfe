@@ -127,6 +127,7 @@ export default function Sidebar() {
                 "/seller/product/product-list",
                 "/seller/product/create",
                 "/seller/product/flashsale",
+                "/seller/product/product-list/deactive",
               ])
                 ? "bg-gray-200 font-semibold"
                 : ""
@@ -180,6 +181,16 @@ export default function Sidebar() {
                 }`}
               >
                 FlashSale
+              </Link>
+              <Link
+                to="/seller/product/product-list/deactive"
+                className={`block p-2 rounded hover:bg-gray-200 ${
+                  location.pathname === "/seller/product/product-list/deactive"
+                    ? "bg-gray-200 font-semibold"
+                    : ""
+                }`}
+              >
+                Tạm ngưng bán
               </Link>
             </div>
           )}

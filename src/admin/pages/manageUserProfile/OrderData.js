@@ -157,9 +157,9 @@ export default function OrderData({ userid }) {
     setActiveTab(tab);
   };
 
-  const handleToOrderDetail = (id) => {
-    navigate(`/admin/manageuser/${userid}/order-detail/${id}`);
-  };
+  // const handleToOrderDetail = (id) => {
+  //   navigate(`/admin/manageuser/${userid}/order-detail/${id}`);
+  // };
 
   if (userAccessToken === undefined || userAccessToken === null) {
     return null;
@@ -372,12 +372,16 @@ export default function OrderData({ userid }) {
                                 rowSpan={numProducts}
                                 className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium align-top"
                               >
-                                <button
-                                  className="text-blue-600 hover:text-blue-900"
-                                  onClick={() => handleToOrderDetail(order.id)}
+                                <Link
+                                  to={`/admin/manageuser/${userid}/order-detail/${order.id}`}
                                 >
-                                  Xem chi tiết
-                                </button>
+                                  <button
+                                    className="text-blue-600 hover:text-blue-900"
+                                    // onClick={() => handleToOrderDetail(order.id)}
+                                  >
+                                    Xem chi tiết
+                                  </button>
+                                </Link>
                               </td>
                             </>
                           )}

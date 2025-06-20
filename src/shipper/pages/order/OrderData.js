@@ -134,6 +134,7 @@ export default function OrderData() {
         });
 
         const data = res.data;
+        console.log(data);
         setOrders([data]);
         setCurrentPage(0);
         setTotalPages(1);
@@ -142,14 +143,25 @@ export default function OrderData() {
         setTotalElements(res.status === 200 ? 1 : 0);
       } catch (err) {
         console.error("Error finding order:", err);
-        Swal.fire({
-          title: "Mã đơn hàng không đúng!",
-          text: "Không tìm thấy đơn hàng",
-          icon: "warning",
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
+        if (err?.response?.data?.code === 1013) {
+          Swal.fire({
+            title: "Bạn chưa nhận đơn hàng này!",
+            text: "Hãy vào trang nhận đơn nhập mã đơn này!",
+            icon: "warning",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            title: "Mã đơn hàng không đúng!",
+            text: "Không tìm thấy đơn hàng",
+            icon: "warning",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
+        }
       }
     } else {
       const status = getStatusFromTab(activeTab);

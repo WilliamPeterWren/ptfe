@@ -10,7 +10,7 @@ function RecieveOrder() {
 
   const handleRecieveOrder = async () => {
     console.log(orderId);
-    console.log(accessToken);
+    // console.log(accessToken);
     await apiOrder
       .recieveOrderByShipper(orderId, {
         headers: {
@@ -20,7 +20,8 @@ function RecieveOrder() {
       })
       .then((res) => {
         const data = res.data;
-        console.log(data);
+        console.log(res);
+
         if (data === true) {
           Swal.fire({
             title: "Nhận đơn hàng thành công!",

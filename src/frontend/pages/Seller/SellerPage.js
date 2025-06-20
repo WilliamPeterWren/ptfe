@@ -25,8 +25,18 @@ function SellerPage() {
     };
   }, [pageTitle]);
 
+  const [products, setProducts] = useState([]);
+  const [pagable, setPagable] = useState();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
+  const [sortOrder, setSortOrder] = useState("asc");
+
   const [products1, setProducts1] = useState([]);
   const [products2, setProducts2] = useState([]);
+
   const getProduct = useCallback(async () => {
     try {
       const res = await apiProduct.getRandomProductBySellerIdLimit(sellerId, 6);
@@ -40,6 +50,10 @@ function SellerPage() {
       setProducts2(sorted1);
 
       setProducts1(data);
+
+      setCurrentPage(0);
+      setTotalPages(1);
+
       // setOnload(!onload);
     } catch (err) {
       console.log(err);
@@ -74,8 +88,10 @@ function SellerPage() {
       .getRandomProductBySellerIdLimit(sellerId, 8)
       .then((res) => {
         const data = res.data.result;
-        // console.log(data);
+        // console.log(res.data);
         setProducts(data);
+        setCurrentPage(0);
+        setTotalPages(1);
       })
       .catch((err) => {
         console.log(err);
@@ -93,6 +109,8 @@ function SellerPage() {
         const data = res.data.result;
         // console.log(data);
         setProducts(data);
+        setCurrentPage(0);
+        setTotalPages(1);
       })
       .catch((err) => {
         console.log(err);
@@ -108,15 +126,6 @@ function SellerPage() {
       getRandomProductBySellerIdLimit();
     }
   }, [category]);
-
-  const [products, setProducts] = useState([]);
-  const [pagable, setPagable] = useState();
-
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
-  const [activeFilter, setActiveFilter] = useState("Phổ Biến");
-  const [sortOrder, setSortOrder] = useState("asc");
 
   const filters = ["Phổ Biến", "Mới Nhất", "Bán Chạy"];
 
@@ -139,7 +148,7 @@ function SellerPage() {
       .getProductBySellerIdAndCategoryId(sellerId, category)
       .then((res) => {
         const data = res.data;
-        // console.log(data);
+        console.log(data);
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
         setPagable(data.pageable);
@@ -262,7 +271,11 @@ function SellerPage() {
                   <ProductCard key={index} product={product} />
                 ))}
             </div>
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+            />
           </div>
         </div>
       </div>

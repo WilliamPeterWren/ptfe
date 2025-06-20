@@ -240,7 +240,10 @@ const Revenue = () => {
     },
   ];
 
-  const rating = JSON.parse(Cookies.get("rating"));
+  const rating =
+    Cookies.get("rating") !== undefined
+      ? JSON.parse(Cookies.get("rating"))
+      : null;
   // console.log(rating);
 
   const getbestSoldProduct = async () => {
@@ -312,7 +315,14 @@ const Revenue = () => {
         // setReportData(dataToExport);
         console.log(dataToExport);
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const exportData = dataToExport.map((item) => ({
+          // "Mã sản phẩm": item.id,
+          "Tên sản phẩm": item.name,
+          "Đã bán": item.sold,
+          "Doanh thu": item.revenue,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
         XLSX.writeFile(workbook, `bao-cao-doanh-thu${name}.xlsx`);
@@ -340,7 +350,14 @@ const Revenue = () => {
 
       const currentMonth = new Date().getMonth() + 1;
 
-      const worksheet = XLSX.utils.json_to_sheet(res.data);
+      const exportData = res.data.map((item) => ({
+        // "Mã sản phẩm": item.id,
+        "Tên sản phẩm": item.name,
+        "Đã bán": item.sold,
+        "Doanh thu": item.revenue,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
       XLSX.writeFile(workbook, `bao-cao-doanh-thu-thang-${currentMonth}.xlsx`);
@@ -363,7 +380,14 @@ const Revenue = () => {
 
       console.log(res.data);
 
-      const worksheet = XLSX.utils.json_to_sheet(res.data);
+      const exportData = res.data.map((item) => ({
+        // "Mã sản phẩm": item.id,
+        "Tên sản phẩm": item.name,
+        "Đã bán": item.sold,
+        "Doanh thu": item.revenue,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
       XLSX.writeFile(workbook, `bao-cao-doanh-thu-thang-${currentMonth}.xlsx`);
@@ -432,7 +456,7 @@ const Revenue = () => {
                   type={data.type}
                   handleExport={handleExport}
                   index={index}
-                />             
+                />
               </div>
             ))}
           </div>

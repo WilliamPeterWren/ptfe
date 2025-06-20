@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import { useSelector, useDispatch } from "react-redux";
+import {  useDispatch } from "react-redux";
 
 import ProductImageSlider from "./ProductImageSlider";
 import apiCart from "../../../api/apiCart";
@@ -180,7 +180,7 @@ const Detail = ({ productData, reviewsLength }) => {
           title: titleError,
           text: `${textError}`,
           icon: "error",
-          timer: 1500,
+          timer: 2500,
           timerProgressBar: true,
           showConfirmButton: false,
         }).then((result) => {

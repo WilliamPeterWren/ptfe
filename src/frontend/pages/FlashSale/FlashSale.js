@@ -74,6 +74,7 @@ function FlashSale() {
       )}
       <Banner
         flashsales={flashsales}
+        setCurrentPage={setCurrentPage}
         setCurrentFlashsale={setCurrentFlashsale}
       />
 

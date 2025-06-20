@@ -199,6 +199,31 @@ const apiOrder = {
   adminGetOneOrderById: (id, header) => {
     return axiosInstance.get(`orders/admin/get/id/${id}`, header);
   },
+
+  // user export
+  getUserExportThisMonth: (header) => {
+    return axiosInstance.get(`orders/export/thismonth`, header);
+  },
+
+  getUserExportLastMonth: (header) => {
+    return axiosInstance.get(`orders/seller/export/lastmonth`, header);
+  },
+
+  getUserExportThisWeek: (header) => {
+    return axiosInstance.get(`orders/export/thisweek`, header);
+  },
+
+  getUserExportLastWeek: (header) => {
+    return axiosInstance.get(`orders/export/lastweek`, header);
+  },
+
+  getUserExportToday: (header) => {
+    return axiosInstance.get(`orders/export/today`, header);
+  },
+
+  getUserExportThisYear: (header) => {
+    return axiosInstance.get(`orders/export/thisyear`, header);
+  },
 };
 
 export default apiOrder;

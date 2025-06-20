@@ -4,6 +4,7 @@ const Pagination = (props) => {
   const displayCurrentPage = currentPage + 1;
 
   const handlePageChange = (page) => {
+    // console.log(page);
     setCurrentPage(page - 1);
   };
 

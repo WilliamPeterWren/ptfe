@@ -1,12 +1,16 @@
 import React, { useEffect, useContext } from "react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+
+import { useDispatch } from "react-redux";
 import UserContext from "../../../context/userContext";
+import { CLEAR } from "../../../redux/action/cartAction";
 
 function Logout() {
   const { setUser } = useContext(UserContext);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setUser(null);
@@ -19,6 +23,8 @@ function Logout() {
     Cookies.remove("addressId");
     Cookies.remove("avatar");
     Cookies.remove("addressId");
+
+    dispatch(CLEAR());
 
     navigate("/login");
   });

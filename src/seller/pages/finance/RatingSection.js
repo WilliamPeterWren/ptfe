@@ -37,7 +37,13 @@ const RatingSection = ({ ratings }) => {
   }, [ratings]);
 
   const maxCount =
-    ratings.length > 0 ? Math.max(...ratings.map((r) => r.count)) : 1;
+    ratings !== null && ratings.length > 0
+      ? Math.max(...ratings.map((r) => r.count))
+      : 1;
+
+  if (ratings === null) {
+    return null;
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm row-span-2">

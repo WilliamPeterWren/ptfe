@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 
 import { imageUrl } from "../../../../api/config";
 import apiReview from "../../../../api/apiReview";
-import apiFile from "../../../../api/apiFile";
 
 function Review(props) {
   const { openModal, setOpenModal, order, setShowReview } = props;
