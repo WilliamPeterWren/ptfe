@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
@@ -44,7 +44,7 @@ function FlashSaleUpdateModal(props) {
       })
       .then((res) => {
         console.log(res);
-        setLoading(!loading)
+        setLoading(!loading);
         setOpenModal(!openModal);
         Swal.fire({
           title: "Cập nhật flashsale thành công",

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
 
 import apiOrder from "../../../api/apiOrder";
+import apiProduct from "../../../api/apiProduct";
 
 import BarChart from "./BarChart";
 import RatingSection from "./RatingSection";
 import SalesCard from "./SaleCard";
 import BestSoldItem from "./BestSoldItem";
-import apiProduct from "../../../api/apiProduct";
 
 const Revenue = () => {
   const accessToken = Cookies.get("accessToken");
@@ -269,6 +270,109 @@ const Revenue = () => {
     }
   }, [accessToken]);
 
+  // const [reportData, setReportData] = useState([]);
+  const [exportTrigger, setExportTrigger] = useState(null);
+
+  const fetchExportData = async (apiCall) => {
+    try {
+      const res = await apiCall({
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchDataAndExport = async () => {
+      let dataToExport = null;
+      let name = "";
+      switch (exportTrigger) {
+        case 0:
+          dataToExport = await fetchExportData(apiOrder.getExportToday);
+          name = "-hom-nay";
+          break;
+        case 1:
+          dataToExport = await fetchExportData(apiOrder.getExportThisWeek);
+          name = "-tuan-nay";
+          break;
+        case 2:
+          dataToExport = await fetchExportData(apiOrder.getExportThisYear);
+          name = "-nam-nay";
+          break;
+        default:
+          return;
+      }
+
+      if (dataToExport) {
+        // setReportData(dataToExport);
+        console.log(dataToExport);
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
+        XLSX.writeFile(workbook, `bao-cao-doanh-thu${name}.xlsx`);
+
+        setExportTrigger(null);
+      }
+    };
+
+    if (exportTrigger !== null) {
+      fetchDataAndExport();
+    }
+  }, [exportTrigger, accessToken]);
+
+  const handleExport = (triggerIndex) => {
+    setExportTrigger(triggerIndex);
+  };
+
+  const handleExportThisMonth = async () => {
+    try {
+      const res = await apiOrder.getExportThisMonth({
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const currentMonth = new Date().getMonth() + 1;
+
+      const worksheet = XLSX.utils.json_to_sheet(res.data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
+      XLSX.writeFile(workbook, `bao-cao-doanh-thu-thang-${currentMonth}.xlsx`);
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      return null;
+    }
+  };
+
+  const handleExportLastMonth = async () => {
+    try {
+      const res = await apiOrder.getExportLastMonth({
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const currentMonth =
+        new Date().getMonth() === 0 ? 12 : new Date().getMonth();
+
+      console.log(res.data);
+
+      const worksheet = XLSX.utils.json_to_sheet(res.data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
+      XLSX.writeFile(workbook, `bao-cao-doanh-thu-thang-${currentMonth}.xlsx`);
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      return null;
+    }
+  };
+
   return (
     <div className=" min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-semibold mb-6">Doanh thu hàng tháng</h1>
@@ -286,17 +390,33 @@ const Revenue = () => {
             {countOrderThisMonthCancelled.toLocaleString()}{" "}
           </p>
         </div>
-        <div className="bg-white p-4 rounded shadow">
-          <p className="text-sm text-gray-500">Doanh thu tháng này</p>
-          <p className="text-2xl font-bold text-blue-500">
-            {revenueThisMonth.toLocaleString()}{" "}
-          </p>
+        <div className="bg-white p-4 rounded shadow flex justify-between">
+          <div>
+            <p className="text-sm text-gray-500">Doanh thu tháng này</p>
+            <p className="text-2xl font-bold text-blue-500">
+              {revenueThisMonth.toLocaleString()}{" "}
+            </p>
+          </div>
+          <button
+            onClick={handleExportThisMonth}
+            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+          >
+            Xuất Excel
+          </button>
         </div>
-        <div className="bg-white p-4 rounded shadow">
-          <p className="text-sm text-gray-500">Doanh thu tháng trước</p>
-          <p className="text-2xl font-bold text-green-500">
-            {revenueLastMonth.toLocaleString()}{" "}
-          </p>
+        <div className="bg-white p-4 rounded shadow flex justify-between">
+          <div>
+            <p className="text-sm text-gray-500">Doanh thu tháng trước</p>
+            <p className="text-2xl font-bold text-green-500">
+              {revenueLastMonth.toLocaleString()}{" "}
+            </p>
+          </div>
+          <button
+            onClick={handleExportLastMonth}
+            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+          >
+            Xuất Excel
+          </button>
         </div>
       </div>
 
@@ -304,13 +424,16 @@ const Revenue = () => {
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {salesData.map((data, index) => (
-              <SalesCard
-                key={index}
-                title={data.title}
-                value={data.value}
-                percentage={data.percentage}
-                type={data.type}
-              />
+              <div key={index}>
+                <SalesCard
+                  title={data.title}
+                  value={data.value}
+                  percentage={data.percentage}
+                  type={data.type}
+                  handleExport={handleExport}
+                  index={index}
+                />             
+              </div>
             ))}
           </div>
 

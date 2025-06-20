@@ -1,81 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
 import apiOrder from "../../../api/apiOrder";
 import { getLatestStatus } from "../../../utils/OrderStatus";
 import { imageUrl } from "../../../api/config";
-
-// const shippingUnits = [
-//   "Tất cả ĐVVC",
-//   "SPX Express",
-//   "Giao Hàng Nhanh",
-//   "Viettel Post",
-//   "J&T Express",
-// ];
+import Pagination from "./Pagination";
 
 export default function OrderData() {
-  const navigate = useNavigate();
-  const accessToken = Cookies.get("accessToken");
-
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [orderCode, setOrderCode] = useState("");
-  // const [shippingUnitFilter, setShippingUnitFilter] = useState("Tất cả ĐVVC");
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
 
-  // paginate
-  const [isFirst, setIsFirst] = useState(false);
-  const [isLast, setIsLast] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(1);
+  const [isFirst, setIsFirst] = useState(false);
+  const [isLast, setIsLast] = useState(false);
 
-  const handleToOrderDetail = (id) => {
-    navigate(`/shipper/order/order-detail/${id}`);
-  };
-
-  const [orders, setOrders] = useState([]);
-  const getAllOrder = async () => {
-    await apiOrder
-      .getOrderByShipperId({
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        const data = res.data;
-        const sorted1 = [...data.content].sort(
-          (a, b) =>
-            new Date(b.orderStatus.createdAt) -
-            new Date(a.orderStatus.createdAt)
-        );
-
-        const sorted2 = [...sorted1].sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
-
-        console.log(res.data);
-        setIsFirst(data.first);
-        setIsLast(data.last);
-        setTotalPages(data.totalPages);
-        setCurrentPage(data.number);
-
-        setOrders(sorted2 || []);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    if (loading) {
-      getAllOrder();
-    }
-  }, [loading, currentPage]);
+  const accessToken = Cookies.get("accessToken");
+  // const navigate = useNavigate();
 
   const tabs = [
     "Tất cả",
+    "Chờ thanh toán",
     "Vận chuyển",
     "Chờ giao hàng",
     "Hoàn thành",
@@ -83,25 +32,80 @@ export default function OrderData() {
     "Trả hàng/Hoàn tiền",
   ];
 
-  const getOrderByStatus = async (statusToFetch) => {
-    const dataToSend = statusToFetch;
+  const getStatusFromTab = (tab) => {
+    switch (tab) {
+      case "Vận chuyển":
+        return "SELLER_PREPAIRING";
+      case "Chờ thanh toán":
+        return "PENDING";
+      case "Chờ giao hàng":
+        return "DELIVERING";
+      case "Hoàn thành":
+        return "DELIVERD";
+      case "Đã hủy":
+        return "CANCELLED";
+      case "Trả hàng/Hoàn tiền":
+        return "RETURN";
+      default:
+        return "";
+    }
+  };
 
+  const getAllOrder = async (page = 0) => {
     try {
-      const res = await apiOrder.getOrderByShipperIdAndStatus(dataToSend, {
+      const res = await apiOrder.getOrderByShipperId(page, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
-      // console.log(res);
-      const data = res.data.content;
-      const sorted1 = [...data].sort(
+
+      const data = res.data;
+
+      const sorted = [...data.content]
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        .sort(
+          (a, b) =>
+            new Date(b.orderStatus.createdAt) -
+            new Date(a.orderStatus.createdAt)
+        );
+
+      setOrders(sorted);
+      setCurrentPage(data.number);
+      setTotalPages(data.totalPages);
+      setIsFirst(data.first);
+      setIsLast(data.last);
+      setTotalElements(data.totalElements);
+    } catch (err) {
+      console.error("Error fetching all orders:", err);
+    }
+  };
+
+  const getOrderByStatus = async (status, currentPage) => {
+    try {
+      const res = await apiOrder.getOrderByShipperIdAndStatus(
+        status,
+        currentPage,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = res.data;
+      const sorted = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      console.log(sorted1);
-      setOrders(sorted1 || []);
+      setOrders(sorted);
+      setCurrentPage(data.number);
+      setTotalPages(data.totalPages);
+      setIsFirst(data.first);
+      setIsLast(data.last);
+      setTotalElements(data.totalElements);
     } catch (err) {
-      console.error("Error fetching orders by status:", err);
+      console.error("Error fetching by status:", err);
       Swal.fire({
         title: "Lỗi API",
         text: "Lấy dữ liệu theo trạng thái không thành công",
@@ -114,92 +118,65 @@ export default function OrderData() {
   };
 
   useEffect(() => {
-    let statusToFetch = "";
-    switch (activeTab) {
-      case "Tất cả":
-        getAllOrder();
-        return;
-      case "Vận chuyển":
-        statusToFetch = "SELLER_PREPAIRING";
-        break;
-      case "Chờ giao hàng":
-        statusToFetch = "DELIVERING";
-        break;
-      case "Hoàn thành":
-        statusToFetch = "DELIVERD";
-        break;
-      case "Đã hủy":
-        statusToFetch = "CANCELLED";
-        break;
-      case "Trả hàng/Hoàn tiền":
-        statusToFetch = "RETURN";
-        break;
-      default:
-        statusToFetch = "";
-        break;
-    }
-
-    if (statusToFetch) {
-      getOrderByStatus(statusToFetch, 0, 10);
-    }
-  }, [activeTab, accessToken]);
-
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter" && orderCode.length > 5) {
-      handleFindOrderById();
+    const status = getStatusFromTab(activeTab);
+    if (status) {
+      getOrderByStatus(status, currentPage);
     } else {
-      getAllOrder();
+      getAllOrder(currentPage);
     }
-  };
+  }, [activeTab, currentPage]);
 
   const handleFindOrderById = async () => {
     if (orderCode.length > 5) {
-      setOrders([]);
       try {
         const res = await apiOrder.getByIdShipper(orderCode, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         const data = res.data;
-        setOrders((prevArray) => [...prevArray, data]);
+        setOrders([data]);
+        setCurrentPage(0);
+        setTotalPages(1);
+        setIsFirst(true);
+        setIsLast(true);
+        setTotalElements(res.status === 200 ? 1 : 0);
       } catch (err) {
-        console.log(err);
+        console.error("Error finding order:", err);
+        Swal.fire({
+          title: "Mã đơn hàng không đúng!",
+          text: "Không tìm thấy đơn hàng",
+          icon: "warning",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
       }
     } else {
-      setLoading(!loading);
+      const status = getStatusFromTab(activeTab);
+      if (status) {
+        getOrderByStatus(status, currentPage);
+      } else {
+        getAllOrder(currentPage);
+      }
     }
   };
 
-  const handleGetOrderData = async (index) => {
-    setCurrentPage(index);
-    setLoading(!loading);
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleFindOrderById();
+    }
   };
 
-  const handleNextOrder = async () => {
-    setCurrentPage(currentPage + 1);
-    setLoading(!loading);
-  };
-
-  const handlePrevOrder = async () => {
-    setCurrentPage(currentPage - 1);
-    setLoading(!loading);
+  const handleSetActiveTab = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(0);
   };
 
   return (
-    <div className="min-h-screen w-4/5 bg-gray-100 p-4 font-sans">
+    <div className="min-h-screen w-full bg-gray-100 p-4 font-sans">
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-800">Tất cả</h2>
-          <div className="flex space-x-3">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-              Xuất
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-              Lịch sử Xuất Báo cáo
-            </button>
-          </div>
         </div>
 
         <div className="border-b border-gray-200 px-6 py-4">
@@ -207,7 +184,7 @@ export default function OrderData() {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleSetActiveTab(tab)}
                 className={`pb-2 text-sm font-medium ${
                   activeTab === tab
                     ? "border-b-2 border-orange-500 text-orange-500"
@@ -238,12 +215,13 @@ export default function OrderData() {
               onKeyPress={handleKeyPress}
             />
           </div>
-          
         </div>
 
         <div className="p-6">
           <p className="text-sm text-gray-600 mb-4">
-            <span className="font-semibold">{orders?.length} Đơn hàng</span>
+            <span className="font-semibold">
+              {orders?.length} / {totalElements} Đơn hàng
+            </span>
           </p>
 
           <div className="overflow-x-auto">
@@ -403,12 +381,18 @@ export default function OrderData() {
                                 rowSpan={numProducts}
                                 className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium align-top"
                               >
-                                <button
-                                  className="text-blue-600 hover:text-blue-900"
-                                  onClick={() => handleToOrderDetail(order.id)}
+                                <Link
+                                  to={`/shipper/order/order-detail/${order.id}`}
                                 >
-                                  Xem chi tiết
-                                </button>
+                                  <button
+                                    className="text-blue-600 hover:text-blue-900"
+                                    // onClick={() =>
+                                    //   handleToOrderDetail(order.id)
+                                    // }
+                                  >
+                                    Xem chi tiết
+                                  </button>
+                                </Link>
                               </td>
                             </>
                           )}
@@ -421,98 +405,14 @@ export default function OrderData() {
             </table>
           </div>
 
-          <div className="flex justify-end items-center mt-6 space-x-2 text-sm">
-            {!isFirst && (
-              <button
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                onClick={handlePrevOrder}
-              >
-                &lt;
-              </button>
-            )}
-
-            {(() => {
-              const pageButtons = [];
-              const maxButtons = 5;
-              const sideCount = 1;
-
-              const startPage = Math.max(0, currentPage - sideCount);
-              const endPage = Math.min(totalPages - 1, currentPage + sideCount);
-
-              if (startPage > 0) {
-                pageButtons.push(
-                  <button
-                    key={0}
-                    className={`px-3 py-1 ${
-                      currentPage === 0
-                        ? "bg-blue-500 text-white"
-                        : "border border-blue-500"
-                    } rounded-md`}
-                    onClick={() => handleGetOrderData(0)}
-                  >
-                    1
-                  </button>
-                );
-                if (startPage > 1) {
-                  pageButtons.push(
-                    <span key="start-ellipsis" className="px-2">
-                      ...
-                    </span>
-                  );
-                }
-              }
-
-              for (let i = startPage; i <= endPage; i++) {
-                pageButtons.push(
-                  <button
-                    key={i}
-                    className={`px-3 py-1 ${
-                      currentPage === i
-                        ? "bg-blue-500 text-white"
-                        : "border border-blue-500"
-                    } rounded-md`}
-                    onClick={() => handleGetOrderData(i)}
-                  >
-                    {i + 1}
-                  </button>
-                );
-              }
-
-              if (endPage < totalPages - 1) {
-                if (endPage < totalPages - 2) {
-                  pageButtons.push(
-                    <span key="end-ellipsis" className="px-2">
-                      ...
-                    </span>
-                  );
-                }
-                pageButtons.push(
-                  <button
-                    key={totalPages - 1}
-                    className={`px-3 py-1 ${
-                      currentPage === totalPages - 1
-                        ? "bg-blue-500 text-white"
-                        : "border border-blue-500"
-                    } rounded-md`}
-                    onClick={() => handleGetOrderData(totalPages - 1)}
-                  >
-                    {totalPages}
-                  </button>
-                );
-              }
-
-              return pageButtons;
-            })()}
-
-            {!isLast && (
-              <button
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                onClick={handleNextOrder}
-              >
-                &gt;
-              </button>
-            )}
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+            // setLoading={setLoading}
+            isFirst={isFirst}
+            isLast={isLast}
+          />
         </div>
       </div>
     </div>

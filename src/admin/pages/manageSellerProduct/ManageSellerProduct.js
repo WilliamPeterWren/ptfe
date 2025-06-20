@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-
-import apiOrder from "../../../api/apiOrder";
+import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 import BarChart from "./components/BarChart";
 import RatingSection from "./components/RatingSection";
@@ -9,12 +9,12 @@ import SalesCard from "./components/SaleCard";
 import SellerProduct from "./components/SellerProduct";
 import apiProduct from "../../../api/apiProduct";
 
-import { Link, useParams } from "react-router-dom";
+import Pagination from "./components/Pagination";
+import SellerInfo from "./components/SellerInfo";
+
+import apiOrder from "../../../api/apiOrder";
 import apiUser from "../../../api/apiUser";
 import apiAddress from "../../../api/apiAddress";
-import Pagination from "./components/Pagination";
-import EmbeddedGoogleMap from "./components/EmbeddedGoogleMap";
-import { calculateDuration } from "../../../utils/CountDate";
 
 function ManageSellerProduct() {
   const accessToken = Cookies.get("accessToken");
@@ -327,19 +327,25 @@ function ManageSellerProduct() {
     {
       title: "Doanh thu tuần này",
       value: thisweekRevenue,
-      percentage: (
-        ((thisweekRevenue - lastweekRevenue) / thisweekRevenue) *
-        100
-      ).toFixed(1),
+      percentage:
+        thisweekRevenue > 0
+          ? (
+              ((thisweekRevenue - lastweekRevenue) / thisweekRevenue) *
+              100
+            ).toFixed(1)
+          : 100,
       type: thisweekRevenue - lastweekRevenue > 0 ? "increase" : "decrease",
     },
     {
       title: "Doanh thu tuần trước",
       value: lastweekRevenue,
-      percentage: (
-        ((lastweekRevenue - thisweekRevenue) / thisweekRevenue) *
-        100
-      ).toFixed(1),
+      percentage:
+        thisweekRevenue > 0
+          ? (
+              ((lastweekRevenue - thisweekRevenue) / thisweekRevenue) *
+              100
+            ).toFixed(1)
+          : 100,
       type: lastweekRevenue - thisweekRevenue > 0 ? "increase" : "decrease",
     },
     {
@@ -352,19 +358,25 @@ function ManageSellerProduct() {
     {
       title: "Doanh thu tháng này",
       value: revenueThisMonth,
-      percentage: (
-        ((revenueThisMonth - revenueLastMonth) / revenueThisMonth) *
-        100
-      ).toFixed(1),
+      percentage:
+        revenueThisMonth > 0
+          ? (
+              ((revenueThisMonth - revenueLastMonth) / revenueThisMonth) *
+              100
+            ).toFixed(1)
+          : 100,
       type: revenueThisMonth - revenueLastMonth > 0 ? "increase" : "decrease",
     },
     {
       title: "Doanh thu tháng trước",
       value: revenueLastMonth,
-      percentage: (
-        ((revenueLastMonth - revenueThisMonth) / revenueLastMonth) *
-        100
-      ).toFixed(1),
+      percentage:
+        revenueLastMonth > 0
+          ? (
+              ((revenueLastMonth - revenueThisMonth) / revenueLastMonth) *
+              100
+            ).toFixed(1)
+          : 100,
       type: revenueLastMonth - revenueThisMonth > 0 ? "increase" : "decrease",
     },
     {
@@ -381,107 +393,99 @@ function ManageSellerProduct() {
     },
   ];
 
+  const [exportTrigger, setExportTrigger] = useState(null);
+
+  const fetchExportData = async (apiCall) => {
+    try {
+      const res = await apiCall({
+        headers: {
+          Authorization: `Bearer ${sellerToken}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchDataAndExport = async () => {
+      let dataToExport = null;
+      let name = "";
+      switch (exportTrigger) {
+        case 0:
+          dataToExport = await fetchExportData(apiOrder.getExportToday);
+          name = "-hom-nay";
+          break;
+        case 1:
+          dataToExport = await fetchExportData(apiOrder.getExportThisWeek);
+          name = "-tuan-nay";
+          break;
+        case 2:
+          dataToExport = await fetchExportData(apiOrder.getExportLastWeek);
+          name = "-tuan-truoc";
+          break;
+        case 3:
+          dataToExport = await fetchExportData(apiOrder.getExportThisYear);
+          name = "-nam-nay";
+          break;
+        case 4:
+          dataToExport = await fetchExportData(apiOrder.getExportThisMonth);
+          name = "-thang-nay";
+          break;
+        case 5:
+          dataToExport = await fetchExportData(apiOrder.getExportLastMonth);
+          name = "-thang-truoc";
+          break;
+        default:
+          return;
+      }
+
+      if (dataToExport) {
+        // setReportData(dataToExport);
+        console.log(dataToExport);
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "DoanhThu");
+        XLSX.writeFile(workbook, `bao-cao-doanh-thu${name}.xlsx`);
+
+        setExportTrigger(null);
+      }
+    };
+
+    if (exportTrigger !== null) {
+      fetchDataAndExport();
+    }
+  }, [exportTrigger, accessToken]);
+
+  const handleExport = (triggerIndex) => {
+    setExportTrigger(triggerIndex);
+  };
+
   if (sellerInfo === null || address === null) {
     return null;
   }
 
   return (
     <div>
-      <div className="p-8">
-        <div className="flex justify-items">
-          <Link
-            to={`/admin/manageseller`}
-            className="text-gray-500 hover:text-gray-700 mr-3"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </Link>
-          <p className="font-bold text-orange-600 text-xl mb-2 underline">
-            Thông tin về shop
-          </p>
-        </div>
-
-        <div className="flex justify-items">
-          <div className="mr-4">
-            <p>
-              <span className="font-semibold text-lg mr-4">Tên shop:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {sellerInfo.username}
-              </span>
-            </p>
-            <p>
-              <span className="font-semibold text-lg mr-4">Email:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {sellerInfo.email}
-              </span>
-            </p>
-            <p>
-              <span className="font-semibold text-lg mr-4">Tham gia từ:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {calculateDuration(sellerInfo.createdAt)} trước
-              </span>
-            </p>
-          </div>
-          <div className="ml-4">
-            <p>
-              <span className="font-semibold text-lg mr-4">Họ:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {address.firstName}
-              </span>
-            </p>
-            <p>
-              <span className="font-semibold text-lg mr-4">Tên:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {address.lastName}
-              </span>
-            </p>
-            <p>
-              <span className="font-semibold text-lg mr-4">Số điện thoại:</span>
-              <span className="font-semibold text-yellow-600 text-lg">
-                {address.phone}
-              </span>
-            </p>
-          </div>
-        </div>
-        <div className="mt-2">
-          <p className="font-semibold text-purple-800 text-lg">
-            Địa chỉ: {address.address}
-          </p>
-          {address.length !== 0 && address?.address !== undefined ? (
-            <div className="text-gray-800 text-sm">
-              <EmbeddedGoogleMap userAddress={address.address} />
-            </div>
-          ) : (
-            <div className="text-red-500 font-semibold">
-              Chưa có địa chỉ lấy hàng!
-            </div>
-          )}
-        </div>
-      </div>
+      <SellerInfo sellerInfo={sellerInfo} address={address} />
 
       <div className="bg-white p-8 font-sans antialiased">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {salesData.map((data, index) => (
-              <SalesCard
-                key={index}
-                title={data.title}
-                value={data.value}
-                percentage={data.percentage}
-                type={data.type}
-              />
+              <div key={index}>
+                <SalesCard
+                  title={data.title}
+                  value={data.value}
+                  percentage={data.percentage}
+                  type={data.type}
+                  handleExport={handleExport}
+                  index={index}
+                />
+              </div>
             ))}
           </div>
         </div>

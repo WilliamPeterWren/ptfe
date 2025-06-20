@@ -6,12 +6,15 @@ import { toast } from "react-toastify";
 import apiPeterVoucher from "../../../api/apiPeterVoucher";
 
 import formatForDatetimeLocal from "../../../utils/formatForDatetimeLocal";
+import Pagination from "./Pagination";
 
 function PeterVoucher() {
   const accessToken = Cookies.get("accessToken");
 
   const [peters, setPeterVouchers] = useState([]);
   const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
   const [size, setSize] = useState(10);
 
   const [loading, setLoading] = useState(true);
@@ -44,6 +47,9 @@ function PeterVoucher() {
       const data = res.data;
       console.log(data);
       setPeterVouchers(data.content);
+      setPage(data.number);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
     } catch (err) {
       console.error("Failed to fetch flash sales:", err);
       // setError("Failed to load flash sales. Please try again later.");
@@ -149,18 +155,18 @@ function PeterVoucher() {
             },
           });
 
-          Swal.fire({
-            title: "Đã xóa!",
-            text: "Chương trình khuyến mãi bị xóa!",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              console.log("I was closed by the timer");
-            }
-          });
+          // Swal.fire({
+          //   title: "Đã xóa!",
+          //   text: "Chương trình khuyến mãi bị xóa!",
+          //   icon: "success",
+          //   timer: 1500,
+          //   timerProgressBar: true,
+          //   showConfirmButton: false,
+          // }).then((result) => {
+          //   if (result.dismiss === Swal.DismissReason.timer) {
+          //     console.log("I was closed by the timer");
+          //   }
+          // });
           setLoading(!loading);
           // setPeterVouchers((prev) => prev.filter((item) => item.id !== id));
           // window.location.reload();
@@ -217,7 +223,7 @@ function PeterVoucher() {
 
     setPeterVoucherName(voucher.name);
     setPeterVoucherValue(voucher.value);
-    setPeterVoucherCount(1);
+    setPeterVoucherCount(voucher.count);
     setExpiredAt(voucher.expiredAt);
     setMinPurchase(voucher.minPurchase);
 
@@ -316,7 +322,7 @@ function PeterVoucher() {
   return (
     <div className="w-4/5 mx-auto p-4">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Danh sách khuyến mãi giao hàng hiện có
+        Danh sách khuyến mãi Peter
       </h1>
       <div className="mb-4">
         <button
@@ -509,7 +515,11 @@ function PeterVoucher() {
           >
             <div className="flex justify-between">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-indigo-700 mb-2 capitalize">
+                <h2
+                  className={`text-xl font-semibold ${
+                    voucher?.available ? "text-indigo-700" : "text-white"
+                  }  mb-2 capitalize`}
+                >
                   {voucher?.name}
                 </h2>
               </div>
@@ -527,11 +537,19 @@ function PeterVoucher() {
               )}
             </div>
 
-            <h2 className="text-lg font-semibold text-orange-700 mb-2">
+            <h2
+              className={`text-lg font-semibold ${
+                voucher?.available ? "text-orange-700" : "text-white"
+              }  mb-2`}
+            >
               Mức khuyến mãi : {voucher?.value?.toLocaleString()} đ
             </h2>
 
-            <h2 className="text-lg font-semibold text-orange-700 mb-2">
+            <h2
+              className={`text-lg font-semibold ${
+                voucher?.available ? "text-orange-700" : "text-white"
+              }  mb-2`}
+            >
               Đơn tối thiểu : {voucher?.minPurchase?.toLocaleString()} đ
             </h2>
             <hr className="border border-red-500 w-full" />
@@ -571,6 +589,11 @@ function PeterVoucher() {
           </div>
         ))}
       </div>
+      <Pagination
+        currentPage={page}
+        setCurrentPage={setPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

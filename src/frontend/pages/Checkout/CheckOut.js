@@ -47,9 +47,7 @@ function CheckOut() {
 
   const [peterVouchers, setPeterVouchers] = useState([]);
   const [peterVoucher, setPeterVoucher] = useState(0);
-  const [peterVoucherId, setPeterVoucherId] = useState(
-    "684010440414931d729faa42"
-  );
+  const [peterVoucherId, setPeterVoucherId] = useState("");
 
   const getPeterVouchers = async () => {
     await apiPeterVoucher

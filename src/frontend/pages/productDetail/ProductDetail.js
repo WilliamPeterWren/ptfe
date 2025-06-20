@@ -13,6 +13,7 @@ import apiReview from "../../../api/apiReview";
 
 import apiProduct from "../../../api/apiProduct";
 import apiUser from "../../../api/apiUser";
+import Swal from "sweetalert2";
 
 function ProductDetail() {
   const { slug } = useParams();
@@ -38,6 +39,17 @@ function ProductDetail() {
       const data = res.data.result;
       console.log(data);
       setProduct(data);
+
+      if (data.blocked) {
+        Swal.fire({
+          title: "Sản phẩm tạm khóa!",
+          text: "Sản phẩm đang được admin khóa!",
+          icon: "warning",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      }
 
       const reviewRes = await apiReview.getReview(data?.id);
       // console.log(reviewRes.data.content);

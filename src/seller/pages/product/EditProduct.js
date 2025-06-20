@@ -524,6 +524,9 @@ export default function ProductDetail() {
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">
                   - Phân loại sản phẩm
                 </h3>
+                <p className="text-md font-semibold text-red-700 mb-3">
+                  Lưu ý: Không thể xóa sau khi thêm
+                </p>
                 {product?.variants.map((variant, index) => (
                   <div
                     key={index}

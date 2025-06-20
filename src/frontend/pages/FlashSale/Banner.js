@@ -1,6 +1,5 @@
 import React from "react";
 import { imageUrl } from "../../../api/config";
-import getTimeDetails from "../../../utils/getTimeDetails";
 
 function Banner({ flashsales, setCurrentFlashsale }) {
   const handleCurrentFlashSale = (id) => {

@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { MdOutlineLocalShipping } from "react-icons/md";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 
-import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 import apiOrder from "../../../api/apiOrder";
 import apiCart from "../../../api/apiCart";
-import { formatCurrency } from "../../../utils/FormatCurrency";
 import apiShippingFee from "../../../api/apiShipping";
 import apiShippingVoucher from "../../../api/apiShippingVoucher";
-
 import apiEmail from "../../../api/apiEmail";
+
+import { SET_CART_FROM_API } from "../../../redux/action/cartAction";
 import { CLEAR_CHECKOUT } from "../../../redux/action/checkoutAction";
+
+import { formatCurrency } from "../../../utils/FormatCurrency";
 
 const generateOrderHtmlBody = (
   orderItems,
@@ -24,6 +26,7 @@ const generateOrderHtmlBody = (
   shippingFee,
   shippingVoucher,
   peterVoucher,
+  paymentType,
   grandTotal
 ) => {
   let tableRowsHtml = "";
@@ -41,24 +44,24 @@ const generateOrderHtmlBody = (
         <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${
           item.quantity
         }</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${item.price.toFixed(
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${item.price.toFixed(
           2
         )}</td>
         ${
           item.salePrice > 0
-            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: green;">$${item.salePrice.toFixed(
+            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: green;">${item.salePrice.toFixed(
                 2
               )}</td>`
             : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">N/A</td>'
         }
         ${
           item.discount > 0
-            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: red;">-$${item.discount.toFixed(
+            ? `<td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: red;">-${item.discount.toFixed(
                 2
               )}</td>`
             : '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$0.00</td>'
         }
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${itemTotalPrice.toFixed(
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${itemTotalPrice.toFixed(
           2
         )}</td>
       </tr>
@@ -88,13 +91,13 @@ const generateOrderHtmlBody = (
            <tfoot>
           <tr>
             <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">Tổng tiền sản phẩm:</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">$${orderTotal.toFixed(
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${orderTotal.toFixed(
               2
             )}</td>
           </tr>
           <tr>
             <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Phí vận chuyển:</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$${shippingFee.toFixed(
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${shippingFee.toFixed(
               2
             )}</td>
           </tr>
@@ -102,17 +105,23 @@ const generateOrderHtmlBody = (
             <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Khuyến mãi vận chuyển:</td>
             <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${
               shippingVoucher > 0 ? "red" : "#333"
-            };">-$${shippingVoucher.toFixed(2)}</td>
+            };">-${shippingVoucher.toFixed(2)}</td>
           </tr>
           <tr>
             <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Khuyến mãi Peter:</td>
             <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${
               peterVoucher > 0 ? "red" : "#333"
-            };">-$${peterVoucher.toFixed(2)}</td>
+            };">-${peterVoucher.toFixed(2)}</td>
           </tr>
           <tr>
+            <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right;">Hình thức thanh toán:</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: red">
+            ${paymentType}</td>
+          </tr>
+
+          <tr>
             <td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; background-color: #f2f2f2;">Tổng cộng:</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; background-color: #f2f2f2;">$${grandTotal.toFixed(
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; background-color: #f2f2f2;">${grandTotal.toFixed(
               2
             )}</td>
           </tr>
@@ -167,12 +176,14 @@ const PaymentSummary = (props) => {
   const [shippingId, setShippingId] = useState("683b529e2a9cfc41ae6f134b");
 
   const [shippingVouchers, setShippingVouchers] = useState([]);
-  const [shippingVoucher, setShippingVoucher] = useState(15000);
+  const [shippingVoucher, setShippingVoucher] = useState(0);
   const [shippingVoucherId, setShippingVoucherId] = useState("");
 
   const shippingCostAfterVoucher = Math.max(shippingFee - shippingVoucher, 0);
   const totalPayment =
     totalProductPrice + shippingCostAfterVoucher - peterVoucher;
+
+  const [paymentType, setPaymentType] = useState("COD");
 
   const accessToken = Cookies.get("accessToken");
 
@@ -217,7 +228,7 @@ const PaymentSummary = (props) => {
     setShippingVoucherId(selected.id);
   };
 
-  const handlePlaceTheOrder = async () => {
+  const handlePlaceTheOrder = async (paymentType) => {
     for (const seller of data) {
       const orderItems = seller.items.map((item) => ({
         price: item.price,
@@ -232,7 +243,7 @@ const PaymentSummary = (props) => {
         orderItems,
         shippingVoucherId: shippingVoucherId,
         addressId: addressId,
-        paymentType: "COD",
+        paymentType: paymentType,
         sellerVoucherId: "",
         shippingId: shippingId,
         peterVoucher: peterVoucherId,
@@ -285,6 +296,7 @@ const PaymentSummary = (props) => {
             shippingFee,
             shippingVoucher,
             peterVoucher,
+            paymentType,
             totalPayment - totalDiscount
           );
 
@@ -426,7 +438,9 @@ const PaymentSummary = (props) => {
             Tổng thanh toán
           </span>
           <span className="text-xl font-bold text-orange-500">
-            {formatCurrency(totalPayment - totalDiscount)}
+            {paymentType === "COD"
+              ? formatCurrency(totalPayment - totalDiscount)
+              : 0}
           </span>
         </div>
       </div>
@@ -437,11 +451,33 @@ const PaymentSummary = (props) => {
               ? "bg-orange-500 hover:bg-orange-600"
               : "bg-gray-400"
           }  text-lg font-semibold`}
-          onClick={() => handlePlaceTheOrder()}
+          onClick={() => handlePlaceTheOrder("COD")}
           disabled={addressId.length < 5}
         >
           ĐẶT HÀNG
         </button>
+      </div>
+      <div>
+        <PayPalButtons
+          createOrder={(data, actions) => {
+            return actions.order.create({
+              purchase_units: [
+                {
+                  amount: {
+                    value: totalPayment - totalDiscount,
+                  },
+                },
+              ],
+            });
+          }}
+          onApprove={(data, actions) => {
+            return actions.order.capture().then((details) => {
+              // alert("Payment successful by " + details.payer.name.given_name);
+              // setPaymentType("PAYPAL");
+              handlePlaceTheOrder("PAYPAL");
+            });
+          }}
+        />
       </div>
     </div>
   );

@@ -17,10 +17,10 @@ const Detail = ({ productData, reviewsLength }) => {
   const [discount, setDiscount] = useState(productData.discount);
   const [selectVariant, setSelectVariant] = useState(0);
   const [peterVoucher, setPeterVoucher] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [maxVariantStock, setMaxVariantStock] = useState(
-    productData.variants[0].stock
-  );
+  // const [loading, setLoading] = useState(false);
+  // const [maxVariantStock, setMaxVariantStock] = useState(
+  //   productData.variants[0].stock
+  // );
 
   const star = useMemo(() => {
     let sum1 = 0;
@@ -405,12 +405,16 @@ const Detail = ({ productData, reviewsLength }) => {
               {productData.variants.map((v, index) => (
                 <button
                   key={index}
-                  className={`text-md px-2 py-1 rounded border border-gray-400 text-gray-800 hover:bg-blue-500 hover:border-none hover:text-white capitalize ${
+                  className={`text-md px-2 py-1 rounded border border-gray-400 text-gray-800 ${
+                    productData.blocked
+                      ? "bg-gray-200 text-white"
+                      : "hover:bg-blue-500 hover:border-none hover:text-white"
+                  }  capitalize ${
                     index === selectVariant &&
                     "font-bold bg-blue-500 text-white"
                   }
                     `}
-                  disabled={v.stock <= 0}
+                  disabled={v.stock <= 0 || productData.blocked}
                   onClick={() => handleChangeVariant(index)}
                 >
                   {v.variantName}
@@ -422,7 +426,10 @@ const Detail = ({ productData, reviewsLength }) => {
           <div className="flex items-center p-1 w-fit my-2">
             <button
               onClick={decrement}
-              className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+              className={`px-4 py-1 border border-gray-300 ${
+                productData.blocked ? "" : "hover:bg-blue-400"
+              } `}
+              disabled={productData.blocked}
             >
               -
             </button>
@@ -446,19 +453,28 @@ const Detail = ({ productData, reviewsLength }) => {
                   e.target.value = min;
                 }
               }}
+              disabled={productData.blocked}
             />
 
             <button
               onClick={increment}
-              className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+              className={`px-4 py-1 border border-gray-300 ${
+                productData.blocked ? "" : "hover:bg-blue-400"
+              }`}
+              disabled={productData.blocked}
             >
               +
             </button>
           </div>
           <div className="flex space-x-4">
             <button
-              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors duration-300"
+              className={`${
+                productData.blocked
+                  ? "bg-gray-200"
+                  : "bg-red-500 hover:bg-red-600"
+              }  text-white px-6 py-2 rounded  transition-colors duration-300`}
               onClick={handleAddToCart}
+              disabled={productData.blocked}
             >
               Thêm Vào Giỏ Hàng
             </button>

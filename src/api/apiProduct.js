@@ -53,9 +53,9 @@ const apiProduct = {
     );
   },
 
-  searchProductByProductName: (productName) => {
+  searchProductByProductName: (productName, page) => {
     return axiosInstance.get(
-      `/products/search/product/productname/${productName}`
+      `/products/search/product/productname/${productName}?page=${page}`
     );
   },
 

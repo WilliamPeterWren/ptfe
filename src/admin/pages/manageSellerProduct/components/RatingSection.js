@@ -4,15 +4,17 @@ import { Star } from "lucide-react";
 
 const RatingSection = ({ ratings }) => {
   const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
 
   useEffect(() => {
     if (!ratings || ratings.length === 0) {
       setAverageRating(0);
+      setTotalReviews(0);
       return;
     }
 
     let totalStars = 0;
-    let totalCount = 0;
+    let currentTotalCount = 0;
 
     ratings.forEach((r) => {
       const stars = parseInt(r.stars, 10);
@@ -20,15 +22,17 @@ const RatingSection = ({ ratings }) => {
 
       if (!isNaN(stars) && !isNaN(count)) {
         totalStars += stars * count;
-        totalCount += count;
+        currentTotalCount += count;
       }
     });
 
-    if (totalCount > 0) {
-      const calculatedAverage = (totalStars / totalCount).toFixed(1);
+    if (currentTotalCount > 0) {
+      const calculatedAverage = (totalStars / currentTotalCount).toFixed(1);
       setAverageRating(parseFloat(calculatedAverage));
+      setTotalReviews(currentTotalCount);
     } else {
       setAverageRating(0);
+      setTotalReviews(0);
     }
   }, [ratings]);
 
@@ -37,7 +41,7 @@ const RatingSection = ({ ratings }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm row-span-2">
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">Đánh giá </h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">Rating</h3>
       <div className="flex items-end mb-6">
         <span className="text-5xl font-bold text-gray-800">
           {averageRating}{" "}
@@ -47,7 +51,9 @@ const RatingSection = ({ ratings }) => {
           size={30}
           fill="currentColor"
         />
-        <span className="text-gray-500 text-sm ml-4">{maxCount} </span>{" "}
+        <span className="text-gray-500 text-sm ml-4">
+          {totalReviews} reviews
+        </span>{" "}
       </div>
       {ratings.map((rating, index) => (
         <div key={index} className="flex items-center mb-2">
@@ -56,7 +62,7 @@ const RatingSection = ({ ratings }) => {
           <div className="flex-1 bg-gray-200 rounded-full h-2.5 mx-4">
             <div
               className="bg-blue-400 h-2.5 rounded-full"
-              style={{ width: `${(rating.count / ratings[0].count) * 100}%` }}
+              style={{ width: `${(rating.count / maxCount) * 100}%` }}
             ></div>
           </div>
           <span className="text-sm text-gray-600">{rating.count}</span>

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 import apiOrder from "../../../api/apiOrder";
@@ -38,7 +39,7 @@ export default function OrderDetail() {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  // const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
 
   const getOrder = async () => {
@@ -141,13 +142,28 @@ export default function OrderDetail() {
           const data = res.data;
           console.log(data);
           setLoading(!loading);
-          Swal.fire({
-            title: "Cập nhật thành công",
-            text: "Trạng thái đơn hàng được cập nhật",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
+          // Swal.fire({
+          //   title: "Cập nhật thành công",
+          //   text: "Trạng thái đơn hàng được cập nhật",
+          //   icon: "success",
+          //   timer: 1500,
+          //   timerProgressBar: true,
+          //   showConfirmButton: false,
+          // });
+
+          toast.success(`Cập nhật thành công!`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            style: {
+              top: "-50%",
+              transform: "translateY(50%)",
+              marginRight: "2%",
+              width: "fit-content",
+            },
           });
 
           setImagePreviewUrl(imageUrl + "order/" + uuidFileName);
@@ -167,13 +183,27 @@ export default function OrderDetail() {
           const data = res.data;
           console.log(data);
           setLoading(!loading);
-          Swal.fire({
-            title: "Cập nhật thành công",
-            text: "Trạng thái đơn hàng được cập nhật",
-            icon: "success",
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false,
+          // Swal.fire({
+          //   title: "Cập nhật thành công",
+          //   text: "Trạng thái đơn hàng được cập nhật",
+          //   icon: "success",
+          //   timer: 1500,
+          //   timerProgressBar: true,
+          //   showConfirmButton: false,
+          // });
+          toast.success(`Cập nhật thành công!`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            style: {
+              top: "-50%",
+              transform: "translateY(50%)",
+              marginRight: "2%",
+              width: "fit-content",
+            },
           });
         })
         .catch((err) => console.log(err));
@@ -470,13 +500,14 @@ export default function OrderDetail() {
                         onChange={handleImageChange}
                         className="hidden"
                         id="imageUpload"
-                        disabled={uploading}
+                        // disabled={uploading}
                       />
                       <div>
+                        {uploadStatus}
                         <label
                           htmlFor="imageUpload"
                           className={`cursor-pointer px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out rounded-md mb-2
-                        ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
+                        `}
                         >
                           Chọn Ảnh
                         </label>

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { imageUrl } from "../../../api/config";
@@ -34,7 +33,7 @@ function FlashSale() {
         },
       });
       const data = res.data.result;
-      // console.log(data);
+      console.log(data);
       setFlashsales(data);
     } catch (err) {
       console.error("Failed to fetch flash sales:", err);

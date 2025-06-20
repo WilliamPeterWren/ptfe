@@ -1,23 +1,20 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-import apiUser from "../../../api/apiUser";
-import UserContext from "../../../context/userContext";
 import apiProduct from "../../../api/apiProduct";
-import apiCategory from "../../../api/apiCategory";
-import apiPeterCategory from "../../../api/apiPeterCategory";
-import { imageUrl } from "../../../api/config";
-
 import apiFlashSale from "../../../api/apiFlashSale";
+
+import { imageUrl } from "../../../api/config";
 
 import FlashSale from "./FlashSale";
 
 const ProductList = () => {
+  const accessToken = Cookies.get("accessToken");
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
 
   const sellerId = Cookies.get("id");
 
@@ -25,8 +22,6 @@ const ProductList = () => {
 
   const [reload, setReload] = useState(false);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [petercategories, setPeterCategories] = useState([]);
   const [totalProduct, setTotalProduct] = useState(0);
   const [flashSaleProductId, setFlashSaleProductId] = useState("");
   const [status, setStatus] = useState(true);
@@ -41,7 +36,11 @@ const ProductList = () => {
 
   const getAllAvailableFlashSale = async () => {
     await apiFlashSale
-      .getAll()
+      .sellerGetAll({
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
       .then((res) => {
         // console.log(res);
         const data = res.data.result;
@@ -60,7 +59,7 @@ const ProductList = () => {
       .then((res) => {
         if (res.status === 200) {
           const data = res.data.result;
-          console.log(data);
+          // console.log(data);
 
           setIsFirst(data.first);
           setIsLast(data.last);
@@ -75,34 +74,6 @@ const ProductList = () => {
         console.log(err);
       });
   };
-
-  const getCategories = async () => {
-    await apiCategory
-      .getAll(sellerId)
-      .then((res) => {
-        if (res.status === 200) {
-          // console.log(res.data.result);
-          setCategories(res.data.result);
-        }
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const getPeterCategories = async () => {
-    await apiPeterCategory
-      .getAll()
-      .then((res) => {
-        const data = res.data.result;
-        // console.log(data);
-        setPeterCategories(data);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  useEffect(() => {
-    getCategories();
-    getPeterCategories();
-  }, []);
 
   useEffect(() => {
     getProducts();
@@ -202,9 +173,9 @@ const ProductList = () => {
     });
   };
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value);
-  };
+  // const handleStatusChange = (e) => {
+  //   setStatus(e.target.value);
+  // };
 
   const handleOpenFlashSaleModal = (index) => {
     setOpenModal(!openModal);

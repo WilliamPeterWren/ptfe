@@ -95,6 +95,7 @@ const UserOrders = () => {
       );
 
       const data = res.data;
+      console.log(data);
 
       setCurrentPage(data.number);
       setTotalpages(data.totalPages);
@@ -102,14 +103,14 @@ const UserOrders = () => {
       const sorted1 = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      console.log(sorted1);
+      // console.log(sorted1);
       setOrders(sorted1 || []);
     } catch (err) {
       console.error("Error fetching orders by status:", err);
       Swal.fire({
-        title: "Lỗi API",
-        text: "Lấy dữ liệu theo trạng thái không thành công",
-        icon: "error",
+        title: "Không có đơn hàng nào!",
+        text: "Không tìm thấy đơn hàng nào!",
+        icon: "warning",
         timer: 1500,
         timerProgressBar: true,
         showConfirmButton: false,
@@ -147,7 +148,7 @@ const UserOrders = () => {
     }
 
     if (statusToFetch) {
-      getOrderByStatusPending(statusToFetch, 0, 10);
+      getOrderByStatusPending(statusToFetch);
     }
   }, [activeTab, accessToken, currentPage]);
 
@@ -162,6 +163,12 @@ const UserOrders = () => {
 
   useEffect(() => {}, []);
 
+  const handleSetActiveTab = (tab) => {
+    setCurrentPage(0);
+    setTotalpages(1);
+    setActiveTab(tab);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto p-4 bg-white shadow-md">
@@ -169,7 +176,7 @@ const UserOrders = () => {
           {tabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleSetActiveTab(tab)}
               className={`px-4 py-2 rounded-md transition-colors duration-200
                 ${
                   activeTab === tab
@@ -337,6 +344,14 @@ const UserOrders = () => {
                   {totalDiscount.toLocaleString()}{" "}
                 </p>
               </div>
+              <div className="flex justify-between items-center border-t mt-2 pt-2">
+                <p>Hình thức thanh toán</p>
+                <p className="text-red-500 font-semibold">
+                  {" "}
+                  {order.paymentType}{" "}
+                </p>
+              </div>
+
               <div className="flex justify-between items-center border-t mt-2 pt-2">
                 <p>Tổng thanh toán</p>
                 <p className="text-red-500 font-bold">

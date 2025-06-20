@@ -13,60 +13,12 @@ export default function OrderData() {
 
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [orderCode, setOrderCode] = useState("");
-
-  // paginate
-  const [isFirst, setIsFirst] = useState(false);
-  const [isLast, setIsLast] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isFirst, setIsFirst] = useState(true);
+  const [isLast, setIsLast] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-
-  const handleToOrderDetail = (id) => {
-    navigate(`/seller/order/order-detail/${id}`);
-  };
-
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const getAllOrder = async () => {
-    await apiOrder
-      .getOrderBySellerId(currentPage, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        const data = res.data;
-        console.log(data);
-
-        setIsFirst(data.first);
-        setIsLast(data.last);
-        setTotalPages(data.totalPages);
-        setCurrentPage(data.number);
-
-        const sorted1 = [...data.content].sort(
-          (a, b) =>
-            new Date(b.orderStatus.createdAt) -
-            new Date(a.orderStatus.createdAt)
-        );
-
-        const sorted2 = [...sorted1].sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
-        // console.log(sorted2);
-        setOrders(sorted2 || []);
-        setLoading(!loading);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    if (loading) {
-      getAllOrder();
-    }
-  }, [loading, currentPage]);
 
   const tabs = [
     "Tất cả",
@@ -78,30 +30,59 @@ export default function OrderData() {
     "Trả hàng/Hoàn tiền",
   ];
 
-  const getOrderByStatus = async (statusToFetch) => {
-    const dataToSend = statusToFetch;
+  // const handleToOrderDetail = (id) => {
+  //   navigate(`/seller/order/order-detail/${id}`);
+  // };
 
+  const getAllOrder = async (page = currentPage) => {
+    setLoading(true);
     try {
-      const res = await apiOrder.getOrderBySellerIdAndStatus(dataToSend, {
+      const res = await apiOrder.getOrderBySellerId(page, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
-      // console.log(res);
-      const data = res.data;
 
+      const data = res.data;
       setIsFirst(data.first);
       setIsLast(data.last);
       setTotalPages(data.totalPages);
       setCurrentPage(data.number);
 
-      const sorted1 = [...data.content].sort(
+      const sortedOrders = [...data.content].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
 
-      console.log(sorted1);
-      setOrders(sorted1 || []);
+      setOrders(sortedOrders);
+    } catch (err) {
+      console.error("Error fetching all orders:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getOrderByStatus = async (status, page = currentPage) => {
+    setLoading(true);
+    try {
+      const res = await apiOrder.getOrderBySellerIdAndStatus(status, page, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = res.data;
+      setIsFirst(data.first);
+      setIsLast(data.last);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number);
+
+      const sortedOrders = [...data.content].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+
+      setOrders(sortedOrders);
     } catch (err) {
       console.error("Error fetching orders by status:", err);
       Swal.fire({
@@ -112,85 +93,102 @@ export default function OrderData() {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-    }
-  };
-
-  useEffect(() => {
-    let statusToFetch = "";
-    switch (activeTab) {
-      case "Tất cả":
-        getAllOrder();
-        return;
-      case "Chờ thanh toán":
-        statusToFetch = "PENDING";
-        break;
-      case "Vận chuyển":
-        statusToFetch = "SELLER_PREPAIRING";
-        break;
-      case "Chờ giao hàng":
-        statusToFetch = "DELIVERING";
-        break;
-      case "Hoàn thành":
-        statusToFetch = "DELIVERD";
-        break;
-      case "Đã hủy":
-        statusToFetch = "CANCELLED";
-        break;
-      case "Trả hàng/Hoàn tiền":
-        statusToFetch = "RETURN";
-        break;
-      default:
-        statusToFetch = "";
-        break;
-    }
-
-    if (statusToFetch) {
-      getOrderByStatus(statusToFetch, 0, 10);
-    }
-  }, [activeTab, accessToken]);
-
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter" && orderCode.length > 5) {
-      handleFindOrderById();
-    } else {
-      getAllOrder();
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFindOrderById = async () => {
-    if (orderCode.length > 5) {
-      setOrders([]);
-      try {
-        const res = await apiOrder.getByIdSeller(orderCode, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+    if (orderCode.length <= 5) {
+      getAllOrder(0);
+      return;
+    }
 
-        const data = res.data;
-        setOrders((prevArray) => [...prevArray, data]);
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      setLoading(!loading);
+    setLoading(true);
+    try {
+      const res = await apiOrder.getByIdSeller(orderCode, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setOrders([res.data]);
+      setIsFirst(true);
+      setIsLast(true);
+      setTotalPages(1);
+      setCurrentPage(0);
+    } catch (err) {
+      console.error("Error finding order by ID:", err);
+      setOrders([]);
+      Swal.fire({
+        title: "Mã đơn hàng không đúng!",
+        text: "Không tìm thấy đơn hàng",
+        icon: "warning",
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleGetOrderData = async (index) => {
-    setCurrentPage(index);
-    setLoading(!loading);
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const statusMap = {
+      "Chờ thanh toán": "PENDING",
+      "Vận chuyển": "SELLER_PREPAIRING",
+      "Chờ giao hàng": "DELIVERING",
+      "Hoàn thành": "DELIVERD",
+      "Đã hủy": "CANCELLED",
+      "Trả hàng/Hoàn tiền": "RETURN",
+    };
+
+    if (activeTab === "Tất cả") {
+      getAllOrder(0);
+    } else {
+      getOrderByStatus(statusMap[activeTab], 0);
+    }
+  }, [activeTab, accessToken]);
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleFindOrderById();
+    }
   };
 
-  const handleNextOrder = async () => {
-    setCurrentPage(currentPage + 1);
-    setLoading(!loading);
+  const handleNextOrder = () => {
+    if (!isLast) {
+      setCurrentPage((prev) => prev + 1);
+    }
   };
 
-  const handlePrevOrder = async () => {
-    setCurrentPage(currentPage - 1);
-    setLoading(!loading);
+  const handlePreviousOrder = () => {
+    if (!isFirst) {
+      setCurrentPage((prev) => prev - 1);
+    }
   };
+
+  const handleGetOrderData = (page) => {
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    if (orderCode.length > 0) return;
+    if (activeTab === "Tất cả") {
+      getAllOrder();
+    } else {
+      const statusMap = {
+        "Chờ thanh toán": "PENDING",
+        "Vận chuyển": "SELLER_PREPAIRING",
+        "Chờ giao hàng": "DELIVERING",
+        "Hoàn thành": "DELIVERD",
+        "Đã hủy": "CANCELLED",
+        "Trả hàng/Hoàn tiền": "RETURN",
+      };
+      getOrderByStatus(statusMap[activeTab]);
+    }
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen w-full bg-gray-100 p-4 font-sans">
@@ -255,7 +253,7 @@ export default function OrderData() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-5/12">
                     Sản phẩm
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
@@ -324,10 +322,10 @@ export default function OrderData() {
                                 />
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {product.productName.slice(0, 50)}
+                                <div className="text-sm font-medium text-gray-900 whitespace-pre-line">
+                                  {product.productName}
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-gray-500 ">
                                   {product.variantName} x{product.quantity}
                                 </div>
                               </div>
@@ -426,12 +424,16 @@ export default function OrderData() {
                                 rowSpan={numProducts}
                                 className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium align-top"
                               >
-                                <button
-                                  className="text-blue-600 hover:text-blue-900"
-                                  onClick={() => handleToOrderDetail(order.id)}
+                                <Link
+                                  to={`/seller/order/order-detail/${order.id}`}
                                 >
-                                  Xem chi tiết
-                                </button>
+                                  <button
+                                    className="text-blue-600 hover:text-blue-900"
+                                    // onClick={() => handleToOrderDetail(order.id)}
+                                  >
+                                    Xem chi tiết
+                                  </button>
+                                </Link>
                               </td>
                             </>
                           )}
@@ -448,7 +450,7 @@ export default function OrderData() {
             {!isFirst && (
               <button
                 className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                onClick={handlePrevOrder}
+                onClick={handlePreviousOrder}
               >
                 &lt;
               </button>

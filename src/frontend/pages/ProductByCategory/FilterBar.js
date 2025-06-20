@@ -1,4 +1,3 @@
-import { useState } from "react";
 
 const FilterBar = (props) => {
   const {

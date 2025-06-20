@@ -6,11 +6,14 @@ import { toast } from "react-toastify";
 import formatForDatetimeLocal from "../../../utils/formatForDatetimeLocal";
 
 import apiFlashSale from "../../../api/apiFlashSale";
+import Pagination from "./Pagination";
 
 function FlashSale() {
   const accessToken = Cookies.get("accessToken");
 
   const [flashsales, setFlashsales] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -498,6 +501,12 @@ function FlashSale() {
           </div>
         ))}
       </div>
+
+      <Pagination
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

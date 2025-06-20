@@ -9,7 +9,7 @@ const Pagination = (props) => {
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    const maxVisiblePages = 5; 
+    const maxVisiblePages = 5;
 
     let startPage = Math.max(
       1,

@@ -102,7 +102,7 @@ const VoucherCard = ({ voucher, data, index }) => {
     >
       {data?.length > 0 &&
         data.map((item) => {
-          console.log(item);
+          // console.log(item);
           if (item.id === voucher.id && voucher.value > 0)
             return (
               <div>
@@ -115,7 +115,7 @@ const VoucherCard = ({ voucher, data, index }) => {
                     {item.name}
                   </span>
                   <span className="text-sm font-semibold capitalize">
-                    x{item.count}
+                    x{voucher.value}
                   </span>
                 </div>
                 <div className="p-4 flex items-center space-x-4">

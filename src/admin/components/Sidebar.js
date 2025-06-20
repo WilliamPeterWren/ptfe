@@ -16,7 +16,7 @@ export default function Sidebar() {
     Cookies.remove("accessToken");
     Cookies.remove("avatar");
 
-    navigate("/shipper/login");
+    navigate("/admin/login");
   };
 
   return (
@@ -120,6 +120,17 @@ export default function Sidebar() {
           <button>Quản lý người bán</button>
         </Link>
         <Link
+          to={`/admin/manageshipper`}
+          className={`border border-gray-200 p-2 rounded-lg block text-left w-full
+            ${
+              location.pathname === "/admin/manageshipper"
+                ? "bg-blue-500 text-white"
+                : "hover:bg-gray-200"
+            }`}
+        >
+          <button className="text-left">Quản lý nhân viên vận chuyển</button>
+        </Link>
+        <Link
           to={`/admin/manageproduct`}
           className={`border border-gray-200 p-2 rounded-lg block text-left w-full
             ${
@@ -129,6 +140,17 @@ export default function Sidebar() {
             }`}
         >
           <button>Quản lý sản phẩm</button>
+        </Link>
+        <Link
+          to={`/admin/manageorder`}
+          className={`border border-gray-200 p-2 rounded-lg block text-left w-full
+            ${
+              location.pathname === "/admin/manageorder"
+                ? "bg-blue-500 text-white"
+                : "hover:bg-gray-200"
+            }`}
+        >
+          <button>Quản lý đơn hàng</button>
         </Link>
       </nav>
       <div className="mt-16 border border-red-500 p-2 rounded hover:border-blue-500 hover:bg-blue-500 hover:text-white">

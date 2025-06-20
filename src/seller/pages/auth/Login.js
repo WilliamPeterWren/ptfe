@@ -99,7 +99,7 @@ function Login() {
     if (accessToken !== undefined) {
       // console.log(accessToken);
       setUser(Cookies.get("username"));
-      navigate("/seller/product/product-list");
+      navigate("/seller/finance/revenue");
     }
   }, [accessToken]);
 
@@ -207,7 +207,6 @@ function Login() {
           <div className="flex-1 h-px bg-gray-300"></div>
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
-     
       </div>
     </div>
   );

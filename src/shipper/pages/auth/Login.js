@@ -45,7 +45,7 @@ function Login() {
 
       if (res.status === 200) {
         const data = res.data.result;
-        // console.log(data);
+        console.log(data);
         const roles = data.roles;
         let isShipper = false;
 
@@ -186,7 +186,6 @@ function Login() {
           <div className="flex-1 h-px bg-gray-300"></div>
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
-     
       </div>
     </div>
   );

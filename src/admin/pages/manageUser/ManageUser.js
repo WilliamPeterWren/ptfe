@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import apiUser from "../../../api/apiUser";
 import { imageUrl } from "../../../api/config";
 import { getRole } from "../../../utils/getRole";
+import { Link } from "react-router-dom";
 
 function ManageUser() {
   const accessToken = Cookies.get("accessToken");
@@ -223,43 +224,45 @@ function ManageUser() {
                   {users.map((author, index) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-12 w-12">
-                            {author.avatar !== null ? (
-                              <img
-                                className="h-12 w-12 rounded-full object-cover"
-                                src={imageUrl + "avatar/" + author.avatar}
-                                alt={`${author.name}'s avatar`}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = `https://placehold.co/40x40/cccccc/ffffff?text=${author.username.charAt(
-                                    0
-                                  )}`;
-                                }}
-                              />
-                            ) : (
-                              <img
-                                className="h-12 w-12 rounded-full"
-                                src="https://placehold.co/40x40/cccccc/ffffff"
-                                alt={`${author.name}'s avatar`}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = `https://placehold.co/40x40/cccccc/ffffff?text=${author.username.charAt(
-                                    0
-                                  )}`;
-                                }}
-                              />
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {author.username}
+                        <Link to={`/admin/manageuser/${author.id}/profile`}>
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-12 w-12">
+                              {author.avatar !== null ? (
+                                <img
+                                  className="h-12 w-12 rounded-full object-cover"
+                                  src={imageUrl + "avatar/" + author.avatar}
+                                  alt={`${author.name}'s avatar`}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = `https://placehold.co/40x40/cccccc/ffffff?text=${author.username.charAt(
+                                      0
+                                    )}`;
+                                  }}
+                                />
+                              ) : (
+                                <img
+                                  className="h-12 w-12 rounded-full"
+                                  src="https://placehold.co/40x40/cccccc/ffffff"
+                                  alt={`${author.name}'s avatar`}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = `https://placehold.co/40x40/cccccc/ffffff?text=${author.username.charAt(
+                                      0
+                                    )}`;
+                                  }}
+                                />
+                              )}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {author.email}
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {author.username}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {author.email}
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {author.roles.map((item, index) => {

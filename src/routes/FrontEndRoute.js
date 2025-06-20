@@ -35,6 +35,8 @@ import Help from "../frontend/pages/Help/Help";
 import ProductID from "../frontend/pages/productId/ProductID";
 import TopSearch from "../frontend/pages/TopSearch/TopSearch";
 import Callback from "../frontend/pages/auth/CallBack";
+import PaypalSuccess from "../frontend/pages/payment/PaypalSuccess";
+import PaypalCancel from "../frontend/pages/payment/PaypalCancel";
 
 const FrontendRoute = [
   // ------------ home ------------
@@ -68,6 +70,8 @@ const FrontendRoute = [
 
   // ------------ checkout ------------
   { path: "/checkout", component: CheckOut },
+  { path: "/success", component: PaypalSuccess },
+  { path: "/cancelled", component: PaypalCancel },
 
   // ------------ seller ------------
   { path: "/seller/page/:sellerId", component: SellerPage },

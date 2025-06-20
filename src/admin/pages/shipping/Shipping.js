@@ -4,11 +4,14 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
 import apiShipping from "../../../api/apiShipping";
+import Pagination from "./Pagination";
 
 function Shipping() {
   const accessToken = Cookies.get("accessToken");
 
   const [shippings, setShippings] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,8 +32,8 @@ function Shipping() {
       setShippings(data);
       setLoading(!loading);
     } catch (err) {
-      console.error("Failed to fetch flash sales:", err);
-      setError("Failed to load flash sales. Please try again later.");
+      console.error("Failed to fetch shipping fee:", err);
+      setError("Failed to load shipping fee. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -41,7 +44,7 @@ function Shipping() {
   }, []);
 
   const handleAddShipping = async () => {
-    console.log("add flash sale");
+    console.log("add shipping fee");
     const dataCreateShipping = {
       name: shippingName,
       value: shippingValue,
@@ -92,6 +95,8 @@ function Shipping() {
   };
 
   const handleDeleteShipping = async (id) => {
+    setLoading(!loading);
+
     console.log("delete shipping");
     Swal.fire({
       title: "Xóa shipping này?",
@@ -141,7 +146,7 @@ function Shipping() {
           });
           setLoading(!loading);
           // setShippings((prev) => prev.filter((item) => item.id !== id));
-          // window.location.reload();
+          window.location.reload();
         } catch (error) {
           toast.warning(`Không thể xóa!`, {
             position: "top-right",
@@ -285,7 +290,7 @@ function Shipping() {
   if (loading) {
     return (
       <div className="w-4/5 mx-auto p-4 text-center">
-        <p className="text-lg text-gray-700">Loading flash sales...</p>
+        <p className="text-lg text-gray-700">Loading shipping fee...</p>
       </div>
     );
   }
@@ -480,6 +485,12 @@ function Shipping() {
           </div>
         ))}
       </div>
+
+      <Pagination
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

@@ -10,7 +10,7 @@ const Perhap = () => {
 
   const getProducts = async () => {
     await apiProduct
-      .getRandomProducts(48)
+      .getRandomProducts(20)
       .then((res) => {
         // console.log(res);
         setProducts(res.data);
@@ -33,7 +33,7 @@ const Perhap = () => {
         <h2 className="text-xl font-bold uppercase">CÓ THỂ BẠN CŨNG THÍCH</h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {products.map((product, index) => {
           const imgUrl = imageUrl + "product/" + product.productImages[0];
           return (
@@ -72,29 +72,39 @@ const Perhap = () => {
                 <div className="p-2 bg-white">
                   <div className="flex items-center mb-1">
                     <span className="text-xs bg-gray-200 text-gray-700 px-1 rounded">
-                      {product.variants[0].stock}
+                      {product.variants[0].stock.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-800 line-clamp-2 text-left">
+                  <p className="h-16 text-sm text-gray-800 line-clamp-2 text-left">
                     {product.productName}
                   </p>
-                  {product.variants[0].salePrice > 0 ? (
-                    <div>
+                  {product.discount > 0 && (
+                    <p className="text-sm text-left font-semibold text-orange-800 line-clamp-2 mt-2 leading-tight rounded ">
+                      Shop giảm
+                      <span className=" text-orange-600 ml-2">
+                        {product.discount.toLocaleString()}
+                      </span>
+                    </p>
+                  )}
+                  {product.variants[0]?.salePrice > 0 ? (
+                    <div className="h-16 text-left">
                       <p className="text-lg font-bold text-gray-400 line-through">
-                        {product.variants[0].price.toLocaleString("de-DE")} đ
+                        {product.variants[0].price.toLocaleString()}
                       </p>
                       <p className="text-lg font-bold text-red-600">
-                        {product.variants[0].salePrice.toLocaleString("de-DE")}{" "}
-                        đ
+                        {product.variants[0].salePrice.toLocaleString()}
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-lg font-bold text-red-600">
-                        {product.variants[0].price.toLocaleString("de-DE")}
+                      <p className="h-8"></p>
+                      <p className="h-8 text-lg font-bold text-red-600 text-left">
+                        {product.variants[0].price.toLocaleString()}
                       </p>
                     </div>
                   )}
+
+                  <p className="text-xs text-gray-600">{product.sales}</p>
                 </div>
               </button>
             </div>
@@ -104,9 +114,11 @@ const Perhap = () => {
 
       <div className="flex justify-center mt-6">
         <div className="flex justify-center bg-blue-300 rounded-lg h-[40px] flex items-center">
-          <button className="px-6 py-2 text-white font-semibold uppercase transition-colors duration-300 hover:bg-blue-400 rounded-lg w-[400px] hover:text-gray-100">
-            <Link to="/todaysuggest">Xem Thêm</Link>
-          </button>
+          <Link to="/todaysuggest">
+            <button className="px-6 py-2 text-white font-semibold uppercase transition-colors duration-300 hover:bg-blue-400 rounded-lg w-[400px] hover:text-gray-100">
+              Xem Thêm
+            </button>
+          </Link>
         </div>
       </div>
     </div>

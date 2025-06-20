@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 
 import UserContext from "../context/userContext";
@@ -8,6 +8,7 @@ import Login from "./pages/auth/Login";
 
 function IndexShipper() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useContext(UserContext);
   const accessToken = Cookies.get("accessToken");
 
@@ -17,13 +18,13 @@ function IndexShipper() {
     }
   }, []);
 
-  if (!user) {
+  if (!accessToken) {
     return <Login />;
   }
 
   return (
     <div className="flex just-center bg-gray-200">
-      <Sidebar />
+      {location.pathname !== "/shipper/login" && <Sidebar />}
       <div className="ml-4 min-w-[1500px] max-w-[1500px] bg-white">
         <Outlet />
       </div>

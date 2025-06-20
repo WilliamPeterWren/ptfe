@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 import apiOrder from "../../../api/apiOrder";
 import { formatDateTime } from "../../../utils/FormatDateTime";
@@ -119,6 +120,21 @@ export default function OrderDetail() {
         const data = res.data;
         console.log(data);
         setLoading(!loading);
+
+        toast.success(`Cập nhật thành công!`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          style: {
+            top: "-50%",
+            transform: "translateY(50%)",
+            marginRight: "2%",
+            width: "fit-content",
+          },
+        });
       })
       .catch((err) => console.log(err));
   };

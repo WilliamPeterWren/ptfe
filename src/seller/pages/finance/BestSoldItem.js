@@ -36,6 +36,9 @@ const BestSoldItem = ({ product }) => (
           Giá KM {product.variants[0]?.salePrice?.toLocaleString()}
         </p>
       )}
+      <p className="px-3 py-1 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+        Doanh thu {product.revenue.toLocaleString()}
+      </p>
     </div>
   </div>
 );

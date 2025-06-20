@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+
 import CountDown from "./CountDown";
 import Banner from "./Banner";
 import ProductGrid from "./ProductGrid";
@@ -41,6 +42,31 @@ function FlashSale() {
     getFlashsales();
   }, []);
 
+  const [flashsale, setFlashsale] = useState([]);
+  const [size, setSize] = useState(8);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const getProductByFlashsaleIdPage = async () => {
+    // console.log(currentFlashSale);
+    if (currentFlashSale !== undefined) {
+      await apiFlashSale
+        .getProductByFlashsaleIdPageable(currentFlashSale, currentPage, size)
+        .then((res) => {
+          const data = res.data.result;
+          console.log(data);
+          setCurrentPage(data.number);
+          setTotalPages(data.totalPages);
+          setFlashsale(data.content);
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  useEffect(() => {
+    getProductByFlashsaleIdPage();
+  }, [currentFlashSale, currentPage]);
+
   return (
     <div className="py-4 bg-gray-200">
       {countDownFlashsale !== null && (
@@ -52,7 +78,12 @@ function FlashSale() {
       />
 
       <div className="mx-auto">
-        <ProductGrid currentFlashSale={currentFlashSale} />
+        <ProductGrid
+          flashsale={flashsale}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
       </div>
     </div>
   );

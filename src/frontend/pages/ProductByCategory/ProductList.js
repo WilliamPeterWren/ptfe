@@ -10,7 +10,6 @@ import Sidebar from "./SideBar";
 
 function ProductList({ categories, setCategoryId, categoryId }) {
   const [products, setProducts] = useState([]);
-  const [pagable, setPagable] = useState();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -28,7 +27,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
         console.log(data);
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
-        setPagable(data.pageable);
         setProducts(data.content);
       })
       .catch((err) => console.log(err));
@@ -42,7 +40,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
         console.log(data);
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
-        setPagable(data.pageable);
         setProducts(data.content);
       })
       .catch((err) => console.log(err));
@@ -56,7 +53,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
         console.log(data);
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
-        setPagable(data.pageable);
         setProducts(data.content);
       })
       .catch((err) => console.log(err));
@@ -75,7 +71,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
-        setPagable(data.pageable);
         setProducts(sorted1);
       })
       .catch((err) => console.log(err));
@@ -94,7 +89,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
 
         setCurrentPage(data.number);
         setTotalPages(data.totalPages);
-        setPagable(data.pageable);
         setProducts(sorted1);
       })
       .catch((err) => console.log(err));
@@ -148,7 +142,6 @@ function ProductList({ categories, setCategoryId, categoryId }) {
           ))}
         </div>
         <Pagination
-          pagable={pagable}
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}

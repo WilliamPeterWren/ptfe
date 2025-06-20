@@ -71,7 +71,7 @@ function Login() {
           // Cookies.set("avatar", data.avatar, { expires: 1 });
           // console.log("navigate");
 
-          navigate("/admin/dashboard");
+          navigate("/admin/flashsale");
         } else {
           setError("Không được phép truy cập: Trang người giao hàng");
         }

@@ -1,10 +1,10 @@
 import React from "react";
 import { imageUrl } from "../../../api/config";
 import { Link } from "react-router-dom";
-
 const ProductCard = (props) => {
-  const { productName, variants, productImages, slug } = props;
-  console.log(props);
+  const { productName, variants, productImages, slug, discount, sold } = props;
+  // console.log(props);
+
   return (
     <Link
       to={`/product-detail/${slug}`}
@@ -41,30 +41,44 @@ const ProductCard = (props) => {
         loading="lazy"
       />
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800">{productName}</h3>
-        {variants[0]?.salePrice > 0 ? (
+        <h3 className="h-16 text-md font-normal text-gray-800">
+          {productName.length > 40
+            ? productName.slice(0, 40) + ".."
+            : productName}
+        </h3>
+        <p className="h-8 text-md font-normal text-orange-600">
+          {" "}
+          {discount > 0 && discount.toLocaleString() + "VND"}
+        </p>
+        <p className="h-8 text-md font-normal text-orange-600">
+          {" "}
+          Đã bán: {sold}
+        </p>
+
+        {variants?.[0]?.salePrice > 0 ? (
           <div>
             <p className="text-red-600 font-bold">
-              {variants[0]?.salePrice} VND
+              {variants?.[0]?.salePrice?.toLocaleString("de-DE")} VND
             </p>
             <p className="text-gray-500 line-through">
-              {variants[0].price} VND
+              {variants?.[0]?.price?.toLocaleString("de-DE")} VND
             </p>
+
+            <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">
+              {Math.round(
+                ((variants?.[0]?.price - variants?.[0]?.salePrice) /
+                  variants?.[0]?.price) *
+                  100,
+                2
+              )}
+              % OFF
+            </span>
           </div>
         ) : (
-          <div>
-            <p className="text-red-600 font-bold">{variants[0].price} VND</p>
-          </div>
+          <p className="text-red-600 font-bold">
+            {variants?.[0]?.price.toLocaleString()} VND
+          </p>
         )}
-
-        <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">
-          {Math.round(
-            ((variants[0].price - variants[0]?.salePrice) / variants[0].price) *
-              100,
-            2
-          )}
-          % OFF
-        </span>
       </div>
     </Link>
   );

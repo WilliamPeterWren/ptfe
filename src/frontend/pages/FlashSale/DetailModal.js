@@ -41,6 +41,18 @@ const DetailModal = ({ productSlug, productModal, setProductModal }) => {
       const data = res.data.result;
       console.log(data);
       setProduct(data);
+
+      if (data.blocked) {
+        Swal.fire({
+          title: "Sản phẩm tạm khóa!",
+          text: "Sản phẩm đang được admin khóa!",
+          icon: "warning",
+          timer: 1500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      }
+
       if (data.variants && data.variants.length > 0) {
         console.log(data.variants);
         setPrice(data.variants[0].price);
@@ -306,7 +318,10 @@ const DetailModal = ({ productSlug, productModal, setProductModal }) => {
               <div className="flex items-center p-1 w-fit my-2">
                 <button
                   onClick={decrement}
-                  className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+                  className={`px-4 py-1 border border-gray-300 ${
+                    product.blocked ? "" : "hover:bg-blue-400"
+                  } `}
+                  disabled={product.blocked}
                 >
                   -
                 </button>
@@ -315,19 +330,43 @@ const DetailModal = ({ productSlug, productModal, setProductModal }) => {
                   value={value}
                   onChange={handleChange}
                   min={1}
+                  max={product.variants[selectVariant].stock}
                   className="w-24 text-center px-2 py-1 border-y border-gray-300 focus:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  onInput={(e) => {
+                    let val = parseInt(e.target.value, 10);
+                    const min = parseInt(e.target.min, 10);
+                    const max = parseInt(e.target.max, 10);
+
+                    if (isNaN(val)) {
+                      e.target.value = "";
+                    } else if (val > max) {
+                      e.target.value = max;
+                    } else if (val < min) {
+                      e.target.value = min;
+                    }
+                  }}
+                  disabled={product.blocked}
                 />
+
                 <button
                   onClick={increment}
-                  className="px-4 py-1 border border-gray-300 hover:bg-blue-400"
+                  className={`px-4 py-1 border border-gray-300 ${
+                    product.blocked ? "" : "hover:bg-blue-400"
+                  }`}
+                  disabled={product.blocked}
                 >
                   +
                 </button>
               </div>
               <div className="flex space-x-4">
                 <button
-                  className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors duration-300"
+                  className={`${
+                    product.blocked
+                      ? "bg-gray-200"
+                      : "bg-red-500 hover:bg-red-600"
+                  }  text-white px-6 py-2 rounded  transition-colors duration-300`}
                   onClick={handleAddToCart}
+                  disabled={product.blocked}
                 >
                   Thêm Vào Giỏ Hàng
                 </button>

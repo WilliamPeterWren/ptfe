@@ -26,7 +26,7 @@ function IndexSeller() {
       {location.pathname !== "/seller/register" &&
         location.pathname !== "/seller/login" && <Sidebar />}
 
-      <div className="w-4/5 ml-4 bg-white">
+      <div className="w-full ml-4 bg-white">
         <Outlet />
       </div>
     </div>

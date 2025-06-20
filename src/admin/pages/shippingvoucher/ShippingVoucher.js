@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
+import Pagination from "./Pagination";
+
 import apiShippingVoucher from "../../../api/apiShippingVoucher";
 
 import formatForDatetimeLocal from "../../../utils/formatForDatetimeLocal";
@@ -11,6 +13,8 @@ function ShippingVoucher() {
   const accessToken = Cookies.get("accessToken");
 
   const [shippings, setShippingVouchers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [loading, setLoading] = useState(true);
   // const [error, setError] = useState(null);
@@ -57,6 +61,7 @@ function ShippingVoucher() {
       name: shippingName,
       price: shippingValue,
       expiredAt,
+      count: shippingCount,
     };
 
     console.log(dataCreateShippingVoucher);
@@ -211,7 +216,7 @@ function ShippingVoucher() {
 
     setShippingVoucherName(ship.name);
     setShippingVoucherValue(ship.price);
-    setShippingVoucherCount(1);
+    setShippingVoucherCount(ship.count);
     setExpiredAt(ship.expiredAt);
 
     setUpdateId(ship.id);
@@ -564,6 +569,12 @@ function ShippingVoucher() {
           </div>
         ))}
       </div>
+
+      <Pagination
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

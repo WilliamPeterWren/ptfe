@@ -48,7 +48,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-1/5 min-w-1/5 border-r p-4 bg-white">
+    <div className="w-1/6 min-w-1/6 border-r p-4 bg-white">
       <h1 className="text-xl font-bold mb-8">Nhà bán hàng {username}</h1>
       <hr className="flex-1 border-t border-red-300 mb-4" />
       <nav className="flex flex-col space-y-2">
